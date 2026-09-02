@@ -1,0 +1,10 @@
+﻿,,,,,,,,,
+,P3 — Catálogo de SLIs/SLOs e Error Budgets,,,,,,,,
+,Exemplo orientado a serviços.,,,,,,,,
+,,,,,,,,,
+,Serviço,SLI,SLO,Janela,Error budget,Fonte,Owner,Alerta burn-rate,Observação
+,ERP,Disponibilidade transacional,"99,90%",30 dias,"43,2 min",Synthetic+APM,Service Owner ERP,2%/1h + 5%/6h,Tier 1
+,Portal,Disponibilidade HTTP,"99,90%",30 dias,"43,2 min",Synthetic,Digital,2%/1h + 5%/6h,Tier 1
+,VPN,Sessões autenticadas,"99,50%",30 dias,216 min,SNMP+AAA,Network,5%/2h,Tier 2
+,WMS,Transações <2s,"99,00%",30 dias,432 min,App metric,Logística,10%/6h,Tier 2
+,Banco,Query health,"99,95%",30 dias,"21,6 min",DB exporter,Dados,1%/1h + 3%/6h,Tier 1

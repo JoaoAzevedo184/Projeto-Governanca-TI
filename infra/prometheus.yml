@@ -1,0 +1,8 @@
+global: {scrape_interval: 15s}
+scrape_configs:
+  - job_name: observabilidade-python
+    metrics_path: /metrics
+    static_configs: [{targets: ["python-api:8080"]}]
+  - job_name: observabilidade-java
+    metrics_path: /actuator/prometheus
+    static_configs: [{targets: ["java-api:8080"]}]

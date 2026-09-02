@@ -1,0 +1,13 @@
+# Checklist
+- [ ] importação dos eventos
+- [ ] MTTD e MTTR
+- [ ] ruído e duplicidade
+- [ ] acionabilidade
+- [ ] service map
+- [ ] SLI/SLO/error budget
+- [ ] owner e runbook
+- [ ] custos e retenção
+- [ ] comparação de stacks
+- [ ] riscos
+- [ ] tuning rastreável
+- [ ] demonstração

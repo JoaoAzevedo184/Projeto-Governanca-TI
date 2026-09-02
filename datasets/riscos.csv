@@ -1,0 +1,11 @@
+﻿,,,,,,,,
+,P3 — Registro de Riscos de Observabilidade,,,,,,,
+,"Técnicos, econômicos e operacionais.",,,,,,,
+,,,,,,,,
+,Risco,Prob.,Impacto,Score,Mitigação,Dono,Status,Trigger
+,Explosão de cardinalidade/log volume,4,4,16,"Budgets, sampling, retenção e quotas",Obs Lead,Aberto,Custo +25%
+,Alert fatigue persiste,4,4,16,Alert review board + pruning mensal,NOC Lead,Mitigando,Actionability <25%
+,SaaS excede orçamento,3,4,12,"Tagging, unit economics e FinOps",FinOps,Aberto,Forecast >R$420k
+,Collector cria ponto cego,3,5,15,"HA, store-forward, probes",Platform,Aberto,Gap >10 min
+,Secrets expostos,2,5,10,"Vault, RBAC, rotação",Security,Aberto,Secret em config
+,Baixa adoção,3,3,9,Co-design + champions,Change Lead,Mitigando,Uso dashboards <50%
