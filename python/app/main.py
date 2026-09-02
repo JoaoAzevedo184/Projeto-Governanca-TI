@@ -13,9 +13,18 @@ async def met(req,call_next):
 def health():return {"status":"UP","environment":os.getenv("APP_ENV","local")}
 @app.get("/metrics",include_in_schema=False)
 def metrics():return Response(generate_latest(),media_type=CONTENT_TYPE_LATEST)
+def rows_from_csv(raw:bytes):
+ # As fixtures trazem BOM, um preambulo decorativo (titulo/descricao) antes do
+ # cabecalho e uma coluna vazia a esquerda. O cabecalho e a primeira linha com
+ # pelo menos 3 celulas preenchidas; colunas sem nome sao descartadas.
+ rs=list(csv.reader(io.StringIO(raw.decode("utf-8-sig"))))
+ h=next((i for i,r in enumerate(rs) if sum(1 for c in r if c.strip())>=3),None)
+ if h is None:return []
+ cols=[(i,c.strip()) for i,c in enumerate(rs[h]) if c.strip()]
+ return [{k:(r[i].strip() if i<len(r) else "") for i,k in cols} for r in rs[h+1:] if any(c.strip() for c in r)]
 @app.post("/api/v1/imports/events",status_code=202)
 async def upload(file:UploadFile=File(...)):
- global events;events=list(csv.DictReader(io.StringIO((await file.read()).decode("utf-8-sig"))));return {"totalRows":len(events),"status":"COMPLETED"}
+ global events;events=rows_from_csv(await file.read());return {"totalRows":len(events),"status":"COMPLETED"}
 def yes(v):return str(v).strip().lower() in {"1","true","sim","yes"}
 def num(x,k):
  try:return float(x.get(k) or 0)

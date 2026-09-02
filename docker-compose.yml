@@ -3,9 +3,6 @@ services:
   python-api:
     build: ./python
     ports: ["8101:8080"]
-  java-api:
-    build: ./java
-    ports: ["8102:8080"]
   prometheus:
     image: prom/prometheus:v3.5.0
     ports: ["9092:9090"]

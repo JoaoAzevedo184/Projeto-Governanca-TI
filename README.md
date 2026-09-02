@@ -5,6 +5,8 @@ eventos, mede MTTD/MTTR, identifica ruído e duplicidade, avalia acionabilidade,
 SLI/SLO e error budget, associa owner e runbook, calcula custo de telemetria e produz
 recomendação de tuning rastreável.
 
+Stack: **Python (FastAPI)**, com Prometheus e Grafana para observabilidade da própria API.
+
 ## Estrutura
 
 ```
@@ -13,15 +15,14 @@ recomendação de tuning rastreável.
 ├── docs/                # Arquitetura, modelo de dados, backlog/gates, critérios de aceite
 ├── material_aluno/      # Guia do aluno, checklist e rubrica de avaliação
 ├── datasets/            # Dados de demonstração (alertas, custos, riscos, SLOs)
-├── python/              # API FastAPI (porta interna 8080)
-├── java/                # API Spring Boot (porta interna 8080)
+├── python/              # API FastAPI — código, testes e Dockerfile
 ├── infra/               # Configuração de Prometheus e provisionamento do Grafana
 ├── scripts/             # Automação da stack (wait, load, smoke, reset)
-├── docker-compose.yml   # Orquestração das quatro peças
+├── docker-compose.yml   # Orquestração de API, Prometheus e Grafana
 └── .env.example         # Variáveis de ambiente (copiar para .env)
 ```
 
-## Execução integrada
+## Execução com Docker
 
 ```bash
 cp .env.example .env
@@ -33,19 +34,45 @@ docker compose up --build -d
 
 Para derrubar a stack e remover os volumes: `./scripts/reset.sh`.
 
+## Execução local
+
+```bash
+cd python
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
+uvicorn app.main:app --reload --port 8080
+pytest -q
+```
+
 ## Endereços
 
-| Serviço    | URL                                    |
-|------------|----------------------------------------|
-| Python     | http://localhost:8101/docs             |
-| Java       | http://localhost:8102/swagger-ui.html  |
-| Prometheus | http://localhost:9092                  |
-| Grafana    | http://localhost:3002                  |
+| Serviço    | URL                            |
+|------------|--------------------------------|
+| API        | http://localhost:8101/docs     |
+| Prometheus | http://localhost:9092          |
+| Grafana    | http://localhost:3002          |
 
-## Execução local (sem Docker)
+## Endpoints
 
-- **Python** — `cd python && pip install -r requirements.txt && uvicorn app.main:app --reload --port 8080`; testes com `pytest -q`. Detalhes em [`python/README.md`](python/README.md).
-- **Java** — `cd java && mvn spring-boot:run` (Java 21 e Maven 3.9+); testes com `mvn test`. Detalhes em [`java/README.md`](java/README.md).
+| Método | Rota                                 | Descrição                                  |
+|--------|--------------------------------------|--------------------------------------------|
+| GET    | `/health`                            | Health check                               |
+| GET    | `/metrics`                           | Métricas no formato Prometheus             |
+| POST   | `/api/v1/imports/events`             | Importa eventos a partir de CSV            |
+| GET    | `/api/v1/kpis`                       | KPIs, com filtros `service` e `severity`   |
+| POST   | `/api/v1/slos`                       | Cadastra SLO e calcula error budget        |
+| GET    | `/api/v1/slos`                       | Lista os SLOs cadastrados                  |
+| POST   | `/api/v1/costs/compare`              | Compara custo de cenários de telemetria    |
+| POST   | `/api/v1/tuning/recommendations`     | Registra recomendação de tuning            |
+
+O estado é mantido em memória: reiniciar a API zera eventos e SLOs.
+
+## Datasets
+
+Os CSVs em `datasets/` trazem BOM, um preâmbulo de título/descrição antes do cabeçalho e
+uma coluna vazia à esquerda. O parser (`rows_from_csv`, em `python/app/main.py`) trata esse
+formato. O `dashboard_referencia.csv` contém o baseline esperado dos KPIs e serve de
+oráculo para os testes.
 
 ## Documentação
 
