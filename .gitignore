@@ -1,5 +1,6 @@
 # Ambiente
 .env
+graphify-out/
 
 # Python
 __pycache__/
