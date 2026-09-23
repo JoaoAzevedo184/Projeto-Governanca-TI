@@ -1,12 +1,21 @@
-# Critérios de aceite
+## Critérios de aceite
 
-1. Importação válida e relatório de erros.
-2. KPIs reproduzíveis com fixtures.
-3. Cobertura mensurada por escopo declarado.
-4. SLO com meta, janela e error budget.
-5. Alertas críticos com owner e runbook.
-6. Duplicidade e ruído identificados sem apagar evidência original.
-7. Custo de telemetria inclui volume, retenção, plataforma e pessoas.
-8. Comparação open source, SaaS e híbrida.
-9. Collector down detectado pela própria observabilidade.
-10. Recomendação de tuning vinculada a evidências.
+1. Cadastro válido de ativos com bloqueio de duplicidade por número de série ou chave de licença.
+
+2. Histórico de responsáveis preservado em todas as transferências (append-only).
+
+3. Depreciação linear e valor residual calculados automaticamente conforme as regras do sistema.
+
+4. Licenças excedentes e próximas do vencimento geram alertas de conformidade.
+
+5. Baixa de ativos exige motivo, data e destinação, mantendo rastreabilidade completa.
+
+6. Importação de CSV/XLSX processa registros válidos e gera relatório das linhas rejeitadas.
+
+7. Indicadores de ITAM são reproduzíveis a partir dos dados do inventário.
+
+8. Comparação de cenários apresenta o TCO de cinco anos entre alternativas.
+
+9. Scorecard de fornecedores aplica pesos configuráveis e mantém rastreabilidade dos critérios.
+
+10. Recomendações são sempre vinculadas a evidências e riscos, sem tomada automática de decisão.
