@@ -1,0 +1,12 @@
+nome,tipo_aplicavel,vida_util_meses,descricao
+Notebook,HARDWARE,60,Computadores portáteis corporativos
+Desktop,HARDWARE,60,Estações de trabalho fixas
+Servidor,HARDWARE,60,Servidores físicos de datacenter
+Monitor,HARDWARE,60,Monitores e displays
+Switch,HARDWARE,60,Switches de rede
+Roteador,HARDWARE,60,Roteadores e firewalls
+Impressora,HARDWARE,48,Impressoras e multifuncionais
+Smartphone,HARDWARE,36,Celulares corporativos
+Tablet,HARDWARE,36,Tablets corporativos
+Nobreak,HARDWARE,60,Nobreaks e estabilizadores
+Software perpetuo,SOFTWARE,60,Licencas de software perpetuas

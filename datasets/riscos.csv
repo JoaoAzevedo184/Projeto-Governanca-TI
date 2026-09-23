@@ -1,11 +1,16 @@
-﻿,,,,,,,,
-,P3 — Registro de Riscos de Observabilidade,,,,,,,
-,"Técnicos, econômicos e operacionais.",,,,,,,
-,,,,,,,,
-,Risco,Prob.,Impacto,Score,Mitigação,Dono,Status,Trigger
-,Explosão de cardinalidade/log volume,4,4,16,"Budgets, sampling, retenção e quotas",Obs Lead,Aberto,Custo +25%
-,Alert fatigue persiste,4,4,16,Alert review board + pruning mensal,NOC Lead,Mitigando,Actionability <25%
-,SaaS excede orçamento,3,4,12,"Tagging, unit economics e FinOps",FinOps,Aberto,Forecast >R$420k
-,Collector cria ponto cego,3,5,15,"HA, store-forward, probes",Platform,Aberto,Gap >10 min
-,Secrets expostos,2,5,10,"Vault, RBAC, rotação",Security,Aberto,Secret em config
-,Baixa adoção,3,3,9,Co-design + champions,Change Lead,Mitigando,Uso dashboards <50%
+titulo,categoria,probabilidade,impacto,resposta,descricao,gatilho
+Licencas em uso acima do quantitativo contratado,LEGAL,4,5,MITIGAR,Auditoria de fabricante pode resultar em autuacao retroativa,Alerta CP-02 disparado no painel de compliance
+Inventario desatualizado por falta de registro de transferencias,OPERACIONAL,4,4,MITIGAR,Equipamentos sem responsavel identificavel em caso de extravio,Cobertura de responsaveis abaixo de 95%
+Divergencia entre valor residual do sistema e o registro contabil,FINANCEIRO,3,4,MITIGAR,Balanco com ativo imobilizado incorreto,Divergencia superior a 1% na conciliacao mensal
+Parque com mais de 30% dos ativos totalmente depreciados,FINANCEIRO,4,3,MITIGAR,Necessidade de investimento nao planejado em substituicao,Indicador de percentual depreciado acima de 30%
+Ausencia de registro de destinacao no descarte de equipamentos,LEGAL,3,4,MITIGAR,Nao conformidade com a Politica Nacional de Residuos Solidos,Alerta CP-07 com baixas sem destinacao
+Licenca critica com renovacao nao negociada ate o vencimento,OPERACIONAL,3,5,MITIGAR,Interrupcao do uso de software essencial a operacao,Alerta CP-03 sem tratativa registrada em 15 dias
+Chaves de licenca acessiveis a perfis sem necessidade,SEGURANCA,2,4,MITIGAR,Vazamento de ativo de licenciamento,Acesso de perfil nao ADMIN a campo de chave completa
+Colaborador desligado sem devolucao de equipamento registrada,OPERACIONAL,4,3,MITIGAR,Perda patrimonial sem responsavel identificado,Vinculo aberto com responsavel inativo
+Equipamento em manutencao por periodo superior a 90 dias,OPERACIONAL,3,2,ACEITAR,Indisponibilidade prolongada e custo de equipamento reserva,Alerta CP-06
+Dependencia de fornecedor unico para categoria critica,OPERACIONAL,2,4,MITIGAR,Exposicao a reajuste e a prazo de entrega,Mais de 60% dos ativos de uma categoria em um unico fornecedor
+Ausencia de backup do inventario em caso de falha do banco,CONTINUIDADE,2,5,MITIGAR,Perda do historico de responsabilidade e de auditoria,Rotina de backup sem execucao ha mais de 7 dias
+Importacao em lote com dados incorretos aceita sem revisao,OPERACIONAL,3,3,MITIGAR,Inventario contaminado por registros invalidos,Lote com taxa de rejeicao acima de 15%
+Subutilizacao de licencas contratadas,FINANCEIRO,4,2,MITIGAR,Custo recorrente sem contrapartida de uso,Uso abaixo de 50% do contratado por mais de 6 meses
+Acesso ao sistema sem revisao periodica de perfis,SEGURANCA,3,3,MITIGAR,Privilegio excessivo mantido apos mudanca de funcao,Revisao de acessos com mais de 180 dias
+Equipamento fora da politica de uso institucional,LEGAL,2,3,MITIGAR,Uso de ativo corporativo para finalidade nao autorizada,Alerta CP-09 ou apontamento em auditoria

@@ -1,0 +1,4 @@
+cenario,descricao,capex,opex_anual,premissas,score_risco
+MANTER,Prorrogar o uso do parque atual por mais 24 meses,0.00,198400.00,Manutencao corretiva crescente e sem garantia,16
+RENOVAR,Substituir 120 equipamentos fora da vida util por equivalentes novos,684000.00,92000.00,"CAPEX concentrado, garantia de 36 meses",9
+MIGRAR_ASSINATURA,Substituir aquisicao por locacao corporativa com suporte incluso,48000.00,247000.00,"Sem CAPEX, custo recorrente maior no horizonte",12

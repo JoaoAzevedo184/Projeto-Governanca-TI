@@ -1,0 +1,301 @@
+nome,tipo,categoria,fornecedor,numero_serie,chave_licenca,data_aquisicao,valor_compra,status,localizacao
+Positivo Master D2300,HARDWARE,Desktop,Lenovo Tecnologia Brasil Ltda,DEJ9FDHKL5,,2024-08-20,3303.40,ATIVO,Anexo II - Sala 05
+Cisco ISR 1111,HARDWARE,Roteador,HP Brasil Industria e Comercio,ROSAHTXHU5,,2024-03-20,6870.08,ATIVO,Deposito de TI
+Samsung Galaxy Tab S9,HARDWARE,Tablet,Dell Computadores do Brasil Ltda,TASMGVNKZL,,2023-06-20,3926.97,ATIVO,Bloco A - Sala 101
+Dell Vostro 3520,HARDWARE,Notebook,Lenovo Tecnologia Brasil Ltda,NOZVRDRFF9,,2023-10-20,4361.58,BAIXADO,Bloco A - Recepcao
+Samsung Galaxy S23,HARDWARE,Smartphone,Intelbras S.A.,SM8LS5PNV3,,2024-04-20,4712.40,ATIVO,Anexo II - Sala 05
+Dell Vostro 3520,HARDWARE,Notebook,Lenovo Tecnologia Brasil Ltda,NORQEXBQQA,,2022-11-20,4229.01,ATIVO,Bloco B - Sala 302
+HP ProBook 450 G10,HARDWARE,Notebook,APC by Schneider Electric Brasil,NOCXERT9PJ,,2025-05-20,6196.19,ATIVO,Anexo I - Sala 12
+HP EliteDesk 800 G9,HARDWARE,Desktop,Lenovo Tecnologia Brasil Ltda,DEGG5Y547D,,2026-05-20,5078.47,ATIVO,Bloco B - Almoxarifado
+APC Smart-UPS 1500VA,HARDWARE,Nobreak,Cisco do Brasil Ltda,NOGRNN6J5M,,2024-03-20,3665.82,ATIVO,Bloco A - Sala 204
+Cisco Catalyst 1000-24T,HARDWARE,Switch,APC by Schneider Electric Brasil,SWGDAFRL49,,2025-07-20,4567.57,BAIXADO,Bloco A - Sala 101
+Dell OptiPlex 7010,HARDWARE,Desktop,HP Brasil Industria e Comercio,DE2A2S7U59,,2025-08-20,4565.81,ATIVO,Bloco A - Sala 101
+HP LaserJet Pro M404dn,HARDWARE,Impressora,HP Brasil Industria e Comercio,IMDWDD8LDF,,2026-04-20,2454.74,BAIXADO,Home office
+Positivo Master D2300,HARDWARE,Desktop,Positivo Tecnologia S.A.,DE3HRCF4WS,,2023-02-20,3576.41,ATIVO,Bloco B - Sala 302
+Dell PowerEdge R650,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SE3JV7WEA7,,2026-04-20,48433.55,ATIVO,Datacenter - Rack 01
+Dell PowerEdge R650,HARDWARE,Servidor,Cisco do Brasil Ltda,SEJYERZUL6,,2023-05-20,53573.99,ATIVO,Home office
+Cisco ISR 1111,HARDWARE,Roteador,Cisco do Brasil Ltda,ROAVGJSHGK,,2025-02-20,7996.24,ATIVO,Deposito de TI
+Dell PowerEdge T350,HARDWARE,Servidor,Dell Computadores do Brasil Ltda,SEPS9SDF5T,,2026-08-20,20161.12,ATIVO,Bloco A - Recepcao
+Samsung Galaxy A54,HARDWARE,Smartphone,Dell Computadores do Brasil Ltda,SMSL65AHEK,,2024-09-20,1937.62,ATIVO,Bloco A - Recepcao
+LG 24MK430H,HARDWARE,Monitor,Lenovo Tecnologia Brasil Ltda,MOJCVZCYPR,,2024-10-20,832.44,ATIVO,Anexo I - Sala 12
+Samsung SL-M4020ND,HARDWARE,Impressora,Samsung Eletronica da Amazonia,IMKRLM4BMX,,2023-02-20,2283.49,ATIVO,Bloco B - Sala 302
+Dell PowerEdge R650,HARDWARE,Servidor,Intelbras S.A.,SELG2C8QN7,,2025-01-20,51692.58,EM_MANUTENCAO,Bloco B - Sala 302
+Positivo Master D2300,HARDWARE,Desktop,Samsung Eletronica da Amazonia,DEBN3XTETY,,2023-01-20,3792.62,ATIVO,Datacenter - Rack 01
+Dell PowerEdge T350,HARDWARE,Servidor,Intelbras S.A.,SEBHSMSCG5,,2022-10-20,22443.60,ATIVO,Anexo I - Sala 12
+Samsung SL-M4020ND,HARDWARE,Impressora,Intelbras S.A.,IMH2NSC5AN,,2024-05-20,1883.27,ATIVO,Home office
+Dell PowerEdge T350,HARDWARE,Servidor,HP Brasil Industria e Comercio,SEWHVV4W3U,,2025-08-20,20599.05,EM_MANUTENCAO,Anexo I - Sala 12
+Samsung Galaxy S23,HARDWARE,Smartphone,Intelbras S.A.,SMMV3AVUP5,,2024-03-20,4239.92,BAIXADO,Home office
+HP EliteDesk 800 G9,HARDWARE,Desktop,Positivo Tecnologia S.A.,DE8LFUXFRV,,2025-08-20,4759.90,ATIVO,Bloco A - Sala 101
+Positivo Master D2300,HARDWARE,Desktop,Positivo Tecnologia S.A.,DE8E74N293,,2025-11-20,3527.34,ATIVO,Bloco A - Sala 101
+Samsung Galaxy Tab A8,HARDWARE,Tablet,APC by Schneider Electric Brasil,TAG5QM7DRH,,2025-12-20,1394.04,ATIVO,Home office
+Cisco ISR 1111,HARDWARE,Roteador,Positivo Tecnologia S.A.,ROW656L86S,,2023-04-20,7383.13,ATIVO,Datacenter - Rack 01
+Intelbras SG 2404 MR,HARDWARE,Switch,Intelbras S.A.,SWRT6EURTX,,2023-10-20,1259.07,ATIVO,Bloco A - Recepcao
+Positivo Master D2300,HARDWARE,Desktop,Samsung Eletronica da Amazonia,DE2KPE44X7,,2026-05-20,3160.78,ATIVO,Anexo I - Sala 12
+Samsung LF24T350 24,HARDWARE,Monitor,Positivo Tecnologia S.A.,MOB28AYV24,,2024-01-20,792.76,ATIVO,Anexo I - Sala 12
+Intelbras SG 2404 MR,HARDWARE,Switch,Samsung Eletronica da Amazonia,SWB2X3L7JB,,2023-07-20,1421.64,ATIVO,Bloco A - Sala 101
+HP ProBook 450 G10,HARDWARE,Notebook,Positivo Tecnologia S.A.,NO5J7MDS2W,,2024-03-20,5558.97,ATIVO,Anexo I - Sala 12
+Dell PowerEdge R650,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SE4SF8BDYQ,,2023-03-20,42703.77,BAIXADO,Bloco A - Sala 101
+Positivo Master D2300,HARDWARE,Desktop,APC by Schneider Electric Brasil,DENBKRJ8HP,,2022-12-20,3201.09,ATIVO,Bloco B - Almoxarifado
+Dell OptiPlex 7010,HARDWARE,Desktop,Positivo Tecnologia S.A.,DEHLVGBV23,,2026-04-20,4906.10,ATIVO,Home office
+Positivo Master D2300,HARDWARE,Desktop,Intelbras S.A.,DEGVHCY5ZE,,2026-08-20,3685.25,ATIVO,Anexo II - Sala 05
+Dell Vostro 3520,HARDWARE,Notebook,APC by Schneider Electric Brasil,NO5Z7K5MT8,,2024-05-20,4420.52,ATIVO,Datacenter - Rack 02
+Dell PowerEdge R650,HARDWARE,Servidor,Intelbras S.A.,SEWRFT6R72,,2026-07-20,47934.41,BAIXADO,Bloco B - Almoxarifado
+Dell OptiPlex 7010,HARDWARE,Desktop,Positivo Tecnologia S.A.,DE9PYSXTTA,,2026-03-20,4502.04,ATIVO,Anexo I - Sala 12
+Intelbras SG 2404 MR,HARDWARE,Switch,Samsung Eletronica da Amazonia,SWR896BFUQ,,2022-12-20,1313.75,ATIVO,Home office
+HP LaserJet Pro M404dn,HARDWARE,Impressora,Cisco do Brasil Ltda,IMZ8Y5XY7T,,2025-04-20,2244.79,ATIVO,Deposito de TI
+HP EliteDesk 800 G9,HARDWARE,Desktop,Lenovo Tecnologia Brasil Ltda,DEWHMNP8TU,,2025-08-20,4945.72,ATIVO,Bloco B - Almoxarifado
+Dell OptiPlex 7010,HARDWARE,Desktop,APC by Schneider Electric Brasil,DEVAJTCDUJ,,2026-02-20,5229.37,ATIVO,Datacenter - Rack 02
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SE886XMDS8,,2026-04-20,50760.83,ATIVO,Bloco A - Sala 204
+HP LaserJet Pro M404dn,HARDWARE,Impressora,Positivo Tecnologia S.A.,IMDKKVFRH4,,2023-11-20,2331.10,ATIVO,Anexo II - Sala 05
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,HP Brasil Industria e Comercio,SE5VDGPPSF,,2025-05-20,47929.19,ATIVO,Bloco A - Sala 204
+Dell OptiPlex 7010,HARDWARE,Desktop,Cisco do Brasil Ltda,DEA468UCQU,,2022-12-20,5214.27,ATIVO,Bloco A - Sala 204
+Samsung Galaxy S23,HARDWARE,Smartphone,HP Brasil Industria e Comercio,SMQSN5HQKT,,2026-04-20,3845.55,ATIVO,Bloco B - Sala 310
+Samsung SL-M4020ND,HARDWARE,Impressora,APC by Schneider Electric Brasil,IMU6H7V3T9,,2026-03-20,2149.41,ATIVO,Anexo I - Sala 12
+Samsung Galaxy Tab S9,HARDWARE,Tablet,HP Brasil Industria e Comercio,TAWSBFQBTC,,2024-02-20,4118.66,BAIXADO,Anexo II - Sala 05
+Dell PowerEdge R650,HARDWARE,Servidor,Intelbras S.A.,SEM59F8Y4X,,2023-02-20,43444.99,ATIVO,Bloco A - Recepcao
+Dell PowerEdge T350,HARDWARE,Servidor,Cisco do Brasil Ltda,SE49U3C7FW,,2024-12-20,19064.24,ATIVO,Anexo I - Sala 12
+Cisco ISR 1111,HARDWARE,Roteador,Dell Computadores do Brasil Ltda,ROA74DNZ96,,2025-07-20,7363.93,EM_MANUTENCAO,Bloco A - Recepcao
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,Samsung Eletronica da Amazonia,SE69HBRLVA,,2026-03-20,48564.26,BAIXADO,Bloco A - Sala 204
+Cisco Catalyst 1000-24T,HARDWARE,Switch,Positivo Tecnologia S.A.,SWHK9UT488,,2024-03-20,4251.68,ATIVO,Anexo I - Sala 12
+HP EliteDesk 800 G9,HARDWARE,Desktop,Cisco do Brasil Ltda,DEJET4XTAU,,2023-07-20,5299.74,ATIVO,Home office
+Intelbras SG 2404 MR,HARDWARE,Switch,Positivo Tecnologia S.A.,SWK68YX27W,,2022-12-20,1312.24,ATIVO,Anexo I - Sala 12
+Positivo Master D2300,HARDWARE,Desktop,Dell Computadores do Brasil Ltda,DE4CW822K9,,2025-12-20,3401.87,ATIVO,Datacenter - Rack 02
+Dell PowerEdge T350,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SEG6G7AK4K,,2024-02-20,22418.89,ATIVO,Bloco B - Sala 310
+Dell PowerEdge T350,HARDWARE,Servidor,Positivo Tecnologia S.A.,SE3FX2W9CE,,2023-04-20,21929.37,ATIVO,Bloco B - Sala 310
+Positivo Master D2300,HARDWARE,Desktop,Dell Computadores do Brasil Ltda,DEF5GG6LVB,,2024-12-20,3641.65,ATIVO,Bloco B - Sala 310
+Dell P2422H 24,HARDWARE,Monitor,Lenovo Tecnologia Brasil Ltda,MOZ5KR4MLM,,2023-05-20,1197.90,ATIVO,Datacenter - Rack 02
+Samsung Galaxy S23,HARDWARE,Smartphone,Dell Computadores do Brasil Ltda,SMR9KQ7S7S,,2024-03-20,4714.05,ATIVO,Home office
+Intelbras RF 1200,HARDWARE,Roteador,Cisco do Brasil Ltda,ROLE6YV5S7,,2025-08-20,694.31,ATIVO,Anexo II - Sala 05
+Dell Vostro 3520,HARDWARE,Notebook,Dell Computadores do Brasil Ltda,NOR2YUUB3T,,2023-08-20,4459.23,ATIVO,Deposito de TI
+Lenovo ThinkPad E14,HARDWARE,Notebook,Lenovo Tecnologia Brasil Ltda,NO9UQYQNSJ,,2023-04-20,5589.66,ATIVO,Bloco B - Sala 310
+APC Smart-UPS 1500VA,HARDWARE,Nobreak,HP Brasil Industria e Comercio,NO6CZJFUW4,,2025-08-20,3555.70,BAIXADO,Datacenter - Rack 01
+Dell P2422H 24,HARDWARE,Monitor,Lenovo Tecnologia Brasil Ltda,MOTLS8UXH7,,2025-11-20,1167.10,ATIVO,Bloco B - Sala 302
+Samsung Galaxy S23,HARDWARE,Smartphone,Intelbras S.A.,SM3ZF3ASH7,,2023-01-20,4556.98,EM_MANUTENCAO,Bloco B - Sala 310
+HP LaserJet Pro M404dn,HARDWARE,Impressora,Lenovo Tecnologia Brasil Ltda,IM2ZGQ8BWQ,,2023-04-20,2586.54,ATIVO,Deposito de TI
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SE4HJCCV9H,,2025-05-20,56833.00,ATIVO,Bloco A - Recepcao
+Samsung LF24T350 24,HARDWARE,Monitor,Cisco do Brasil Ltda,MO7Z4K4G94,,2026-06-20,888.82,ATIVO,Bloco B - Sala 302
+Cisco Catalyst 1000-24T,HARDWARE,Switch,Cisco do Brasil Ltda,SW6RZGZYD3,,2025-08-20,4671.95,ATIVO,Anexo II - Sala 05
+HP ProBook 450 G10,HARDWARE,Notebook,Positivo Tecnologia S.A.,NOPBDXRJPE,,2023-07-20,5404.60,ATIVO,Bloco B - Sala 302
+Dell PowerEdge T350,HARDWARE,Servidor,Dell Computadores do Brasil Ltda,SEKATKJSMH,,2025-12-20,18554.90,BAIXADO,Bloco B - Sala 302
+HP LaserJet Pro M404dn,HARDWARE,Impressora,Lenovo Tecnologia Brasil Ltda,IMWBMSDJ4H,,2024-02-20,2370.21,ATIVO,Bloco B - Almoxarifado
+Cisco ISR 1111,HARDWARE,Roteador,APC by Schneider Electric Brasil,ROG6QCV7BD,,2024-07-20,7661.98,ATIVO,Bloco A - Sala 204
+Intelbras SG 2404 MR,HARDWARE,Switch,Intelbras S.A.,SW6EFWKEJT,,2024-08-20,1566.19,ATIVO,Datacenter - Rack 01
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,Samsung Eletronica da Amazonia,SE75GHP56Q,,2024-11-20,56086.19,ATIVO,Anexo I - Sala 12
+LG 24MK430H,HARDWARE,Monitor,Lenovo Tecnologia Brasil Ltda,MOGW5WSZK8,,2026-03-20,842.11,ATIVO,Bloco A - Sala 204
+LG 24MK430H,HARDWARE,Monitor,Samsung Eletronica da Amazonia,MOGZJDXH4Y,,2022-10-20,696.03,BAIXADO,Bloco B - Sala 310
+Samsung SL-M4020ND,HARDWARE,Impressora,Intelbras S.A.,IMVYGPK8QG,,2023-09-20,2033.25,ATIVO,Bloco B - Sala 310
+HP LaserJet Pro M404dn,HARDWARE,Impressora,Intelbras S.A.,IMQ5BTBMTV,,2024-10-20,2115.52,ATIVO,Bloco A - Recepcao
+HP LaserJet Pro M404dn,HARDWARE,Impressora,APC by Schneider Electric Brasil,IM3EKBFP24,,2024-11-20,2202.67,ATIVO,Bloco B - Sala 310
+Samsung Galaxy Tab S9,HARDWARE,Tablet,APC by Schneider Electric Brasil,TAWFDKLDFT,,2023-02-20,4025.23,ATIVO,Datacenter - Rack 02
+Cisco Catalyst 1000-24T,HARDWARE,Switch,APC by Schneider Electric Brasil,SW4TPHY5HU,,2023-11-20,4368.47,ATIVO,Bloco A - Sala 101
+Positivo Master D2300,HARDWARE,Desktop,Cisco do Brasil Ltda,DE3DAPVPJS,,2024-12-20,3089.91,ATIVO,Anexo II - Sala 05
+Samsung Galaxy Tab S9,HARDWARE,Tablet,Dell Computadores do Brasil Ltda,TA5MJ2QYE3,,2024-05-20,3626.44,ATIVO,Bloco A - Sala 204
+Dell PowerEdge T350,HARDWARE,Servidor,HP Brasil Industria e Comercio,SE534UH3BW,,2023-05-20,20798.89,ATIVO,Deposito de TI
+Dell P2422H 24,HARDWARE,Monitor,Cisco do Brasil Ltda,MOF5GR53F3,,2022-09-20,1057.63,EM_MANUTENCAO,Bloco B - Almoxarifado
+Samsung Galaxy Tab A8,HARDWARE,Tablet,Lenovo Tecnologia Brasil Ltda,TALEHNYYKR,,2025-11-20,1223.86,BAIXADO,Bloco A - Recepcao
+Samsung SL-M4020ND,HARDWARE,Impressora,HP Brasil Industria e Comercio,IMKEM976WW,,2024-04-20,1882.42,ATIVO,Anexo II - Sala 05
+Samsung Galaxy A54,HARDWARE,Smartphone,Dell Computadores do Brasil Ltda,SMVTDYEV76,,2026-05-20,1840.14,BAIXADO,Bloco B - Sala 310
+HP ProBook 450 G10,HARDWARE,Notebook,HP Brasil Industria e Comercio,NOF27C6NW8,,2026-05-20,5731.13,BAIXADO,Bloco B - Almoxarifado
+Motorola Edge 40,HARDWARE,Smartphone,Intelbras S.A.,SMFMCR66LZ,,2025-02-20,2335.15,ATIVO,Bloco B - Almoxarifado
+Samsung Galaxy S23,HARDWARE,Smartphone,HP Brasil Industria e Comercio,SMDXEXG2US,,2024-11-20,3868.11,ATIVO,Home office
+Lenovo IdeaPad 3,HARDWARE,Notebook,HP Brasil Industria e Comercio,NOYV3JFV2X,,2023-02-20,3355.77,ATIVO,Deposito de TI
+Samsung Galaxy S23,HARDWARE,Smartphone,Intelbras S.A.,SMF5ZBZVMP,,2024-01-20,3982.15,ATIVO,Bloco A - Recepcao
+Lenovo IdeaPad 3,HARDWARE,Notebook,HP Brasil Industria e Comercio,NOEUGCXJ2K,,2025-09-20,3454.47,ATIVO,Datacenter - Rack 02
+APC Smart-UPS 1500VA,HARDWARE,Nobreak,APC by Schneider Electric Brasil,NOL6C4ZR6U,,2025-06-20,3931.83,ATIVO,Bloco B - Sala 310
+APC Smart-UPS 1500VA,HARDWARE,Nobreak,HP Brasil Industria e Comercio,NO8NZ67U24,,2025-08-20,4181.98,ATIVO,Bloco A - Recepcao
+Dell PowerEdge R650,HARDWARE,Servidor,Cisco do Brasil Ltda,SED8ZGHUFL,,2024-04-20,52669.13,ATIVO,Bloco A - Recepcao
+Intelbras XNB 1400VA,HARDWARE,Nobreak,Samsung Eletronica da Amazonia,NO5FQ6YB4D,,2023-12-20,950.36,ATIVO,Anexo I - Sala 12
+HP ProBook 450 G10,HARDWARE,Notebook,Dell Computadores do Brasil Ltda,NOZQBWGXKJ,,2025-02-20,6381.02,ATIVO,Anexo II - Sala 05
+Motorola Edge 40,HARDWARE,Smartphone,HP Brasil Industria e Comercio,SMJ86AFBSP,,2023-09-20,2653.57,ATIVO,Datacenter - Rack 02
+Cisco ISR 1111,HARDWARE,Roteador,Samsung Eletronica da Amazonia,RO5HURVHDR,,2023-04-20,8350.18,ATIVO,Anexo II - Sala 05
+HP ProBook 450 G10,HARDWARE,Notebook,Intelbras S.A.,NOH9BRKU5A,,2025-05-20,5898.36,ATIVO,Bloco A - Recepcao
+Samsung Galaxy S23,HARDWARE,Smartphone,Intelbras S.A.,SMFZEB28C2,,2025-04-20,4555.23,ATIVO,Bloco B - Almoxarifado
+APC Smart-UPS 1500VA,HARDWARE,Nobreak,Intelbras S.A.,NOEYRGXJCY,,2023-03-20,3595.88,ATIVO,Home office
+Cisco Catalyst 1000-24T,HARDWARE,Switch,Dell Computadores do Brasil Ltda,SW8MJE7CUN,,2025-08-20,4588.88,BAIXADO,Bloco B - Almoxarifado
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,Intelbras S.A.,SE38SCNUYD,,2025-03-20,47313.45,ATIVO,Bloco B - Almoxarifado
+LG 24MK430H,HARDWARE,Monitor,Cisco do Brasil Ltda,MO362XM99Z,,2026-03-20,822.51,ATIVO,Bloco A - Sala 204
+LG 24MK430H,HARDWARE,Monitor,APC by Schneider Electric Brasil,MOMUWGFWUV,,2023-06-20,820.75,ATIVO,Bloco A - Recepcao
+Motorola Edge 40,HARDWARE,Smartphone,Lenovo Tecnologia Brasil Ltda,SM6Y6CY5TD,,2023-02-20,2479.21,EM_MANUTENCAO,Bloco B - Almoxarifado
+Cisco ISR 1111,HARDWARE,Roteador,Intelbras S.A.,ROLBK6CJER,,2024-09-20,7580.70,ATIVO,Datacenter - Rack 02
+Lenovo ThinkPad E14,HARDWARE,Notebook,Samsung Eletronica da Amazonia,NOK6ZZ6EJZ,,2024-12-20,5593.83,BAIXADO,Bloco B - Sala 302
+Dell Vostro 3520,HARDWARE,Notebook,Positivo Tecnologia S.A.,NOBM92HSS6,,2023-05-20,3889.01,ATIVO,Anexo II - Sala 05
+HP EliteDesk 800 G9,HARDWARE,Desktop,Intelbras S.A.,DEHJE6M6FW,,2022-11-20,4657.04,ATIVO,Datacenter - Rack 01
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,Positivo Tecnologia S.A.,SEVLMZQHNJ,,2024-01-20,46088.02,ATIVO,Datacenter - Rack 01
+HP LaserJet Pro M404dn,HARDWARE,Impressora,Samsung Eletronica da Amazonia,IMZ7JFEV38,,2024-06-20,2586.24,BAIXADO,Bloco A - Sala 204
+Lenovo IdeaPad 3,HARDWARE,Notebook,Samsung Eletronica da Amazonia,NOWE67YJMJ,,2023-12-20,3515.43,EM_MANUTENCAO,Bloco A - Sala 101
+Intelbras XNB 1400VA,HARDWARE,Nobreak,Cisco do Brasil Ltda,NOHKVLLWQY,,2026-03-20,921.34,ATIVO,Home office
+Intelbras RF 1200,HARDWARE,Roteador,Dell Computadores do Brasil Ltda,ROTJVFLKLX,,2026-07-20,557.69,ATIVO,Home office
+Samsung Galaxy Tab A8,HARDWARE,Tablet,Positivo Tecnologia S.A.,TASP4B9UV8,,2023-01-20,1270.70,ATIVO,Anexo II - Sala 05
+HP ProBook 450 G10,HARDWARE,Notebook,HP Brasil Industria e Comercio,NODL6487PX,,2024-12-20,6303.19,BAIXADO,Bloco B - Almoxarifado
+Samsung Galaxy Tab S9,HARDWARE,Tablet,Lenovo Tecnologia Brasil Ltda,TAY3JZGWR7,,2025-03-20,4050.40,ATIVO,Bloco A - Recepcao
+Dell Vostro 3520,HARDWARE,Notebook,Positivo Tecnologia S.A.,NODU24RLWW,,2025-10-20,4098.29,ATIVO,Datacenter - Rack 01
+Cisco Catalyst 1000-24T,HARDWARE,Switch,Positivo Tecnologia S.A.,SW9V9BF37R,,2023-07-20,4051.72,ATIVO,Bloco A - Sala 101
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,Intelbras S.A.,SE98UAG5JS,,2024-07-20,50326.90,ATIVO,Anexo I - Sala 12
+Lenovo ThinkPad E14,HARDWARE,Notebook,HP Brasil Industria e Comercio,NONZUE26TH,,2026-02-20,5262.50,ATIVO,Bloco B - Almoxarifado
+Intelbras RF 1200,HARDWARE,Roteador,Intelbras S.A.,ROZKN3CCCJ,,2024-02-20,622.88,ATIVO,Bloco A - Recepcao
+Samsung SL-M4020ND,HARDWARE,Impressora,Cisco do Brasil Ltda,IMJWWL3VX9,,2024-02-20,2259.14,BAIXADO,Bloco B - Almoxarifado
+Dell PowerEdge T350,HARDWARE,Servidor,APC by Schneider Electric Brasil,SEH4VB8SQD,,2025-10-20,21122.13,ATIVO,Deposito de TI
+Samsung SL-M4020ND,HARDWARE,Impressora,Intelbras S.A.,IM2KRCHNB6,,2024-06-20,1924.32,ATIVO,Deposito de TI
+HP EliteDesk 800 G9,HARDWARE,Desktop,Intelbras S.A.,DE48DJPW82,,2025-09-20,5149.66,BAIXADO,Datacenter - Rack 01
+Dell PowerEdge T350,HARDWARE,Servidor,Cisco do Brasil Ltda,SEYS8NRTVQ,,2025-02-20,22032.70,ATIVO,Deposito de TI
+Motorola Edge 40,HARDWARE,Smartphone,Samsung Eletronica da Amazonia,SM9W8YTUH2,,2024-10-20,2661.85,BAIXADO,Bloco A - Recepcao
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,Positivo Tecnologia S.A.,SECUFY6S8P,,2023-10-20,49143.74,ATIVO,Datacenter - Rack 01
+Motorola Edge 40,HARDWARE,Smartphone,Dell Computadores do Brasil Ltda,SMTJGRRDQQ,,2026-02-20,2350.06,ATIVO,Deposito de TI
+Intelbras SG 2404 MR,HARDWARE,Switch,Cisco do Brasil Ltda,SWGJAL488N,,2019-05-20,1327.90,ATIVO,Bloco A - Sala 101
+Samsung Galaxy Tab A8,HARDWARE,Tablet,APC by Schneider Electric Brasil,TAFQCM4MC3,,2025-09-20,1436.22,ATIVO,Bloco B - Sala 310
+Lenovo ThinkPad E14,HARDWARE,Notebook,APC by Schneider Electric Brasil,NOAVGXU79J,,2025-03-20,5001.88,ATIVO,Bloco A - Sala 204
+Dell PowerEdge T350,HARDWARE,Servidor,HP Brasil Industria e Comercio,SEL7SMAXUN,,2023-05-20,22794.98,ATIVO,Anexo I - Sala 12
+Intelbras XNB 1400VA,HARDWARE,Nobreak,Intelbras S.A.,NO5WF3GMJ8,,2025-05-20,864.01,BAIXADO,Anexo I - Sala 12
+Positivo Master D2300,HARDWARE,Desktop,Dell Computadores do Brasil Ltda,DE6TXVASZR,,2023-02-20,3088.47,ATIVO,Bloco B - Sala 310
+Dell OptiPlex 7010,HARDWARE,Desktop,APC by Schneider Electric Brasil,DE3VHUZQQJ,,2025-11-20,4748.14,ATIVO,Datacenter - Rack 02
+Dell P2422H 24,HARDWARE,Monitor,Lenovo Tecnologia Brasil Ltda,MO48PRF6ZE,,2026-05-20,1186.80,BAIXADO,Datacenter - Rack 01
+HP EliteDesk 800 G9,HARDWARE,Desktop,APC by Schneider Electric Brasil,DEKLW6HP9F,,2026-05-20,5141.88,BAIXADO,Datacenter - Rack 01
+LG 24MK430H,HARDWARE,Monitor,Positivo Tecnologia S.A.,MO7D7VB3SA,,2023-07-20,700.07,ATIVO,Anexo I - Sala 12
+Dell P2422H 24,HARDWARE,Monitor,HP Brasil Industria e Comercio,MOEDE8CU4M,,2023-03-20,1226.28,ATIVO,Home office
+LG 24MK430H,HARDWARE,Monitor,Lenovo Tecnologia Brasil Ltda,MOZ2622FJY,,2025-09-20,872.26,ATIVO,Anexo I - Sala 12
+Cisco ISR 1111,HARDWARE,Roteador,Positivo Tecnologia S.A.,ROJQABV752,,2025-05-20,7726.29,ATIVO,Bloco A - Recepcao
+Dell PowerEdge R650,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SENHC4BRPE,,2023-06-20,42626.80,ATIVO,Datacenter - Rack 02
+Samsung Galaxy S23,HARDWARE,Smartphone,HP Brasil Industria e Comercio,SMDRC36QPD,,2023-12-20,4809.27,ATIVO,Bloco B - Sala 302
+Intelbras XNB 1400VA,HARDWARE,Nobreak,Cisco do Brasil Ltda,NOWWRVKQ4V,,2026-05-20,993.34,ATIVO,Datacenter - Rack 02
+Samsung Galaxy Tab S9,HARDWARE,Tablet,Samsung Eletronica da Amazonia,TAM59DY2W4,,2025-11-20,3903.09,ATIVO,Bloco A - Recepcao
+Samsung Galaxy Tab A8,HARDWARE,Tablet,Samsung Eletronica da Amazonia,TA8RQVK7D4,,2021-03-20,1309.36,ATIVO,Anexo I - Sala 12
+Positivo Master D2300,HARDWARE,Desktop,Dell Computadores do Brasil Ltda,DESPXF6ZFN,,2025-03-20,3299.77,ATIVO,Datacenter - Rack 02
+Samsung SL-M4020ND,HARDWARE,Impressora,Dell Computadores do Brasil Ltda,IMCENP8PXV,,2025-07-20,2320.33,ATIVO,Deposito de TI
+Dell Vostro 3520,HARDWARE,Notebook,APC by Schneider Electric Brasil,NO8RP3RWU2,,2023-10-20,4246.34,ATIVO,Bloco B - Sala 310
+Dell PowerEdge R650,HARDWARE,Servidor,Intelbras S.A.,SEZ97G8WPZ,,2024-06-20,42766.64,ATIVO,Bloco B - Sala 302
+Samsung Galaxy Tab S9,HARDWARE,Tablet,Positivo Tecnologia S.A.,TAKBS4UKNX,,2024-08-20,4168.67,ATIVO,Bloco B - Sala 302
+Intelbras SG 2404 MR,HARDWARE,Switch,HP Brasil Industria e Comercio,SWXS997LYL,,2021-03-20,1415.64,ATIVO,Bloco A - Recepcao
+Intelbras RF 1200,HARDWARE,Roteador,Lenovo Tecnologia Brasil Ltda,RODCEDA4JQ,,2022-11-20,568.07,ATIVO,Bloco B - Sala 302
+Cisco ISR 1111,HARDWARE,Roteador,Dell Computadores do Brasil Ltda,RO7ZD89BA4,,2026-07-20,7855.07,BAIXADO,Bloco B - Sala 310
+Intelbras RF 1200,HARDWARE,Roteador,Positivo Tecnologia S.A.,ROUB5MGGKR,,2023-05-20,623.94,ATIVO,Bloco B - Almoxarifado
+Dell PowerEdge R650,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SE3FZ37RQV,,2023-03-20,53664.09,ATIVO,Home office
+Samsung Galaxy Tab A8,HARDWARE,Tablet,HP Brasil Industria e Comercio,TACF3228DA,,2026-03-20,1299.96,ATIVO,Anexo I - Sala 12
+Samsung Galaxy A54,HARDWARE,Smartphone,Lenovo Tecnologia Brasil Ltda,SMXGCQP8TC,,2023-01-20,2094.07,ATIVO,Datacenter - Rack 01
+HP LaserJet Pro M404dn,HARDWARE,Impressora,Cisco do Brasil Ltda,IMCMWBPK3E,,2025-10-20,2436.84,ATIVO,Datacenter - Rack 02
+Intelbras XNB 1400VA,HARDWARE,Nobreak,Samsung Eletronica da Amazonia,NO2X2JFYDG,,2025-06-20,1059.66,ATIVO,Bloco B - Almoxarifado
+Samsung SL-M4020ND,HARDWARE,Impressora,Samsung Eletronica da Amazonia,IM3WBT69QY,,2024-05-20,1941.61,ATIVO,Datacenter - Rack 02
+Samsung Galaxy S23,HARDWARE,Smartphone,Samsung Eletronica da Amazonia,SM2FUREFTK,,2022-11-20,4592.97,ATIVO,Bloco A - Recepcao
+Samsung Galaxy Tab S9,HARDWARE,Tablet,Intelbras S.A.,TA2WZGFAV6,,2025-03-20,3708.60,ATIVO,Bloco A - Sala 204
+Dell OptiPlex 7010,HARDWARE,Desktop,Intelbras S.A.,DE564GBFYF,,2024-08-20,4238.22,ATIVO,Anexo I - Sala 12
+Samsung LF24T350 24,HARDWARE,Monitor,Cisco do Brasil Ltda,MOFRL2LJTV,,2021-03-20,777.77,ATIVO,Bloco A - Recepcao
+LG 24MK430H,HARDWARE,Monitor,APC by Schneider Electric Brasil,MOT4V8EZSR,,2023-06-20,801.84,ATIVO,Anexo II - Sala 05
+Dell Vostro 3520,HARDWARE,Notebook,Intelbras S.A.,NOJVA3X2X6,,2024-05-20,4410.43,ATIVO,Home office
+Samsung SL-M4020ND,HARDWARE,Impressora,Intelbras S.A.,IMJVWN8WM3,,2025-02-20,2218.38,ATIVO,Home office
+Intelbras SG 2404 MR,HARDWARE,Switch,HP Brasil Industria e Comercio,SWRW2T3ZHN,,2023-01-20,1489.92,ATIVO,Bloco A - Sala 101
+Samsung Galaxy Tab S9,HARDWARE,Tablet,Cisco do Brasil Ltda,TA7P6UE49J,,2025-05-20,3856.64,ATIVO,Bloco A - Recepcao
+Motorola Edge 40,HARDWARE,Smartphone,Intelbras S.A.,SM52E6834C,,2022-12-20,2627.81,EM_MANUTENCAO,Datacenter - Rack 01
+Samsung SL-M4020ND,HARDWARE,Impressora,Samsung Eletronica da Amazonia,IMFGRYLC3X,,2026-02-20,1853.32,ATIVO,Bloco B - Sala 310
+Positivo Master D2300,HARDWARE,Desktop,APC by Schneider Electric Brasil,DEQ6Z37KYB,,2021-03-20,3233.07,ATIVO,Bloco A - Sala 204
+Dell Vostro 3520,HARDWARE,Notebook,APC by Schneider Electric Brasil,NOKYVX7P8Y,,2026-02-20,4039.16,ATIVO,Deposito de TI
+Cisco Catalyst 1000-24T,HARDWARE,Switch,HP Brasil Industria e Comercio,SWWEVCHBXG,,2022-09-20,3941.86,ATIVO,Bloco A - Recepcao
+Intelbras RF 1200,HARDWARE,Roteador,Samsung Eletronica da Amazonia,ROLX57Q3MM,,2024-07-20,549.94,ATIVO,Datacenter - Rack 02
+HP EliteDesk 800 G9,HARDWARE,Desktop,Lenovo Tecnologia Brasil Ltda,DE652APPTE,,2023-10-20,4809.33,EM_MANUTENCAO,Bloco B - Almoxarifado
+HP EliteDesk 800 G9,HARDWARE,Desktop,Intelbras S.A.,DE7HS9W23H,,2024-10-20,5631.21,ATIVO,Datacenter - Rack 02
+Dell OptiPlex 7010,HARDWARE,Desktop,HP Brasil Industria e Comercio,DEVFJWHRVH,,2024-09-20,5022.84,ATIVO,Datacenter - Rack 01
+Samsung LF24T350 24,HARDWARE,Monitor,APC by Schneider Electric Brasil,MO4J25M9ML,,2025-02-20,776.62,ATIVO,Bloco B - Almoxarifado
+Intelbras XNB 1400VA,HARDWARE,Nobreak,APC by Schneider Electric Brasil,NO6DYA9JN2,,2024-06-20,1023.44,ATIVO,Anexo I - Sala 12
+Motorola Edge 40,HARDWARE,Smartphone,Cisco do Brasil Ltda,SM69LFBQUC,,2025-06-20,2421.66,ATIVO,Bloco A - Recepcao
+Samsung Galaxy Tab A8,HARDWARE,Tablet,Positivo Tecnologia S.A.,TA79HHTZC6,,2024-05-20,1175.95,BAIXADO,Home office
+Samsung Galaxy Tab A8,HARDWARE,Tablet,Lenovo Tecnologia Brasil Ltda,TARVC6SYF6,,2022-02-20,1209.48,ATIVO,Deposito de TI
+HP LaserJet Pro M404dn,HARDWARE,Impressora,Cisco do Brasil Ltda,IMY5LJPPDY,,2020-03-20,2422.33,ATIVO,Bloco B - Almoxarifado
+Motorola Edge 40,HARDWARE,Smartphone,HP Brasil Industria e Comercio,SMUUTGJ4DT,,2022-06-20,2610.86,ATIVO,Bloco B - Sala 302
+Lenovo IdeaPad 3,HARDWARE,Notebook,APC by Schneider Electric Brasil,NOWR39KT42,,2026-04-20,3302.63,ATIVO,Bloco A - Sala 204
+Samsung LF24T350 24,HARDWARE,Monitor,Intelbras S.A.,MOTZ79WAF7,,2026-04-20,910.32,BAIXADO,Anexo I - Sala 12
+HP EliteDesk 800 G9,HARDWARE,Desktop,APC by Schneider Electric Brasil,DE5P9TWUXJ,,2024-11-20,5691.91,ATIVO,Bloco A - Sala 101
+Lenovo ThinkPad E14,HARDWARE,Notebook,Samsung Eletronica da Amazonia,NOG7BHL67A,,2025-08-20,6042.42,ATIVO,Bloco A - Recepcao
+Samsung Galaxy A54,HARDWARE,Smartphone,HP Brasil Industria e Comercio,SMVLTFZSFZ,,2026-05-20,1852.73,ATIVO,Bloco B - Sala 310
+Samsung Galaxy Tab S9,HARDWARE,Tablet,HP Brasil Industria e Comercio,TAQ5FGAP8E,,2023-07-20,3830.57,ATIVO,Home office
+Cisco Catalyst 1000-24T,HARDWARE,Switch,Positivo Tecnologia S.A.,SWAAXH5J8E,,2024-08-20,3786.05,ATIVO,Bloco A - Sala 204
+Dell Vostro 3520,HARDWARE,Notebook,Dell Computadores do Brasil Ltda,NOWZVJ2JKE,,2023-05-20,4247.62,BAIXADO,Anexo II - Sala 05
+Dell P2422H 24,HARDWARE,Monitor,Lenovo Tecnologia Brasil Ltda,MOPK46PFGJ,,2019-12-20,1160.72,ATIVO,Bloco B - Almoxarifado
+LG 24MK430H,HARDWARE,Monitor,Cisco do Brasil Ltda,MOWJRTFRUB,,2025-07-20,783.32,ATIVO,Datacenter - Rack 01
+HP EliteDesk 800 G9,HARDWARE,Desktop,APC by Schneider Electric Brasil,DE3UDR92HR,,2023-04-20,5317.22,ATIVO,Datacenter - Rack 01
+Dell Latitude 5440,HARDWARE,Notebook,Lenovo Tecnologia Brasil Ltda,NOZWJ24ZM8,,2026-07-20,6330.00,BAIXADO,Bloco A - Sala 101
+Dell PowerEdge R650,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SEPCD3U453,,2023-04-20,48421.23,ATIVO,Datacenter - Rack 02
+Lenovo IdeaPad 3,HARDWARE,Notebook,Lenovo Tecnologia Brasil Ltda,NOTFVFPKW3,,2019-12-20,3352.58,ATIVO,Deposito de TI
+Positivo Master D2300,HARDWARE,Desktop,HP Brasil Industria e Comercio,DEDRF5H7DV,,2026-01-20,3002.33,ATIVO,Bloco A - Recepcao
+Motorola Edge 40,HARDWARE,Smartphone,Cisco do Brasil Ltda,SMAL9YSLZJ,,2022-10-20,2622.57,ATIVO,Bloco A - Sala 101
+Dell PowerEdge T350,HARDWARE,Servidor,Dell Computadores do Brasil Ltda,SE5TESE97Z,,2024-01-20,22811.17,ATIVO,Bloco A - Recepcao
+Dell P2422H 24,HARDWARE,Monitor,Positivo Tecnologia S.A.,MOLSGHQACA,,2026-06-20,1092.55,ATIVO,Anexo I - Sala 12
+Lenovo IdeaPad 3,HARDWARE,Notebook,Cisco do Brasil Ltda,NOMC4QWR4W,,2026-04-20,3254.94,ATIVO,Bloco A - Sala 204
+Cisco ISR 1111,HARDWARE,Roteador,Cisco do Brasil Ltda,RODMQC3E7U,,2024-12-20,7025.71,ATIVO,Anexo II - Sala 05
+Dell Latitude 5440,HARDWARE,Notebook,Positivo Tecnologia S.A.,NOZNUVR7Z9,,2022-10-20,6795.86,BAIXADO,Bloco B - Sala 302
+Lenovo IdeaPad 3,HARDWARE,Notebook,Samsung Eletronica da Amazonia,NOA4BQYAXA,,2022-09-20,3374.50,BAIXADO,Bloco A - Sala 204
+HP EliteDesk 800 G9,HARDWARE,Desktop,Positivo Tecnologia S.A.,DER49DKTFC,,2023-11-20,5091.49,ATIVO,Bloco B - Almoxarifado
+Cisco Catalyst 1000-24T,HARDWARE,Switch,Positivo Tecnologia S.A.,SWFGJ3ED5J,,2025-02-20,3959.08,ATIVO,Bloco B - Almoxarifado
+APC Smart-UPS 1500VA,HARDWARE,Nobreak,HP Brasil Industria e Comercio,NO3WW6TQEN,,2023-07-20,3534.00,ATIVO,Bloco A - Sala 204
+Dell OptiPlex 7010,HARDWARE,Desktop,Cisco do Brasil Ltda,DE67W4HYP6,,2020-06-20,4529.29,ATIVO,Bloco A - Sala 204
+HP ProBook 450 G10,HARDWARE,Notebook,Intelbras S.A.,NOLVCPWKFR,,2024-07-20,5818.74,ATIVO,Home office
+HP ProLiant DL380 Gen10,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SESMB36RG7,,2025-12-20,47275.74,BAIXADO,Bloco A - Sala 101
+Intelbras XNB 1400VA,HARDWARE,Nobreak,Dell Computadores do Brasil Ltda,NOQJN3ZFSE,,2026-04-20,908.91,ATIVO,Home office
+Cisco Catalyst 1000-24T,HARDWARE,Switch,Samsung Eletronica da Amazonia,SWJFXHC7DL,,2022-10-20,4094.16,ATIVO,Bloco A - Sala 101
+Samsung LF24T350 24,HARDWARE,Monitor,HP Brasil Industria e Comercio,MO5MYPMTT6,,2026-06-20,873.28,ATIVO,Datacenter - Rack 02
+Positivo Master D2300,HARDWARE,Desktop,HP Brasil Industria e Comercio,DEU948DFT2,,2019-03-20,3154.76,EM_MANUTENCAO,Datacenter - Rack 01
+Positivo Master D2300,HARDWARE,Desktop,Cisco do Brasil Ltda,DEB2Y89YW2,,2025-09-20,3013.27,ATIVO,Datacenter - Rack 02
+Positivo Master D2300,HARDWARE,Desktop,Positivo Tecnologia S.A.,DEBTD8YQLG,,2019-12-20,3188.78,ATIVO,Datacenter - Rack 01
+Intelbras XNB 1400VA,HARDWARE,Nobreak,Intelbras S.A.,NODQ2YMMRW,,2023-07-20,869.03,ATIVO,Deposito de TI
+Dell P2422H 24,HARDWARE,Monitor,Dell Computadores do Brasil Ltda,MOKN9VM9CF,,2025-06-20,1126.84,ATIVO,Bloco A - Sala 101
+Cisco ISR 1111,HARDWARE,Roteador,Dell Computadores do Brasil Ltda,RO8AXNJXMW,,2019-11-20,7140.52,ATIVO,Deposito de TI
+Lenovo IdeaPad 3,HARDWARE,Notebook,Intelbras S.A.,NOHZEZ3GXV,,2025-12-20,3565.46,BAIXADO,Deposito de TI
+LG 24MK430H,HARDWARE,Monitor,Cisco do Brasil Ltda,MO9WMYQM2V,,2025-12-20,719.67,ATIVO,Bloco A - Sala 101
+Motorola Edge 40,HARDWARE,Smartphone,Intelbras S.A.,SM3CMWQG9K,,2022-09-20,2156.82,ATIVO,Bloco B - Almoxarifado
+Dell PowerEdge T350,HARDWARE,Servidor,Lenovo Tecnologia Brasil Ltda,SELFX6ASPR,,2024-10-20,19773.56,ATIVO,Bloco A - Sala 204
+Samsung Galaxy Tab S9,HARDWARE,Tablet,Samsung Eletronica da Amazonia,TAAD264L49,,2024-10-20,4145.29,ATIVO,Bloco A - Sala 204
+Intelbras XNB 1400VA,HARDWARE,Nobreak,Intelbras S.A.,NO8QL6ECUB,,2025-04-20,1086.23,ATIVO,Bloco A - Sala 204
+Dell PowerEdge T350,HARDWARE,Servidor,Samsung Eletronica da Amazonia,SEL2LEFX8B,,2019-10-20,19311.59,ATIVO,Anexo I - Sala 12
+Dell OptiPlex 7010,HARDWARE,Desktop,Cisco do Brasil Ltda,DEDGXPN4SU,,2025-05-20,4334.50,ATIVO,Anexo I - Sala 12
+HP LaserJet Pro M404dn,HARDWARE,Impressora,APC by Schneider Electric Brasil,IM9KDZA5FU,,2025-08-20,2167.86,ATIVO,Bloco B - Sala 302
+Dell OptiPlex 7010,HARDWARE,Desktop,Cisco do Brasil Ltda,DEUF8HV389,,2026-03-20,4963.43,BAIXADO,Anexo I - Sala 12
+Dell OptiPlex 7010,HARDWARE,Desktop,APC by Schneider Electric Brasil,DEZ2ZM6CS6,,2025-04-20,4484.63,ATIVO,Bloco B - Sala 310
+HP LaserJet Pro M404dn,HARDWARE,Impressora,Samsung Eletronica da Amazonia,IMDKGFY4QD,,2023-11-20,2353.13,BAIXADO,Datacenter - Rack 01
+Samsung Galaxy S23,HARDWARE,Smartphone,Lenovo Tecnologia Brasil Ltda,SM8R8VF3CK,,2024-04-20,3962.41,ATIVO,Bloco A - Recepcao
+HP EliteDesk 800 G9,HARDWARE,Desktop,Cisco do Brasil Ltda,DENJC5F5NK,,2024-12-20,5712.68,ATIVO,Bloco A - Sala 204
+HP ProBook 450 G10,HARDWARE,Notebook,Samsung Eletronica da Amazonia,NO23WT7A4H,,2025-11-20,5310.29,ATIVO,Datacenter - Rack 02
+HP LaserJet Pro M404dn,HARDWARE,Impressora,APC by Schneider Electric Brasil,IMGGGUY4S2,,2023-08-20,2462.76,ATIVO,Bloco A - Sala 101
+Dell OptiPlex 7010,HARDWARE,Desktop,Dell Computadores do Brasil Ltda,DET3K3C3XR,,2022-09-20,4771.45,ATIVO,Bloco B - Sala 310
+Dell P2422H 24,HARDWARE,Monitor,HP Brasil Industria e Comercio,MOBXVVT9GQ,,2020-11-20,1225.19,ATIVO,Anexo II - Sala 05
+Samsung Galaxy Tab A8,HARDWARE,Tablet,APC by Schneider Electric Brasil,TAWT4FN6P4,,2023-11-20,1414.56,ATIVO,Bloco A - Sala 101
+Cisco ISR 1111,HARDWARE,Roteador,Positivo Tecnologia S.A.,ROLEV3JBMN,,2020-04-20,7331.05,ATIVO,Anexo II - Sala 05
+Lenovo ThinkPad E14,HARDWARE,Notebook,Positivo Tecnologia S.A.,NOZNTZ73HB,,2024-09-20,5385.47,ATIVO,Anexo II - Sala 05
+Dell OptiPlex 7010,HARDWARE,Desktop,Samsung Eletronica da Amazonia,DE8YYLSFUB,,2021-03-20,4411.67,ATIVO,Datacenter - Rack 02
+Samsung Galaxy Tab A8,HARDWARE,Tablet,APC by Schneider Electric Brasil,TAPQQPT4BA,,2025-12-20,1345.98,ATIVO,Datacenter - Rack 02
+Microsoft 365 Business Standard,SOFTWARE,Software perpetuo,Microsoft Informatica Ltda,,QSVT3-0Y5SP-5V91G-A8ZUV-G6EXT,2025-03-20,2262.42,ATIVO,Deposito de TI
+Docusign Business Pro,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,VNK9R-D1WJB-7US21-0CNXQ-6Y8VL,2025-09-20,5512.95,ATIVO,Anexo II - Sala 05
+Adobe Acrobat Pro,SOFTWARE,Software perpetuo,Adobe Systems Brasil Ltda,,SMXFQ-YQV2X-ZSU5H-6DE6N-8H09V,2026-05-20,3920.41,ATIVO,Bloco A - Recepcao
+Adobe Acrobat Pro,SOFTWARE,Software perpetuo,Adobe Systems Brasil Ltda,,NX25K-WMF7X-MWDA4-TPLL7-FJ331,2024-02-20,3499.19,ATIVO,Bloco A - Sala 101
+Oracle Database Standard,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,NZAW9-NBARQ-YVJG0-8VLEC-VU599,2024-05-20,2623.47,ATIVO,Bloco A - Recepcao
+VMware vSphere Standard,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,7YNL1-BQQJP-B8LHZ-C0SDD-GBDH2,2024-08-20,3274.79,ATIVO,Bloco B - Sala 310
+Nitro PDF Pro,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,KPAV2-G9TJ2-G8HUH-G7NNS-9NY2U,2026-06-20,1213.86,ATIVO,Bloco B - Sala 302
+SAP Crystal Reports,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,6XRAA-FH7KF-8EGSQ-5US5D-GMCUZ,2024-05-20,2537.40,ATIVO,Bloco A - Sala 204
+Notion Business,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,CAJLX-Y4TFZ-XMH11-5T062-LHJDL,2024-06-20,977.84,ATIVO,Anexo II - Sala 05
+Red Hat Enterprise Linux,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,4M0YB-J67H2-4CESW-A9QX9-9G3R6,2023-02-20,2501.55,BAIXADO,Anexo I - Sala 12
+Adobe Acrobat Pro,SOFTWARE,Software perpetuo,Adobe Systems Brasil Ltda,,DAL86-7LE7W-RXTD8-Q01RF-544F7,2024-12-20,3270.56,ATIVO,Anexo II - Sala 05
+Figma Organization,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,BG12C-AFV8P-5XZDQ-5X6Z4-HGQAX,2023-04-20,2667.51,EM_MANUTENCAO,Bloco B - Sala 310
+Oracle Database Standard,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,9ZGCL-7J2GS-NNH1P-5NXG2-CH458,2024-01-20,1057.25,ATIVO,Deposito de TI
+Microsoft Windows 11 Pro,SOFTWARE,Software perpetuo,Microsoft Informatica Ltda,,368MM-JG0W8-02RT1-XU4JJ-28VWP,2025-07-20,1235.76,ATIVO,Bloco B - Sala 310
+Tableau Creator,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,YJM8W-HY62U-3A9GB-0KDDN-TLUSK,2022-12-20,950.74,ATIVO,Bloco B - Sala 302
+Notion Business,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,CY4GQ-0R8UD-002WD-ASN4Q-ZNNU4,2023-01-20,1077.45,ATIVO,Bloco A - Recepcao
+Figma Organization,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,8H0C3-TSJLS-AX5KC-KWDV7-YEW9Q,2023-11-20,1075.63,ATIVO,Datacenter - Rack 01
+AutoCAD LT,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,21FYQ-PXXZU-P96AH-Y4RRC-W0H0S,2022-10-20,5497.70,ATIVO,Datacenter - Rack 01
+Notion Business,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,Z8847-CUNW8-FGLAE-PP3GP-3EKB5,2026-06-20,2162.41,EM_MANUTENCAO,Bloco A - Sala 101
+AutoCAD LT,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,SEQS2-0413W-B0HAE-CEY8G-UVFU4,2024-07-20,3878.31,ATIVO,Bloco A - Sala 101
+Nitro PDF Pro,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,LQJ1U-KVZAK-HCA1F-VPYP2-8KLMQ,2025-04-20,5374.50,ATIVO,Bloco A - Recepcao
+Tableau Creator,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,D5EUE-SGN7X-YJRGU-ENW74-XVKZW,2025-10-20,3172.17,ATIVO,Bloco B - Sala 302
+JetBrains All Products Pack,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,3TZJX-654YV-7GMFT-JNSEE-B8B1P,2023-09-20,838.87,BAIXADO,Datacenter - Rack 01
+Nitro PDF Pro,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,KZ1QU-J588F-1Z8AR-L8J4L-MK6YC,2024-01-20,1122.74,ATIVO,Bloco B - Sala 310
+Zoom Workplace Business,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,QCP9Z-065CC-WG9TS-M00ZE-9S0Q9,2024-10-20,3874.09,ATIVO,Bloco B - Almoxarifado
+Nitro PDF Pro,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,6A8J4-LQE8T-PKMLZ-HQ2XH-666PL,2026-07-20,3378.53,ATIVO,Bloco A - Recepcao
+Red Hat Enterprise Linux,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,LJ8CK-DLSM9-1BUFP-466LQ-2KM8S,2022-10-20,1253.45,ATIVO,Anexo II - Sala 05
+Bitdefender GravityZone,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,EQ00J-GBN98-2KGM6-C8HF6-JA392,2026-06-20,2513.84,ATIVO,Anexo I - Sala 12
+JetBrains All Products Pack,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,60YG3-JS6QF-U2SNA-A9H9A-0PW2Z,2025-11-20,874.21,ATIVO,Datacenter - Rack 02
+Kaspersky Endpoint Security,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,S3ZT1-P26MZ-6SVY1-JHQ4L-GP81X,2023-05-20,6074.30,ATIVO,Deposito de TI
+Microsoft Windows 11 Pro,SOFTWARE,Software perpetuo,Microsoft Informatica Ltda,,L0AFK-63FES-QZFC0-19UDM-74AN9,2025-08-20,2131.36,BAIXADO,Datacenter - Rack 02
+SolarWinds NPM,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,9QLCZ-RALFT-1Y11N-9AEFU-YYTQN,2024-07-20,3664.72,BAIXADO,Bloco B - Sala 310
+AutoCAD LT,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,28GE8-UXH8S-S406R-X55B6-HSE0Q,2024-12-20,1174.78,ATIVO,Bloco B - Almoxarifado
+SolarWinds NPM,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,ASRUF-1XEM6-WYPTM-N7NRR-SPQNR,2024-10-20,5321.15,ATIVO,Bloco A - Sala 204
+Adobe Creative Cloud,SOFTWARE,Software perpetuo,Adobe Systems Brasil Ltda,,F7AC6-ZW7T7-M8T1Q-JD936-C8Y1M,2026-01-20,3771.28,ATIVO,Anexo II - Sala 05
+VMware vSphere Standard,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,AAP0G-WZSMS-RT6XZ-M73P2-ZZ1T4,2023-08-20,1093.77,ATIVO,Datacenter - Rack 02
+Tableau Creator,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,QGTR3-0NKK6-AM27J-9W7VS-D1GLD,2025-04-20,1193.24,ATIVO,Home office
+Adobe Creative Cloud,SOFTWARE,Software perpetuo,Adobe Systems Brasil Ltda,,4XSZZ-SYB2H-YNMUY-W874F-0U5KL,2024-06-20,2475.61,ATIVO,Datacenter - Rack 02
+Slack Pro,SOFTWARE,Software perpetuo,TechSupri Distribuidora de TI Ltda,,EFLXQ-WWUT1-T4Z94-2LMBJ-RSFPL,2026-02-20,3250.56,BAIXADO,Anexo II - Sala 05
+Oracle Database Standard,SOFTWARE,Software perpetuo,Nordeste Solucoes Corporativas ME,,DB19F-GSKF0-VQRU4-JJ9LB-CYW65,2025-03-20,5867.58,ATIVO,Bloco A - Recepcao
