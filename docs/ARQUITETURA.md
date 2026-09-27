@@ -1,6 +1,6 @@
 # Arquitetura — ITAM
 
-Visão de arquitetura do MVP de Gestão de Ativos de TI. Complementa o [`SPEC.md`](SPEC.md), que detalha implementação, e o [`PRD.md`](PRD.md), que define o produto.
+Visão de arquitetura do MVP de Gestão de Ativos de TI. Complementa o [`docs/spec/`](spec/README.md), que detalha implementação, e o [`docs/prd/`](prd/README.md), que define o produto.
 
 ---
 
@@ -264,3 +264,62 @@ Cada uma dessas trocas é uma ADR registrada em `docs/adr/` e deve ser defensáv
 | V3 — integração com AD | Autenticação deixa de ser local; `usuario` e `responsavel` passam a ser projeções de uma fonte externa |
 
 A V3 é a primeira que quebra a premissa P1 (monólito modular). Antes dela, o crescimento é por módulo dentro do mesmo processo.
+
+---
+
+## 11. Pipeline de dados
+
+A base de demonstração combina dados reais coletados de três APIs públicas com dados sintéticos gerados localmente (decisão registrada em [ADR-011](adr/0011-estrategia-dados-reais-demonstracao.md); detalhamento fonte a fonte em [`docs/FONTES_DE_DADOS.md`](FONTES_DE_DADOS.md)). O pipeline que produz essa base é um subsistema **separado da API**, com três etapas independentes:
+
+```mermaid
+graph LR
+    subgraph fontes["Fontes externas"]
+        CG["Compras.gov.br"]
+        EOL["endoflife.date"]
+        NVD["NVD / NIST"]
+    end
+
+    subgraph coleta["collectors/ — coleta"]
+        C1["um coletor por fonte"]
+    end
+
+    subgraph raw["data/raw/&lt;fonte&gt;/&lt;data&gt;/"]
+        R1["resposta original das APIs<br/>imutável"]
+    end
+
+    subgraph norm["etl/ — normalização"]
+        N1["classifica por CATMAT<br/>cruza software × ciclo de vida × CVE"]
+    end
+
+    subgraph proc["data/processed/"]
+        P1["dados normalizados<br/>prontos para carga"]
+    end
+
+    subgraph synt["data/synthetic/"]
+        S1["Mockaroo: entidades<br/>ETL: eventos (SYNTHETIC_SEED)"]
+    end
+
+    subgraph carga["etl/ — carga"]
+        L1["python -m etl load"]
+    end
+
+    DB[("PostgreSQL / SQLite")]
+
+    CG --> C1
+    EOL --> C1
+    NVD --> C1
+    C1 --> R1
+    R1 --> N1
+    N1 --> P1
+    P1 --> L1
+    S1 --> L1
+    L1 --> DB
+```
+
+**Isolamento entre pipeline e API — a regra que mais importa aqui.** `collectors/` e `etl/` ficam fora de `app/` e nunca são importados por nenhum módulo de `app/`. A API (`itam-api`) não faz nenhuma chamada de rede a Compras.gov.br, endoflife.date ou NVD durante uma requisição: ela só lê do banco, que já foi populado por uma execução prévia e offline do pipeline (`scripts/seed.sh`, que carrega `data/processed/` e `data/synthetic/`). Consequências dessa separação:
+
+- Uma API externa fora do ar nunca derruba nem deixa lenta uma requisição do ITAM — o pior caso é a próxima coleta ficar desatualizada, não a API em produção.
+- Os testes de `collectors/` usam fixtures gravadas (`tests/fixtures/`) e não acessam a internet (ver [`docs/spec/estrategia-de-testes.md`](spec/estrategia-de-testes.md)); os testes de `app/` não sabem que `collectors/` existe.
+- `data/raw/<fonte>/<data>/` é imutável: cada coleta grava um snapshot novo, nunca sobrescreve um snapshot anterior, o que permite reprocessar a normalização sem repetir a coleta.
+
+Essa é a mesma fronteira descrita na seção 2 ("Fronteira do sistema"): assim como o ITAM não lê o parque físico diretamente, ele também não lê a internet diretamente — em ambos os casos, opera sobre dados já trazidos para dentro da fronteira por um processo anterior e auditável.

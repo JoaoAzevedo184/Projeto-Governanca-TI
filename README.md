@@ -1,11 +1,11 @@
 # ITAM — Gestão de Ativos de TI
 
-Sistema de apoio à governança do parque tecnológico: inventário de hardware e software, cadeia de responsabilidade, depreciação patrimonial e alertas de conformidade.
+Sistema de apoio à governança do parque tecnológico: inventário de hardware e software, cadeia de responsabilidade, depreciação patrimonial e alertas de conformidade — construído sobre **dados públicos reais** sempre que eles existem.
 
 Projeto da disciplina **Governança de TI** — Bacharelado em Sistemas de Informação, UNINASSAU Olinda.
 
 ```
-Python 3.12  ·  FastAPI  ·  SQLAlchemy 2.0  ·  PostgreSQL 16  ·  Docker  ·  Prometheus + Grafana
+Python 3.12  ·  FastAPI  ·  SQLAlchemy 2.0  ·  PostgreSQL 16  ·  httpx  ·  Docker  ·  Prometheus + Grafana
 ```
 
 ---
@@ -29,6 +29,19 @@ Ele resolve cinco problemas concretos:
 1. **Nenhuma recomendação sem evidência.** Uma decisão registrada no sistema exige ao menos um dado verificável que a sustente.
 2. **A decisão é humana.** O sistema ordena alternativas por custo e risco; nunca escolhe por você.
 3. **O histórico não se apaga.** Transferências, baixas e auditoria são *append-only*, garantido no banco.
+4. **Todo dado declara sua origem.** Cada registro carrega o campo `data_source`; a fronteira entre dado real e dado sintético é consultável, nunca implícita.
+
+---
+
+## Origem dos dados
+
+A base de demonstração privilegia **fontes públicas e oficiais** — Compras.gov.br, endoflife.date e NVD — e usa dado sintético apenas onde não existe, e não deveria existir, dado público: pessoas e eventos internos da organização fictícia (LGPD). Toda tabela principal carrega `data_source` (`compras_gov`, `endoflife`, `nvd`, `sintetico`, `importacao`), tornando a fronteira real × sintético consultável:
+
+```sql
+SELECT data_source, COUNT(*) FROM ativos GROUP BY data_source;
+```
+
+Detalhamento fonte a fonte, regras de uso e conformidade com a LGPD em [`docs/FONTES_DE_DADOS.md`](docs/FONTES_DE_DADOS.md).
 
 ---
 
@@ -63,6 +76,12 @@ Ele resolve cinco problemas concretos:
 **Execução local sem Docker:**
 - Python 3.12+
 - pip e venv
+
+**Coleta de dados (opcional):**
+- Acesso à internet
+- Chave de API do NVD (gratuita, recomendada — sem ela o NVD aplica limite de requisições mais restrito). Solicite em https://nvd.nist.gov/developers/request-an-api-key e defina `NVD_API_KEY` no `.env`.
+
+> A coleta **não é necessária** para executar o projeto: o repositório já inclui os datasets processados em `data/processed/`, usados pelo seed.
 
 ---
 
@@ -107,114 +126,7 @@ Aguarde os health checks ficarem saudáveis e carregue os dados de demonstraçã
 
 ---
 
-## Execução local sem Docker
-
-```bash
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-
-pip install -r requirements.txt
-cp .env.example .env               # DATABASE_URL já aponta para SQLite
-
-alembic upgrade head
-python -m scripts.seed
-
-uvicorn app.main:app --reload --port 8000
-```
-
-O perfil local usa **SQLite**, sem necessidade de banco externo. O perfil Docker usa **PostgreSQL**. A seleção é feita pela variável `DATABASE_URL`.
-
----
-
-## Verificando a instalação
-
-```bash
-./scripts/smoke_test.sh
-```
-
-O script verifica, em sequência: health da API, disponibilidade do banco, endpoint de indicadores, endpoint de métricas, saúde do Prometheus e saúde do Grafana. Saída diferente de zero indica ambiente incompleto.
-
-Verificação manual mínima:
-
-```bash
-# 1. Autenticar
-TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"login":"admin","senha":"admin"}' | jq -r .access_token)
-
-# 2. Listar ativos
-curl -s http://localhost:8000/api/v1/ativos \
-  -H "Authorization: Bearer $TOKEN" | jq '.total'
-
-# 3. Consultar indicadores
-curl -s http://localhost:8000/api/v1/indicadores \
-  -H "Authorization: Bearer $TOKEN" | jq '.indicadores[] | {codigo, nome, valor}'
-
-# 4. Ver alertas de compliance
-curl -s http://localhost:8000/api/v1/compliance/alertas \
-  -H "Authorization: Bearer $TOKEN" | jq '.[] | {codigo, severidade, descricao}'
-```
-
----
-
-## Importando seu próprio inventário
-
-```bash
-curl -X POST http://localhost:8000/api/v1/importacoes \
-  -H "Authorization: Bearer $TOKEN" \
-  -F "arquivo=@meu_inventario.xlsx"
-```
-
-O arquivo deve conter as colunas `nome`, `tipo`, `categoria`, `fornecedor`, `numero_serie` ou `chave_licenca`, `data_aquisicao` e `valor_compra`. Veja `data/inventario_demo.csv` como modelo.
-
-Linhas inválidas **não impedem** a importação das demais. Para consultar o que foi rejeitado:
-
-```bash
-curl -s http://localhost:8000/api/v1/importacoes/1/erros \
-  -H "Authorization: Bearer $TOKEN" | jq
-```
-
----
-
-## Testes
-
-```bash
-pip install -r requirements-dev.txt
-
-pytest                              # suíte completa
-pytest tests/unit -v                # apenas unitários
-pytest --cov=app --cov-report=term-missing
-pytest -k "test_ac015"              # um critério de aceite específico
-```
-
-Cada teste carrega o identificador do critério que valida (`test_ac015_...`, `test_ac021_...`), de modo que a matriz de rastreabilidade entre a especificação e o código é verificável por comando:
-
-```bash
-pytest --collect-only -q | grep -c "test_ac"
-```
-
-Cobertura mínima exigida: **70% global**, **100%** em `app/utils/` e `app/services/`.
-
----
-
-## Scripts operacionais
-
-| Script | Ação |
-|---|---|
-| `./scripts/start.sh` | Sobe todo o ambiente |
-| `./scripts/stop.sh` | Encerra os contêineres preservando os dados |
-| `./scripts/reset.sh` | Remove contêineres, redes e **volumes** — apaga os dados |
-| `./scripts/seed.sh` | Carrega categorias, usuários e datasets de demonstração |
-| `./scripts/smoke_test.sh` | Verifica se o ambiente subiu corretamente |
-
-> `reset.sh` elimina dados persistidos. Use apenas em ambiente de laboratório.
-
-Acompanhar logs:
-
-```bash
-docker compose logs -f              # todos os serviços
-docker compose logs -f api          # apenas a API
-```
+Execução local sem Docker, coleta de dados reais (`collectors/`/`etl/`), verificação da instalação, importação de inventário próprio, testes e scripts operacionais estão detalhados em [`docs/guia/`](docs/guia/README.md).
 
 ---
 
@@ -231,16 +143,24 @@ app/
 ├── api/v1/routers/   # endpoints
 └── utils/            # cálculos puros (depreciação, exportação)
 
+collectors/           # um coletor por fonte pública (compras_gov, endoflife, nvd)
+etl/                  # normalização e carga no banco
+
+data/
+├── raw/              # respostas originais das APIs, por fonte e data (imutável)
+├── processed/        # dados normalizados, prontos para carga
+├── synthetic/        # CSVs e esquemas do Mockaroo (versionados)
+└── inventario_demo.csv
+
 alembic/              # migrações versionadas
-tests/                # unit, integration, contract
-data/                 # datasets de demonstração
+tests/                # unit, integration, contract, fixtures das APIs
 scripts/              # operação do ambiente
 docker/               # configuração de Prometheus e Grafana
 docs/                 # PRD, arquitetura, modelo de dados, ADRs
 api/openapi.yaml      # contrato congelado, usado nos testes de contrato
 ```
 
-A regra de dependência entre camadas é unidirecional: router → serviço → repositório → modelo. Regra de negócio vive em `services/`, nunca em `routers/` nem em `models/`.
+A regra de dependência entre camadas é unidirecional: router → serviço → repositório → modelo. Regra de negócio vive em `services/`, nunca em `routers/` nem em `models/`. Os módulos `collectors/` e `etl/` ficam fora de `app/`: a API nunca chama APIs externas durante uma requisição.
 
 ---
 
@@ -248,62 +168,24 @@ A regra de dependência entre camadas é unidirecional: router → serviço → 
 
 | Documento | Conteúdo |
 |---|---|
-| [`docs/PRD.md`](docs/PRD.md) | Visão de produto, personas, requisitos, regras de negócio, critérios de aceite |
-| [`docs/SPEC.md`](docs/SPEC.md) | Arquitetura, modelo físico, contrato da API, cálculos, testes, ADRs |
+| [`docs/prd/`](docs/prd/README.md) | Visão de produto, personas, requisitos, regras de negócio, critérios de aceite |
+| [`docs/spec/`](docs/spec/README.md) | Arquitetura, modelo físico, contrato da API, cálculos, testes, ADRs resumidas |
 | [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md) | Visão de arquitetura detalhada |
-| [`docs/MODELO_DE_DADOS.md`](docs/MODELO_DE_DADOS.md) | Diagrama e dicionário de dados |
-| [`docs/adr/`](docs/adr/) | Registros de decisão arquitetural |
+| [`docs/modelo-de-dados/`](docs/modelo-de-dados/README.md) | Diagrama e dicionário de dados |
+| [`docs/FONTES_DE_DADOS.md`](docs/FONTES_DE_DADOS.md) | Fontes, endpoints, regras de normalização e fronteira real × sintético |
+| [`docs/adr/`](docs/adr/) | Registros de decisão arquitetural completos (ADR-011 em diante) |
+| [`docs/guia/`](docs/guia/README.md) | Execução local, coleta de dados, verificação, importação, testes, scripts, troubleshooting, contribuição, equipe/IA |
+| [`docs/BACKLOG_E_GATES.md`](docs/BACKLOG_E_GATES.md) | Planejamento de execução por gate |
+| [`docs/CRITERIOS_DE_ACEITE.md`](docs/CRITERIOS_DE_ACEITE.md) | Critérios de avaliação da disciplina |
+| [`docs/REGISTRO_USO_DE_IA.md`](docs/REGISTRO_USO_DE_IA.md) | Registro de uso de ferramentas de IA no projeto |
 | `/docs` (runtime) | Documentação interativa da API, gerada automaticamente |
 
-Todo requisito possui identificador estável (`FR-`, `BR-`, `AC-`, `NFR-`, `US-`, `KPI-`). Esses identificadores aparecem em comentários do código, nomes de testes e no campo `regra` das respostas de erro da API.
-
----
-
-## Solução de problemas
-
-| Sintoma | Causa provável | Correção |
-|---|---|---|
-| `docker compose up` falha na porta 8000 | Porta ocupada | Altere `API_PORT` no `.env` |
-| API sobe mas `/health` retorna banco `DOWN` | Postgres ainda inicializando | Aguarde o health check; verifique `docker compose logs db` |
-| `alembic upgrade head` falha | `DATABASE_URL` incorreta | Confira o `.env`; em Docker o host é `db`, não `localhost` |
-| Aplicação recusa iniciar com erro de `SECRET_KEY` | Chave padrão fora do ambiente local | Defina `SECRET_KEY` própria quando `ENVIRONMENT != local` |
-| Importação retorna 422 antes de processar | Cabeçalhos divergentes | Compare com `data/inventario_demo.csv` |
-| Grafana sem dados | Prometheus não alcança a API | Verifique `docker/prometheus/prometheus.yml` e `docker compose logs prometheus` |
-| Testes falham só em PostgreSQL | Índice parcial ou trigger ausente | Rode `alembic upgrade head` no banco de teste |
-| HTTP 403 em operação esperada | Perfil sem permissão | Consulte a matriz do FR-015 no PRD |
-
----
-
-## Contribuição
-
-**Branches:** `main` protegida; trabalho em `feat/`, `fix/` ou `docs/`.
-
-**Commits:** padrão Conventional Commits, referenciando o requisito.
-
-```
-feat(ativos): implementa bloqueio de número de série duplicado (FR-001, BR-001)
-fix(depreciacao): corrige arredondamento para half-up (BR-017)
-test(licencas): cobre AC-021 — excedente de quantitativo
-```
-
-**Definition of Done:** testes do critério passando · migração aplicada e reversível · `openapi.yaml` regenerado · `ruff check` limpo · README atualizado se a forma de execução mudou.
-
----
-
-## Equipe e política de uso de IA
-
-| Nome | Papel |
-|---|---|
-| *(preencher)* | Product Owner |
-| *(preencher)* | Arquitetura e backend |
-| *(preencher)* | Dados e indicadores |
-| *(preencher)* | Infraestrutura e observabilidade |
-| *(preencher)* | Documentação e qualidade |
-
-O uso de ferramentas de IA na construção deste projeto é permitido e deve ser registrado em `docs/REGISTRO_USO_IA.md`, conforme a política da disciplina: ferramenta utilizada, artefato gerado, natureza da revisão humana aplicada. Código e documentação gerados com apoio de IA são de responsabilidade integral da equipe, e cada integrante deve ser capaz de explicar qualquer trecho na defesa.
+Todo requisito possui identificador estável (`FR-`, `BR-`, `AC-`, `NFR-`, `US-`, `KPI-`). Esses identificadores aparecem em comentários do código, nomes de testes e no campo `regra` das respostas de erro da API — cada família vive inteira em um único arquivo dentro de `docs/prd/`, para continuar localizável por busca.
 
 ---
 
 ## Licença
 
 Projeto acadêmico, sem fins comerciais. Uso educacional.
+
+Os dados coletados pertencem às respectivas fontes: Compras.gov.br (dados abertos do Governo Federal), endoflife.date (licença MIT) e NVD/NIST (domínio público). Dados sintéticos gerados com Mockaroo não representam pessoas reais.

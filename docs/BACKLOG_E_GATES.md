@@ -1,6 +1,6 @@
 # Backlog e Gates — ITAM
 
-Planejamento de execução do MVP de Gestão de Ativos de TI. Os identificadores `FR-`, `BR-`, `AC-` e `NFR-` referenciam o [`PRD.md`](PRD.md); os detalhes técnicos estão no [`SPEC.md`](SPEC.md).
+Planejamento de execução do MVP de Gestão de Ativos de TI. Os identificadores `FR-`, `BR-`, `AC-` e `NFR-` referenciam o [`docs/prd/`](prd/README.md); os detalhes técnicos estão no [`docs/spec/`](spec/README.md).
 
 ---
 
@@ -10,15 +10,15 @@ Cada gate é um ponto de verificação com entrega obrigatória. Não se avança
 
 ### Gate 0 — Enquadramento
 
-**Entrega:** cenário do problema, escopo e não escopo, personas, especificação inicial (`PRD-ITAM.md`), critérios de avaliação e registro de uso de IA.
+**Entrega:** cenário do problema, escopo e não escopo, personas, especificação inicial (`docs/prd/`), critérios de avaliação e registro de uso de IA.
 
 **Liberação:** o escopo está delimitado por escrito e a equipe consegue responder o que o sistema **não** fará.
 
 | Artefato | Estado |
 |---|---|
-| `docs/PRD-ITAM.md` | Completo |
+| `docs/prd/` | Completo |
 | `docs/ARQUITETURA.md` | Completo |
-| `docs/MODELO_DE_DADOS.md` | Completo |
+| `docs/modelo-de-dados/` | Completo |
 | `docs/REGISTRO_USO_IA.md` | Aberto, atualizado continuamente |
 | Repositório com estrutura de pastas e CI | A fazer |
 

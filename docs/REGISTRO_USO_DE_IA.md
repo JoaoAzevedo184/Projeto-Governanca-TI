@@ -39,7 +39,8 @@ Nenhum artefato de código pode ficar abaixo de R3. Nenhum documento que cite no
 | 03 | 2026-09-20 | Claude | `README.md` | Documentação de execução do repositório | Comandos executados em máquina limpa; seção de troubleshooting validada provocando cada erro | R3 | *(preencher)* |
 | 04 | 2026-09-20 | Claude | `docs/ARQUITETURA.md`, `docs/MODELO_DE_DADOS.md`, `docs/BACKLOG_E_GATES.md` | Documentos de arquitetura, modelo de dados e planejamento | Diagramas Mermaid renderizados e conferidos; DDL das constraints e triggers executado em PostgreSQL; consultas SQL de referência executadas contra o dataset | R3 | *(preencher)* |
 | 05 | 2026-09-20 | Claude | `scripts/gerar_datasets.py`, `scripts/validar_datasets.py`, `datasets/*.csv` | Gerador e validador dos datasets de demonstração | Script executado; validador apontou vínculos encerrados após a data de baixa e o gerador foi corrigido; deslocamento nos índices de fornecedor identificado e corrigido; contagem de desvios conferida manualmente | R3 | *(preencher)* |
-| 06 | — | — | — | — | — | — | — |
+| 06 | 2026-09-27 | Claude | `README.md`, `docs/FONTES_DE_DADOS.md`, `docs/adr/0011-estrategia-dados-reais-demonstracao.md`, `docs/MODELO_DE_DADOS.md`, `docs/ARQUITETURA.md`, `docs/SPEC.md`, `docs/PRD.md` | Atualização da documentação para refletir a estratégia de dados reais (Compras.gov.br, endoflife.date, NVD) combinados com dados sintéticos (Mockaroo + ETL) | Conferência pendente: endpoints exatos do Compras.gov.br e do NVD, e limites de requisição, marcados com `<!-- TODO: confirmar -->` nos documentos; nenhum endpoint, campo ou número foi inventado sem essa marcação | R2 | *(preencher)* |
+| 07 | — | — | — | — | — | — | — |
 
 ---
 
