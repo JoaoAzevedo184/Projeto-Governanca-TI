@@ -20,7 +20,7 @@ Cada gate é um ponto de verificação com entrega obrigatória. Não se avança
 | `docs/ARQUITETURA.md` | Completo |
 | `docs/modelo-de-dados/` | Completo |
 | `docs/REGISTRO_USO_IA.md` | Aberto, atualizado continuamente |
-| Repositório com estrutura de pastas e CI | A fazer |
+| Repositório com estrutura de pastas e CI | Completo |
 
 ---
 
