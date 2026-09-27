@@ -81,7 +81,7 @@ Detalhamento fonte a fonte, regras de uso e conformidade com a LGPD em [`docs/FO
 - Acesso à internet
 - Chave de API do NVD (gratuita, recomendada — sem ela o NVD aplica limite de requisições mais restrito). Solicite em https://nvd.nist.gov/developers/request-an-api-key e defina `NVD_API_KEY` no `.env`.
 
-> A coleta **não é necessária** para executar o projeto: o repositório já inclui os datasets processados em `data/processed/`, usados pelo seed.
+> A coleta **não é necessária** para executar o projeto: o repositório já inclui os datasets processados em `dataset/processed/`, usados pelo seed.
 
 ---
 
@@ -126,41 +126,41 @@ Aguarde os health checks ficarem saudáveis e carregue os dados de demonstraçã
 
 ---
 
-Execução local sem Docker, coleta de dados reais (`collectors/`/`etl/`), verificação da instalação, importação de inventário próprio, testes e scripts operacionais estão detalhados em [`docs/guia/`](docs/guia/README.md).
+Execução local sem Docker, coleta de dados reais (`python/collectors/`/`python/etl/`), verificação da instalação, importação de inventário próprio, testes e scripts operacionais estão detalhados em [`docs/guia/`](docs/guia/README.md).
 
 ---
 
 ## Estrutura do repositório
 
 ```
-app/
-├── main.py           # aplicação, routers, handlers, métricas
-├── core/             # config, banco, segurança, exceções, auditoria
-├── models/           # mapeamento SQLAlchemy
-├── schemas/          # contratos Pydantic
-├── repositories/     # acesso a dados
-├── services/         # regras de negócio (BR-001 a BR-030)
-├── api/v1/routers/   # endpoints
-└── utils/            # cálculos puros (depreciação, exportação)
+python/
+├── app/
+│   ├── main.py           # aplicação, routers, handlers, métricas
+│   ├── core/             # config, banco, segurança, exceções, auditoria
+│   ├── models/           # mapeamento SQLAlchemy
+│   ├── schemas/          # contratos Pydantic
+│   ├── repositories/     # acesso a dados
+│   ├── services/         # regras de negócio (BR-001 a BR-030)
+│   ├── api/v1/routers/   # endpoints
+│   └── utils/            # cálculos puros (depreciação, exportação)
+├── python/collectors/           # um coletor por fonte pública (compras_gov, endoflife, nvd)
+├── python/etl/                  # normalização e carga no banco
+├── alembic/              # migrações versionadas
+├── tests/                # unit, integration, contract, fixtures das APIs
+└── api/openapi.yaml      # contrato congelado, usado nos testes de contrato
 
-collectors/           # um coletor por fonte pública (compras_gov, endoflife, nvd)
-etl/                  # normalização e carga no banco
-
-data/
+dataset/
+├── demo/inventario_demo.csv
 ├── raw/              # respostas originais das APIs, por fonte e data (imutável)
 ├── processed/        # dados normalizados, prontos para carga
-├── synthetic/        # CSVs e esquemas do Mockaroo (versionados)
-└── inventario_demo.csv
+└── synthetic/        # CSVs e esquemas do Mockaroo (versionados)
 
-alembic/              # migrações versionadas
-tests/                # unit, integration, contract, fixtures das APIs
 scripts/              # operação do ambiente
-docker/               # configuração de Prometheus e Grafana
+infra/                # configuração de Prometheus e Grafana
 docs/                 # PRD, arquitetura, modelo de dados, ADRs
-api/openapi.yaml      # contrato congelado, usado nos testes de contrato
 ```
 
-A regra de dependência entre camadas é unidirecional: router → serviço → repositório → modelo. Regra de negócio vive em `services/`, nunca em `routers/` nem em `models/`. Os módulos `collectors/` e `etl/` ficam fora de `app/`: a API nunca chama APIs externas durante uma requisição.
+A regra de dependência entre camadas é unidirecional: router → serviço → repositório → modelo. Regra de negócio vive em `services/`, nunca em `routers/` nem em `models/`. Os módulos `python/collectors/` e `python/etl/` ficam fora de `app/`: a API nunca chama APIs externas durante uma requisição.
 
 ---
 

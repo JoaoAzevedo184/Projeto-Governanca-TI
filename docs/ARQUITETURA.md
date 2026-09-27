@@ -279,27 +279,27 @@ graph LR
         NVD["NVD / NIST"]
     end
 
-    subgraph coleta["collectors/ — coleta"]
+    subgraph coleta["python/collectors/ — coleta"]
         C1["um coletor por fonte"]
     end
 
-    subgraph raw["data/raw/&lt;fonte&gt;/&lt;data&gt;/"]
+    subgraph raw["dataset/raw/&lt;fonte&gt;/&lt;data&gt;/"]
         R1["resposta original das APIs<br/>imutável"]
     end
 
-    subgraph norm["etl/ — normalização"]
+    subgraph norm["python/etl/ — normalização"]
         N1["classifica por CATMAT<br/>cruza software × ciclo de vida × CVE"]
     end
 
-    subgraph proc["data/processed/"]
+    subgraph proc["dataset/processed/"]
         P1["dados normalizados<br/>prontos para carga"]
     end
 
-    subgraph synt["data/synthetic/"]
+    subgraph synt["dataset/synthetic/"]
         S1["Mockaroo: entidades<br/>ETL: eventos (SYNTHETIC_SEED)"]
     end
 
-    subgraph carga["etl/ — carga"]
+    subgraph carga["python/etl/ — carga"]
         L1["python -m etl load"]
     end
 
@@ -316,10 +316,10 @@ graph LR
     L1 --> DB
 ```
 
-**Isolamento entre pipeline e API — a regra que mais importa aqui.** `collectors/` e `etl/` ficam fora de `app/` e nunca são importados por nenhum módulo de `app/`. A API (`itam-api`) não faz nenhuma chamada de rede a Compras.gov.br, endoflife.date ou NVD durante uma requisição: ela só lê do banco, que já foi populado por uma execução prévia e offline do pipeline (`scripts/seed.sh`, que carrega `data/processed/` e `data/synthetic/`). Consequências dessa separação:
+**Isolamento entre pipeline e API — a regra que mais importa aqui.** `python/collectors/` e `python/etl/` ficam fora de `app/` e nunca são importados por nenhum módulo de `app/`. A API (`itam-api`) não faz nenhuma chamada de rede a Compras.gov.br, endoflife.date ou NVD durante uma requisição: ela só lê do banco, que já foi populado por uma execução prévia e offline do pipeline (`scripts/seed.sh`, que carrega `dataset/processed/` e `dataset/synthetic/`). Consequências dessa separação:
 
 - Uma API externa fora do ar nunca derruba nem deixa lenta uma requisição do ITAM — o pior caso é a próxima coleta ficar desatualizada, não a API em produção.
-- Os testes de `collectors/` usam fixtures gravadas (`tests/fixtures/`) e não acessam a internet (ver [`docs/spec/estrategia-de-testes.md`](spec/estrategia-de-testes.md)); os testes de `app/` não sabem que `collectors/` existe.
-- `data/raw/<fonte>/<data>/` é imutável: cada coleta grava um snapshot novo, nunca sobrescreve um snapshot anterior, o que permite reprocessar a normalização sem repetir a coleta.
+- Os testes de `python/collectors/` usam fixtures gravadas (`tests/fixtures/`) e não acessam a internet (ver [`docs/spec/estrategia-de-testes.md`](spec/estrategia-de-testes.md)); os testes de `app/` não sabem que `python/collectors/` existe.
+- `dataset/raw/<fonte>/<data>/` é imutável: cada coleta grava um snapshot novo, nunca sobrescreve um snapshot anterior, o que permite reprocessar a normalização sem repetir a coleta.
 
 Essa é a mesma fronteira descrita na seção 2 ("Fronteira do sistema"): assim como o ITAM não lê o parque físico diretamente, ele também não lê a internet diretamente — em ambos os casos, opera sobre dados já trazidos para dentro da fronteira por um processo anterior e auditável.

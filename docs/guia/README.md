@@ -5,7 +5,7 @@ Passo a passo operacional que não cabe no [README da raiz](../../README.md) (qu
 | Arquivo | Conteúdo |
 |---|---|
 | [`execucao-local.md`](execucao-local.md) | Execução local sem Docker (SQLite) |
-| [`coleta-de-dados.md`](coleta-de-dados.md) | Coletando dados reais — `collectors/`, `etl/` |
+| [`coleta-de-dados.md`](coleta-de-dados.md) | Coletando dados reais — `python/collectors/`, `python/etl/` |
 | [`verificacao.md`](verificacao.md) | Verificando a instalação (smoke test e verificação manual) |
 | [`importacao.md`](importacao.md) | Importando seu próprio inventário via API |
 | [`testes.md`](testes.md) | Rodando a suíte de testes |

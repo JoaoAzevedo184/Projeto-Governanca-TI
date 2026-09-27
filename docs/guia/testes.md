@@ -5,6 +5,7 @@ Parte do [Guia — ITAM](README.md). Ver também o [README da raiz](../../README
 ## Testes
 
 ```bash
+cd python
 pip install -r requirements-dev.txt
 
 pytest                              # suíte completa

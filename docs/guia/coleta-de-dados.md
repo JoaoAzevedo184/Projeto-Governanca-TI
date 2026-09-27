@@ -4,7 +4,7 @@ Parte do [Guia — ITAM](README.md). Ver também o [README da raiz](../../README
 
 ## Coletando dados reais
 
-O pipeline tem três etapas independentes: **coleta** (APIs → `data/raw/`), **normalização** (`data/raw/` → `data/processed/`) e **carga** (`data/processed/` + `data/synthetic/` → banco).
+O pipeline tem três etapas independentes: **coleta** (APIs → `dataset/raw/`), **normalização** (`dataset/raw/` → `dataset/processed/`) e **carga** (`dataset/processed/` + `dataset/synthetic/` → banco).
 
 ```bash
 # Todas as fontes
@@ -24,9 +24,9 @@ python -m etl load
 
 | Coletor | Entrada | Saída bruta |
 |---|---|---|
-| `compras_gov` | Códigos CATMAT de TI configurados em `collectors/config.yaml` | `data/raw/compras_gov/<data>/*.json` |
-| `endoflife` | Lista de produtos acompanhados em `collectors/config.yaml` | `data/raw/endoflife/<data>/*.json` |
-| `nvd` | Produtos e versões presentes na base | `data/raw/nvd/<data>/*.json` |
+| `compras_gov` | Códigos CATMAT de TI configurados em `python/collectors/config.yaml` | `dataset/raw/compras_gov/<data>/*.json` |
+| `endoflife` | Lista de produtos acompanhados em `python/collectors/config.yaml` | `dataset/raw/endoflife/<data>/*.json` |
+| `nvd` | Produtos e versões presentes na base | `dataset/raw/nvd/<data>/*.json` |
 
 A normalização classifica os itens pelo CATMAT (notebook, desktop, servidor, monitor, equipamento de rede), padroniza fabricantes e modelos e cruza software × ciclo de vida × vulnerabilidades.
 

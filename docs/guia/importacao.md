@@ -10,7 +10,7 @@ curl -X POST http://localhost:8000/api/v1/importacoes \
   -F "arquivo=@meu_inventario.xlsx"
 ```
 
-O arquivo deve conter as colunas `nome`, `tipo`, `categoria`, `fornecedor`, `numero_serie` ou `chave_licenca`, `data_aquisicao` e `valor_compra`. Veja `data/inventario_demo.csv` como modelo. Registros importados recebem `data_source = importacao`.
+O arquivo deve conter as colunas `nome`, `tipo`, `categoria`, `fornecedor`, `numero_serie` ou `chave_licenca`, `data_aquisicao` e `valor_compra`. Veja `dataset/demo/inventario_demo.csv` como modelo. Registros importados recebem `data_source = importacao`.
 
 Linhas inválidas **não impedem** a importação das demais. Para consultar o que foi rejeitado:
 

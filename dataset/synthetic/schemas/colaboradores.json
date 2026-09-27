@@ -1,0 +1,43 @@
+[
+  { "name": "id", "type": "Row Number" },
+  { "name": "matricula", "type": "Number", "min": 100000, "max": 999999, "decimals": 0 },
+  {
+    "name": "nome",
+    "type": "Custom List",
+    "values": ["Ana", "Bruno", "Carla", "Daniel", "Eduarda", "Felipe", "Gabriela", "Henrique",
+               "Isabela", "Lucas", "Mariana", "Rafael", "Beatriz", "Thiago", "Larissa", "Pedro",
+               "Camila", "Mateus", "Juliana", "Gustavo", "Renata", "Diego", "Leticia", "Vinicius"]
+  },
+  {
+    "name": "sobrenome",
+    "type": "Custom List",
+    "values": ["Silva", "Santos", "Oliveira", "Souza", "Lima", "Pereira", "Ferreira", "Costa",
+               "Rodrigues", "Almeida", "Nascimento", "Carvalho", "Araujo", "Ribeiro", "Barbosa",
+               "Cavalcanti", "Albuquerque", "Lins", "Melo", "Freitas"]
+  },
+  {
+    "name": "email",
+    "type": "Formula",
+    "value": "lower(nome) + '.' + lower(sobrenome) + '.' + matricula + '@itam.lab'"
+  },
+  {
+    "name": "setor",
+    "type": "Custom List",
+    "values": ["TI", "Infraestrutura", "Recursos Humanos", "Financeiro", "Compras",
+               "Juridico", "Atendimento", "Diretoria", "Comunicacao", "Planejamento"]
+  },
+  {
+    "name": "cargo",
+    "type": "Custom List",
+    "values": ["Analista", "Assistente", "Tecnico", "Coordenador", "Gerente", "Estagiario", "Especialista"]
+  },
+  {
+    "name": "localizacao",
+    "type": "Custom List",
+    "values": ["Sede - Terreo", "Sede - 1o andar", "Sede - 2o andar", "Sede - 3o andar",
+               "Filial Recife", "Filial Olinda", "Datacenter", "Home office"]
+  },
+  { "name": "data_admissao", "type": "Date", "min": "01/01/2014", "max": "09/01/2026", "format": "%Y-%m-%d" },
+  { "name": "ativo", "type": "Boolean" },
+  { "name": "data_source", "type": "Custom List", "values": ["sintetico"] }
+]

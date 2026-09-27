@@ -9,11 +9,11 @@ Parte de [SPEC — ITAM](README.md).
 | Unitário | Funções puras (`utils/depreciacao.py`) e serviços com repositório falso | pytest | 100% das regras de cálculo |
 | Integração | Endpoints com banco real (SQLite em memória ou PostgreSQL efêmero) | pytest + httpx | Um teste por critério de aceite |
 | Contrato | Validação das respostas contra `api/openapi.yaml` | schemathesis | Todos os endpoints |
-| Coletores | `collectors/` (Compras.gov.br, endoflife.date, NVD) | pytest + fixtures gravadas | Nenhum teste acessa a internet |
+| Coletores | `python/collectors/` (Compras.gov.br, endoflife.date, NVD) | pytest + fixtures gravadas | Nenhum teste acessa a internet |
 | Fumaça | Ambiente orquestrado no ar | `scripts/smoke_test.sh` | health, metrics, KPIs |
 | Segurança | Análise estática | bandit, ruff | Zero achados de severidade alta |
 
-Os testes de `collectors/` usam respostas gravadas das APIs em `tests/fixtures/` (ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md)) e nunca fazem requisição real — o teste falha se tentar abrir socket, o que é verificado por um marcador que bloqueia rede (`pytest-socket` ou equivalente <!-- TODO: confirmar -->).
+Os testes de `python/collectors/` usam respostas gravadas das APIs em `tests/fixtures/` (ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md)) e nunca fazem requisição real — o teste falha se tentar abrir socket, o que é verificado por um marcador que bloqueia rede (`pytest-socket` ou equivalente <!-- TODO: confirmar -->).
 
 **Convenção de nomenclatura.** Cada teste carrega o identificador do critério que valida:
 

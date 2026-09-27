@@ -3,12 +3,16 @@ name: itam
 services:
 
   api:
-    build: .
+    build:
+      context: ./python
     ports:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql+psycopg://itam:itam@db:5432/itam
       ENVIRONMENT: docker
+      DATASET_DIR: /dataset
+    volumes:
+      - ./dataset:/dataset:ro
     depends_on:
       db:
         condition: service_healthy
@@ -34,7 +38,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     depends_on:
       - api
 
@@ -46,7 +50,7 @@ services:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
     volumes:
-      - ./docker/grafana:/etc/grafana/provisioning:ro
+      - ./infra/grafana/datasources:/etc/grafana/provisioning/datasources:ro
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus

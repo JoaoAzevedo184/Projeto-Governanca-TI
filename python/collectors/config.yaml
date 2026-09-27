@@ -1,0 +1,7 @@
+# codigos CATMAT e produtos monitorados por coletor
+compras_gov:
+  catmat_codigos: []
+endoflife:
+  produtos: []
+nvd:
+  produtos: []

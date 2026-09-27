@@ -1,5 +1,5 @@
 global: {scrape_interval: 15s}
 scrape_configs:
-  - job_name: observabilidade-python
+  - job_name: itam-api
     metrics_path: /metrics
-    static_configs: [{targets: ["python-api:8080"]}]
+    static_configs: [{targets: ["api:8000"]}]

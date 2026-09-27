@@ -12,14 +12,14 @@ Detalha, fonte a fonte, o que o `README.md` resume na seção "Origem dos dados"
 | **URL base** | `https://dadosabertos.compras.gov.br` |
 | **Documentação** | `https://dadosabertos.compras.gov.br/swagger-ui/index.html` |
 | **Autenticação** | <!-- TODO: confirmar --> API de dados abertos; confirmar se algum endpoint usado exige chave ou se todos são de acesso público irrestrito |
-| **Endpoints usados** | <!-- TODO: confirmar --> endpoint(s) de consulta de itens de compra/material por código CATMAT, a definir em `collectors/config.yaml` |
+| **Endpoints usados** | <!-- TODO: confirmar --> endpoint(s) de consulta de itens de compra/material por código CATMAT, a definir em `python/collectors/config.yaml` |
 | **Campos aproveitados** | descrição do item, código CATMAT, fabricante, modelo, quantidade, valor unitário, data de homologação/compra, órgão |
 | **Mapeamento** | `ativo.nome`, `ativo.valor_compra`, `ativo.data_aquisicao`, `ativo.fornecedor_id` (via razão social do fabricante, resolvida contra `fornecedor`), `categoria_id` (via classificação do CATMAT — ver seção 6) |
 | **Requisitos atendidos** | FR-001, FR-003, FR-004 (fornecedor), FR-010, FR-011 |
 | **Limites de uso** | <!-- TODO: confirmar --> limite de requisições por período da API de dados abertos |
 | **Licença** | Dados abertos do Governo Federal brasileiro |
 
-**Classificação CATMAT.** A normalização usa o código CATMAT para decidir a `categoria` do ativo (Notebook, Desktop, Servidor, Monitor, Impressora, Switch, Roteador etc.), conforme a tabela de vida útil do FR-003. Os códigos CATMAT específicos monitorados ficam em `collectors/config.yaml` — <!-- TODO: confirmar --> lista definitiva de códigos.
+**Classificação CATMAT.** A normalização usa o código CATMAT para decidir a `categoria` do ativo (Notebook, Desktop, Servidor, Monitor, Impressora, Switch, Roteador etc.), conforme a tabela de vida útil do FR-003. Os códigos CATMAT específicos monitorados ficam em `python/collectors/config.yaml` — <!-- TODO: confirmar --> lista definitiva de códigos.
 
 ---
 
@@ -31,7 +31,7 @@ Detalha, fonte a fonte, o que o `README.md` resume na seção "Origem dos dados"
 | **URL base** | `https://endoflife.date/api/` |
 | **Documentação** | `https://endoflife.date/docs/api` |
 | **Autenticação** | Nenhuma — API pública, sem chave |
-| **Endpoints usados** | `GET /api/<produto>.json` (lista de ciclos do produto) e/ou `GET /api/<produto>/<versao>.json` (ciclo específico) para os produtos configurados em `collectors/config.yaml` |
+| **Endpoints usados** | `GET /api/<produto>.json` (lista de ciclos do produto) e/ou `GET /api/<produto>/<versao>.json` (ciclo específico) para os produtos configurados em `python/collectors/config.yaml` |
 | **Campos aproveitados** | `cycle` (versão), `releaseDate`, `eol` (data de fim de suporte ou `false`), `latest` |
 | **Mapeamento** | Tabela de ciclo de vida de software (ver [`docs/modelo-de-dados/dicionario-de-dados.md`](modelo-de-dados/dicionario-de-dados.md#produto_software) — nova, `data_source = endoflife`); referenciada pela associação ativo × software instalado |
 | **Requisitos atendidos** | FR-004, FR-007 (CP-03 e correlatos de ciclo de vida) |
@@ -83,9 +83,9 @@ Vale repetir aqui porque é a regra que mais gera confusão: o banco **não guar
 |---|---|
 | **O que fornece** | Apenas entidades: colaboradores (nome, matrícula, e-mail, setor, cargo, localização) |
 | **Autenticação** | N/A — ferramenta usada offline na geração; não é chamada em runtime |
-| **Esquemas** | `data/synthetic/schemas/` |
-| **CSVs gerados** | `data/synthetic/`, versionados no repositório para reprodutibilidade |
-| **Gerador** | `scripts/gerar_sinteticos.py` |
+| **Esquemas** | `dataset/synthetic/schemas/` |
+| **CSVs gerados** | `dataset/synthetic/`, versionados no repositório para reprodutibilidade |
+| **Gerador** | `python/etl/gerar_sinteticos.py` |
 | **Mapeamento** | Tabela `responsavel` (ver [`docs/modelo-de-dados/dicionario-de-dados.md`](modelo-de-dados/dicionario-de-dados.md#33-setor-e-responsavel)), `data_source = sintetico` |
 | **Requisitos atendidos** | FR-002 |
 | **Limites de uso** | Plano gratuito do Mockaroo limita linhas por exportação — <!-- TODO: confirmar --> volume exato usado |
@@ -104,7 +104,7 @@ Vale repetir aqui porque é a regra que mais gera confusão: o banco **não guar
 | **Regras de negócio respeitadas** | Nenhum evento anterior à `data_aquisicao` do ativo (BR-010); nenhuma transferência após a baixa (BR-009); baixa preferencialmente atribuída a ativos com vida útil encerrada; software sorteado apenas entre produtos/versões presentes na tabela de ciclo de vida do endoflife.date (seção 2) |
 | **`data_source`** | `sintetico` |
 | **Requisitos atendidos** | FR-002, FR-004, FR-005, FR-007 |
-| **Onde vive** | `etl/`, fora de `app/` — a API nunca invoca o ETL durante uma requisição |
+| **Onde vive** | `python/etl/`, fora de `app/` — a API nunca invoca o ETL durante uma requisição |
 
 ---
 
@@ -143,4 +143,4 @@ Consequência prática: qualquer extensão futura que substitua o Mockaroo por u
 
 ## 11. O que ainda não existe no código
 
-Os componentes citados neste documento e no `README.md` — `collectors/`, `etl/`, `collectors/config.yaml`, `scripts/gerar_sinteticos.py`, `scripts/collect.sh`, `data/raw/`, `data/processed/`, `data/synthetic/`, `tests/fixtures/` — descrevem a arquitetura de dados **decidida**, não o estado atual do repositório. Ver a lista completa de pendências no resumo desta atualização de documentação.
+Os componentes citados neste documento e no `README.md` — `python/collectors/`, `python/etl/`, `python/collectors/config.yaml`, `python/etl/gerar_sinteticos.py`, `scripts/collect.sh`, `dataset/raw/`, `dataset/processed/`, `dataset/synthetic/`, `tests/fixtures/` — descrevem a arquitetura de dados **decidida**, não o estado atual do repositório. Ver a lista completa de pendências no resumo desta atualização de documentação.

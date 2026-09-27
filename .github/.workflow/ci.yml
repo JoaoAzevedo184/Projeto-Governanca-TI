@@ -1,0 +1,143 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+
+defaults:
+  run:
+    working-directory: python
+
+jobs:
+  # ------------------------------------------------------------------
+  # Qualidade estática: lint, tipos e segurança
+  # ------------------------------------------------------------------
+  qualidade:
+    name: Qualidade (ruff, mypy, bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            python/requirements.txt
+            python/requirements-dev.txt
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Ruff (lint)
+        run: ruff check .
+
+      - name: Mypy (tipos)
+        run: mypy app --ignore-missing-imports
+
+      - name: Bandit (segurança)
+        # -ll: reporta apenas severidade média ou alta
+        run: bandit -r app -ll
+
+  # ------------------------------------------------------------------
+  # Testes contra PostgreSQL real (índices parciais e triggers)
+  # ------------------------------------------------------------------
+  testes:
+    name: Testes (pytest + PostgreSQL)
+    runs-on: ubuntu-latest
+    needs: qualidade
+
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: itam
+          POSTGRES_PASSWORD: itam_ci
+          POSTGRES_DB: itam_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U itam -d itam_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      ENVIRONMENT: local
+      DATABASE_URL: postgresql+psycopg://itam:itam_ci@localhost:5432/itam_test
+      SECRET_KEY: chave-exclusiva-do-ci-sem-valor-real
+      DATASET_DIR: ${{ github.workspace }}/dataset
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            python/requirements.txt
+            python/requirements-dev.txt
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Aplicar migrações
+        run: alembic upgrade head
+
+      - name: Pytest com cobertura (mínimo 70% global)
+        run: |
+          if find tests -name "test_*.py" | grep -q .; then
+            pytest --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=70
+          else
+            echo "::warning::Nenhum arquivo test_*.py encontrado — etapa de testes ignorada."
+            echo "SEM_TESTES=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Cobertura de 100% em utils/ e services/
+        if: env.SEM_TESTES != '1'
+        run: coverage report --include="app/utils/*,app/services/*" --fail-under=100
+
+      - name: Rastreabilidade (testes com identificador de critério)
+        if: env.SEM_TESTES != '1'
+        run: |
+          total=$(pytest --collect-only -q | grep -c "test_ac" || true)
+          echo "Testes vinculados a critérios de aceite: $total"
+          echo "### Testes vinculados a critérios de aceite: $total" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publicar relatório de cobertura
+        if: env.SEM_TESTES != '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: python/coverage.xml
+
+  # ------------------------------------------------------------------
+  # Ambiente Docker: compose válido e imagem da API construível
+  # ------------------------------------------------------------------
+  docker:
+    name: Docker (compose + build)
+    runs-on: ubuntu-latest
+    needs: qualidade
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar .env a partir do exemplo
+        run: cp .env.example .env
+
+      - name: Validar docker-compose.yml
+        run: docker compose config --quiet
+
+      - name: Construir imagem da API
+        run: docker compose build api

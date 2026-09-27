@@ -8,9 +8,10 @@ Parte do [Guia — ITAM](README.md). Ver também o [README da raiz](../../README
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 
-pip install -r requirements.txt
 cp .env.example .env               # DATABASE_URL já aponta para SQLite
 
+cd python
+pip install -r requirements.txt
 alembic upgrade head
 python -m scripts.seed
 

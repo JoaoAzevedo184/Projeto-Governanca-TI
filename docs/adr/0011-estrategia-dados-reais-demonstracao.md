@@ -45,6 +45,6 @@ Toda tabela principal carrega `data_source` (`compras_gov`, `endoflife`, `nvd`, 
 
 **Negativas / custo aceito**
 
-- O projeto passa a depender da disponibilidade e da estabilidade de três APIs externas (Compras.gov.br, endoflife.date, NVD) no momento da coleta. Mitigado por `data/raw/` imutável: a coleta não precisa ser refeita a cada carga, e a API do ITAM nunca depende dessas fontes em tempo de requisição.
+- O projeto passa a depender da disponibilidade e da estabilidade de três APIs externas (Compras.gov.br, endoflife.date, NVD) no momento da coleta. Mitigado por `dataset/raw/` imutável: a coleta não precisa ser refeita a cada carga, e a API do ITAM nunca depende dessas fontes em tempo de requisição.
 - O catálogo de itens de TI disponíveis no Compras.gov.br é o que existe nos pregões públicos coletados — a diversidade de categorias no inventário fica limitada ao que órgãos públicos efetivamente compraram, e não a um catálogo desenhado sob medida para cobrir todos os cenários de compliance do dataset.
 - Coordenar três coletores com regras de negócio do ETL (nenhum evento antes da aquisição, baixa preferencialmente em ativos com vida útil encerrada etc.) é mais complexo do que um gerador sintético único — custo aceito porque é o único caminho que preserva preço e data reais.

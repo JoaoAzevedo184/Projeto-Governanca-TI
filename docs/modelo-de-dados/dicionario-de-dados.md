@@ -41,7 +41,7 @@ Parte de [Modelo de Dados — ITAM](README.md).
 | `nome` | VARCHAR(160) | — |
 | `matricula` | VARCHAR(30) | Único quando presente |
 | `email`, `cargo` | VARCHAR | — |
-| `localizacao` | VARCHAR(120) | Campo do esquema Mockaroo (`data/synthetic/schemas/`); texto livre, ex.: "Bloco A - 2º andar" |
+| `localizacao` | VARCHAR(120) | Campo do esquema Mockaroo (`dataset/synthetic/schemas/`); texto livre, ex.: "Bloco A - 2º andar" |
 | `setor_id` | BIGINT | FK → `setor`. Lotação atual, independente do setor do vínculo |
 | `ativo` | BOOLEAN | Desligamento é desativação, nunca exclusão |
 | `data_source` | VARCHAR(20) | Sempre `sintetico` — colaborador não é pessoa real (ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md#10-conformidade-com-a-lgpd)) |
