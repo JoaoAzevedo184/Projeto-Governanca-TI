@@ -167,9 +167,9 @@ Todo relatório aceita `formato=json|csv|xlsx`. Em `csv` e `xlsx`, o cabeçalho 
 | Método | Rota | Perfis | FR |
 |---|---|---|---|
 | POST | `/importacoes` | ADMIN | FR-008 |
-| GET | `/importacoes` | ADMIN, AUDITOR | FR-008 |
-| GET | `/importacoes/{id}` | ADMIN, AUDITOR | FR-008 |
-| GET | `/importacoes/{id}/erros` | ADMIN, AUDITOR | FR-008 |
+| GET | `/importacoes` | todos | FR-008 |
+| GET | `/importacoes/{id}` | todos | FR-008 |
+| GET | `/importacoes/{id}/erros` | todos | FR-008 |
 
 `POST` recebe `multipart/form-data` com o campo `arquivo`. Resposta `202`:
 

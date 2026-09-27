@@ -35,6 +35,20 @@ Toda tabela principal carrega `data_source` (`compras_gov`, `endoflife`, `nvd`, 
 | **Datasets do Kaggle** | Avaliados dois candidatos: o dataset de ativos de TI ao estilo SAP é ele próprio sintético (não resolve o problema, só o terceiriza), e o S&P 500 é irrelevante para o domínio de ITAM. Nenhum dataset do Kaggle encontrado combina itens de TI reais com preço e data de aquisição verificáveis. |
 | **Dados 100% sintéticos** | Enfraquece a credibilidade dos indicadores: um valor residual calculado sobre um preço inventado não é evidência de nada, e a disciplina exige que "nenhuma recomendação [seja feita] sem evidência" (princípio estruturante do `README.md`). |
 
+## Decisão — identificador do ativo e fornecedor em compras públicas
+
+`ck_ativo_identificador` exige `numero_serie` (HARDWARE) ou `chave_licenca` (SOFTWARE), mas o Compras.gov.br não expõe número de série por unidade — o item de compra é uma linha com quantidade, não uma lista de números de série.
+
+**Fornecedor vencedor por item — resolvido.** O endpoint `/modulo-legado/2_consultarItemLicitacao` da [API Compras.gov.br](https://dadosabertos.compras.gov.br/swagger-ui/index.html) (schema `TbVwItemLicitacaoDTO`) retorna `nome_fornecedor` e `cnpj_fornecedor` por item, junto com `quantidade`, `id_compra` e `id_compra_item`. Não é preciso fornecedor genérico nem item pendente — o fornecedor é resolvido/criado por CNPJ na tabela `fornecedor` como qualquer outro cadastro.
+
+**Identificador — combinação das alternativas 1 e 2.** Como `quantidade` é numérica por item (não uma lista de seriais) e pode ser grande demais pra virar 1:1 em ativos, o coletor expande cada item até um teto configurável (evita gerar milhares de ativos de uma única linha de compra) e deriva `numero_serie` determinístico e rastreável à compra de origem:
+
+```
+numero_serie = f"CG-{id_compra}-{id_compra_item}-{sequencial}"
+```
+
+Sinalizado como gerado (não é número de série de fábrica) — mesmo padrão de `data_source = "importacao"` já usado pra distinguir origem sem exigir campo novo. Fica para a implementação de D.1 decidir o teto de expansão por item (parâmetro de configuração, não hardcoded).
+
 ## Consequências
 
 **Positivas**

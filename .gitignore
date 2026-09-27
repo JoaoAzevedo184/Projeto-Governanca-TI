@@ -1,5 +1,7 @@
 # Ambiente
 .env
+.env.*
+!.env.example
 graphify-out/
 
 # Python
@@ -7,12 +9,34 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+*.egg-info/
+build/
+dist/
+
+# Ferramentas de qualidade e testes
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .coverage
+.coverage.*
+coverage.xml
 htmlcov/
+
+# Banco local (perfil SQLite)
+*.db
+*.sqlite3
+
+# Dados: respostas brutas das APIs são recoletáveis
+dataset/raw/*
+!dataset/raw/.gitkeep
+
+# Logs
+*.log
 
 # IDE / SO
 .idea/
 .vscode/
 *.iml
+*.swp
 .DS_Store
+Thumbs.db

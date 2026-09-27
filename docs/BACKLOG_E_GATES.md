@@ -145,6 +145,24 @@ Cada gate é um ponto de verificação com entrega obrigatória. Não se avança
 | 1.11 | Trilha de auditoria em toda escrita | NFR-AUD-02 | AC-057 |
 | 1.12 | Handler global de erros com campo `regra` | NFR-SEG-06 | — |
 
+### Pipeline de dados — Coleta e carga
+
+`collectors/` e `etl/` implementam a estratégia decidida na [ADR-011](adr/0011-estrategia-dados-reais-demonstracao.md) e detalhada em [`docs/FONTES_DE_DADOS.md`](FONTES_DE_DADOS.md): dados reais onde existem, sintético só onde não deveria haver dado público (LGPD).
+
+| # | Item | FR/NFR | Saída |
+|---|---|---|---|
+| D.1 | Coletor `compras_gov` — itens de TI por código CATMAT (`collectors/config.yaml`) | FR-001, FR-003, FR-004 | `dataset/raw/compras_gov/<data>/*.json`; testes com fixtures gravadas em `tests/fixtures/`, sem rede |
+| D.2 | Exportar 100 itens coletados no formato de `dataset/demo/inventario_demo.csv` e importar via `POST /importacoes` | Gate 1 | Importação concluída com relatório de aceitos/rejeitados, alinhada ao critério de liberação do Gate 1 (arquivo de 100 linhas com relatório de erros linha a linha) |
+| D.3 | Coletor `endoflife` — ciclos de vida por produto | FR-004, FR-007 | `dataset/raw/endoflife/<data>/*.json`; testes com fixtures gravadas em `tests/fixtures/`, sem rede |
+| D.4 | Coletor `nvd` — CVEs por produto | FR-004, FR-007 | `dataset/raw/nvd/<data>/*.json`; testes com fixtures gravadas em `tests/fixtures/`, sem rede |
+| D.5 | Gerar `dataset/synthetic/colaboradores.csv` via Mockaroo e versionar | FR-002 | CSV commitado, reprodutível sem chave de API |
+| D.6 | Normalização — classifica por CATMAT, cruza software × ciclo de vida × CVE | FR-001, FR-007 | `dataset/processed/` |
+| D.7 | Geração de eventos sintéticos — transferências, baixas, instalações (`SYNTHETIC_SEED`) | FR-002, FR-005 | `dataset/synthetic/*.csv` |
+| D.8 | Carga no banco — `dataset/processed/` + `dataset/synthetic/` → tabelas via ORM | — | Banco populado com `data_source` correto |
+| D.9 | Integração do `scripts/seed.sh` com `dataset/processed/` e `dataset/synthetic/` | — | `./scripts/seed.sh` carrega tudo, não só a migração |
+
+> `numero_serie` de itens de compras públicas é derivado e determinístico (`CG-<id_compra>-<id_compra_item>-<sequencial>`, expansão limitada por item); fornecedor vem direto da API (`nome_fornecedor`/`cnpj_fornecedor`). Ver decisão na [ADR-011](adr/0011-estrategia-dados-reais-demonstracao.md).
+
 ### Sprint 2 — Responsabilidade e depreciação
 
 | # | Item | FR/NFR | Critérios |

@@ -348,12 +348,12 @@ Tentativas de gravar recomendação sem evidência retornam erro de validação 
 
 **Descrição.** O sistema deve autenticar usuários e restringir operações por perfil.
 
-| Perfil | Ativos | Responsáveis | Licenças | Baixas | Relatórios | Configuração |
-|---|---|---|---|---|---|---|
-| `ADMIN` | CRUD | CRUD | CRUD | Criar | Ler | CRUD |
-| `OPERADOR` | Criar, Ler, Editar | Criar, Ler | Ler, Editar | Criar | Ler | — |
-| `GESTOR` | Ler | Ler | Ler | Ler | Ler | — |
-| `AUDITOR` | Ler | Ler | Ler | Ler | Ler | — |
+| Perfil | Ativos | Responsáveis | Licenças | Baixas | Relatórios | Configuração | Setores | Importação |
+|---|---|---|---|---|---|---|---|---|
+| `ADMIN` | CRUD | CRUD | CRUD | Criar | Ler | CRUD | CRUD | Criar, Ler |
+| `OPERADOR` | Criar, Ler, Editar | Criar, Ler | Ler, Editar | Criar | Ler | — | — | Ler |
+| `GESTOR` | Ler | Ler | Ler | Ler | Ler | — | — | Ler |
+| `AUDITOR` | Ler | Ler | Ler | Ler | Ler | — | — | Ler |
 
 Autenticação por JWT com expiração configurável. Toda operação de escrita registra autor e carimbo de tempo.
 

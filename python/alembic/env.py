@@ -4,6 +4,16 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.core.config import get_settings
+from app.models import (  # noqa: F401 — importados para registrar as tabelas em Base.metadata
+    ativo,
+    auditoria,
+    categoria,
+    fornecedor,
+    importacao,
+    responsavel,
+    setor,
+    usuario,
+)
 from app.models.base import Base
 
 config = context.config
