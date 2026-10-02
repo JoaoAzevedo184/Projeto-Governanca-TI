@@ -7,10 +7,12 @@ from app.core.config import get_settings
 from app.models import (  # noqa: F401 — importados para registrar as tabelas em Base.metadata
     ativo,
     auditoria,
+    baixa,
     categoria,
     fornecedor,
     historico,
     importacao,
+    licenca,
     responsavel,
     setor,
     usuario,
