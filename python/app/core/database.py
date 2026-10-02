@@ -25,9 +25,10 @@ def get_db() -> Generator[Session, None, None]:
 def flush_ou_conflito(db: Session, mensagem: str) -> None:
     """`db.flush()` convertendo violação de UNIQUE/CHECK em 409 (padrão RFC 7807 do SPEC).
 
-    Sem BR numerado para as unicidades de cadastro (categoria.nome, fornecedor.cnpj,
-    setor.nome, responsavel.matricula) — ver observação em docs/ROADMAP.md — por isso
-    nenhuma `regra` é anexada aqui.
+    Usado nas unicidades de cadastro (categoria.nome, fornecedor.cnpj, setor.nome,
+    responsavel.matricula), que não têm BR numerado — ver nota no início do §3 de
+    docs/modelo-de-dados/dicionario-de-dados.md. O conflito de BR-007 tem tratamento próprio,
+    com savepoint e auditoria, em responsavel_service.atribuir_responsavel.
     """
     try:
         db.flush()

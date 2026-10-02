@@ -6,11 +6,27 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user, get_db, require_perfil
 from app.models.ativo import Ativo
 from app.models.enums import PerfilUsuario, StatusAtivo, TipoAtivo
+from app.models.historico import HistoricoTransferencia
 from app.models.usuario import Usuario
-from app.schemas.ativo import AtivoCreate, AtivoResponse, AtivoUpdate, ListaAtivosResponse
-from app.services import ativo_service
+from app.schemas.ativo import (
+    AtivoCreate,
+    AtivoDados,
+    AtivoResponse,
+    AtivoUpdate,
+    ListaAtivosResponse,
+)
+from app.schemas.depreciacao import DepreciacaoResponse
+from app.schemas.historico import VinculoCreate, VinculoResponse
+from app.services import ativo_service, depreciacao_service, responsavel_service
 
 router = APIRouter(prefix="/ativos", tags=["ativos"])
+
+
+def _resposta(ativo: Ativo) -> AtivoResponse:
+    return AtivoResponse(
+        **AtivoDados.model_validate(ativo).model_dump(),
+        depreciacao=depreciacao_service.calcular_para_ativo(ativo),
+    )
 
 
 @router.post("", response_model=AtivoResponse, status_code=201)
@@ -18,8 +34,8 @@ def criar(
     dados: AtivoCreate,
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(require_perfil(PerfilUsuario.ADMIN, PerfilUsuario.OPERADOR)),
-) -> Ativo:
-    return ativo_service.criar_ativo(db, dados, usuario)
+) -> AtivoResponse:
+    return _resposta(ativo_service.criar_ativo(db, dados, usuario))
 
 
 @router.get("", response_model=ListaAtivosResponse, dependencies=[Depends(get_current_user)])
@@ -49,7 +65,7 @@ def listar(
     )
     total_paginas = ceil(total / tamanho) if total else 0
     return ListaAtivosResponse(
-        itens=[AtivoResponse.model_validate(item) for item in itens],
+        itens=[_resposta(item) for item in itens],
         pagina=pagina,
         tamanho=tamanho,
         total=total,
@@ -58,8 +74,8 @@ def listar(
 
 
 @router.get("/{ativo_id}", response_model=AtivoResponse, dependencies=[Depends(get_current_user)])
-def obter(ativo_id: int, db: Session = Depends(get_db)) -> Ativo:
-    return ativo_service.obter_ativo(db, ativo_id)
+def obter(ativo_id: int, db: Session = Depends(get_db)) -> AtivoResponse:
+    return _resposta(ativo_service.obter_ativo(db, ativo_id))
 
 
 @router.patch("/{ativo_id}", response_model=AtivoResponse)
@@ -68,5 +84,33 @@ def atualizar(
     dados: AtivoUpdate,
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(require_perfil(PerfilUsuario.ADMIN, PerfilUsuario.OPERADOR)),
-) -> Ativo:
-    return ativo_service.atualizar_ativo(db, ativo_id, dados, usuario)
+) -> AtivoResponse:
+    return _resposta(ativo_service.atualizar_ativo(db, ativo_id, dados, usuario))
+
+
+@router.get(
+    "/{ativo_id}/depreciacao",
+    response_model=DepreciacaoResponse,
+    dependencies=[Depends(get_current_user)],
+)
+def depreciacao(ativo_id: int, db: Session = Depends(get_db)) -> DepreciacaoResponse:
+    return depreciacao_service.obter_depreciacao(db, ativo_id)
+
+
+@router.get(
+    "/{ativo_id}/historico",
+    response_model=list[VinculoResponse],
+    dependencies=[Depends(get_current_user)],
+)
+def historico(ativo_id: int, db: Session = Depends(get_db)) -> list[HistoricoTransferencia]:
+    return responsavel_service.listar_historico(db, ativo_id)
+
+
+@router.post("/{ativo_id}/responsavel", response_model=VinculoResponse, status_code=201)
+def atribuir_responsavel(
+    ativo_id: int,
+    dados: VinculoCreate,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(require_perfil(PerfilUsuario.ADMIN, PerfilUsuario.OPERADOR)),
+) -> HistoricoTransferencia:
+    return responsavel_service.atribuir_responsavel(db, ativo_id, dados, usuario)
