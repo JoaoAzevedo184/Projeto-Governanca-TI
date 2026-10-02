@@ -1,4 +1,5 @@
 import io
+import zipfile
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
@@ -19,10 +20,21 @@ LINHAS_MAXIMAS = 5_000
 
 
 def _ler_planilha(nome_arquivo: str, conteudo: bytes) -> pd.DataFrame:
+    nome = nome_arquivo.lower()
+    if not nome.endswith((".csv", ".xlsx")):
+        raise ErroValidacaoArquivo("Extensão não suportada: envie um arquivo .csv ou .xlsx.")
     buffer = io.BytesIO(conteudo)
-    if nome_arquivo.lower().endswith(".csv"):
-        return pd.read_csv(buffer, dtype=str, keep_default_na=False)
-    return pd.read_excel(buffer, dtype=str).fillna("")
+    try:
+        if nome.endswith(".csv"):
+            return pd.read_csv(buffer, dtype=str, keep_default_na=False)
+        return pd.read_excel(buffer, dtype=str).fillna("")
+    except (ValueError, zipfile.BadZipFile, pd.errors.OptionError) as exc:
+        # ValueError cobre o que o pandas levanta ao ler: bytes que não são UTF-8
+        # (UnicodeDecodeError), CSV sem colunas ou malformado (EmptyDataError, ParserError) e
+        # conteúdo que não é XLSX. BadZipFile: XLSX truncado. OptionError: zip que não é planilha.
+        raise ErroValidacaoArquivo(
+            "Arquivo ilegível: envie um CSV em UTF-8 ou um XLSX válido."
+        ) from exc
 
 
 def _validar_cabecalho(colunas: list[str]) -> None:
@@ -127,6 +139,9 @@ def processar_importacao(
 ) -> LoteImportacao:
     if len(conteudo) > TAMANHO_MAXIMO_BYTES:
         raise ErroValidacaoArquivo("Arquivo excede o limite de 5 MB.")
+
+    if not conteudo.strip():
+        raise ErroValidacaoArquivo("Arquivo vazio: envie um arquivo com cabeçalho e linhas.")
 
     tabela = _ler_planilha(nome_arquivo, conteudo)
     _validar_cabecalho(list(tabela.columns))
