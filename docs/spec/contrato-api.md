@@ -60,7 +60,7 @@ Parte de [SPEC — ITAM](README.md).
   "fornecedor_id": 3,
   "numero_serie": "BR9K2LM7",
   "data_aquisicao": "2025-03-14",
-  "valor_compra": 6000.00,
+  "valor_compra": "6000.00",
   "localizacao": "Bloco A - Sala 204"
 }
 ```
@@ -74,18 +74,22 @@ Parte de [SPEC — ITAM](README.md).
   "ativo_id": 12,
   "data_referencia": "2026-03-14",
   "metodo": "LINEAR",
-  "valor_compra": 6000.00,
+  "valor_compra": "6000.00",
   "vida_util_meses": 60,
   "meses_decorridos": 12,
   "meses_efetivos": 12,
-  "depreciacao_mensal": 100.00,
-  "depreciacao_acumulada": 1200.00,
-  "valor_residual": 4800.00,
-  "percentual_depreciado": 20.00
+  "depreciacao_mensal": "100.00",
+  "depreciacao_acumulada": "1200.00",
+  "valor_residual": "4800.00",
+  "percentual_depreciado": "20.00"
 }
 ```
 
 Expor `meses_efetivos` e `depreciacao_mensal` é deliberado: torna o cálculo auditável sem acesso ao código, atendendo ao princípio de rastreabilidade (AC-015).
+
+**`depreciacao_mensal` é informativa e arredondada.** A acumulada é `valor_compra × meses_efetivos ÷ vida_util_meses`, arredondada só no fim ([regras de cálculo §7.1](regras-de-calculo.md#71-depreciação-linear-fr-003)); `mensal × meses` pode diferir dela em centavos.
+
+**Valores monetários são strings decimais** em toda resposta (`"6000.00"`, não `6000.00`). Número em JSON costuma ser lido como ponto flutuante, que perde precisão; a string preserva o valor exato. Na requisição, `valor_compra` aceita string ou número, e a string é a forma recomendada.
 
 **`POST /ativos/{id}/responsavel`** — serve tanto para a primeira atribuição quanto para a transferência; o serviço decide se há vínculo a encerrar.
 

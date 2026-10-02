@@ -37,10 +37,8 @@ def calcular(valor_compra: Decimal, data_aquisicao: date,
              vida_util_meses: int, data_referencia: date) -> Depreciacao:
     decorridos = meses_entre(data_aquisicao, data_referencia)
     efetivos = min(decorridos, vida_util_meses)
-    mensal = _arredondar(valor_compra / Decimal(vida_util_meses))
-    acumulada = _arredondar(mensal * efetivos)
-    if acumulada > valor_compra:
-        acumulada = valor_compra                       # BR-014
+    mensal = _arredondar(valor_compra / Decimal(vida_util_meses))   # informativa
+    acumulada = _arredondar(valor_compra * efetivos / Decimal(vida_util_meses))
     residual = _arredondar(valor_compra - acumulada)
     percentual = _arredondar(acumulada / valor_compra * Decimal(100))
     return Depreciacao(valor_compra, vida_util_meses, decorridos, efetivos,
@@ -48,6 +46,9 @@ def calcular(valor_compra: Decimal, data_aquisicao: date,
 ```
 
 **Pontos obrigatórios:**
+
+- **Arredondamento só no resultado final** (FR-003 do PRD, que prevalece pela [ADR-013](../adr/0013-precedencia-prd-spec.md)): `acumulada = valor_compra × meses_efetivos ÷ vida_util_meses`, com `ROUND_HALF_UP` em 2 casas. Ex.: R$ 6.000,00 em 36 meses, após 12 meses → 6.000,00 × 12 ÷ 36 = **R$ 2.000,00** (arredondar a mensal antes daria 166,67 × 12 = 2.000,04). Como `meses_efetivos ≤ vida_util_meses`, ao fim da vida útil a acumulada fecha exatamente no valor de compra (BR-014), sem caso especial.
+- `depreciacao_mensal` é **informativa e arredondada**; não se garante que `mensal × meses` seja igual à acumulada.
 
 - `Decimal` em todo cálculo monetário. `float` introduz erro de representação e quebra a conciliação contábil (KPI-05). Colunas mapeadas como `Numeric(12, 2)`, nunca `Float`.
 - Função pura, sem sessão de banco e sem acesso a `date.today()` internamente — a `data_referencia` é sempre injetada, o que torna os casos AC-015 a AC-020 testáveis sem manipular o relógio.

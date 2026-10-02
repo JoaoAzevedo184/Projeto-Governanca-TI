@@ -17,6 +17,8 @@ Parte de [SPEC — ITAM](README.md).
 | ADR-009 | Campo `regra` no payload de erro | Mensagem livre | Rastreabilidade runtime → requisito, verificável na defesa |
 | ADR-010 | Testes nomeados pelo identificador do critério | Nomes livres | Matriz de rastreabilidade verificável por comando |
 | [ADR-011](../adr/0011-estrategia-dados-reais-demonstracao.md) | Dados reais de Compras.gov.br, endoflife.date e NVD para a base de demonstração; sintético só para pessoas e eventos | GLPI Agent, scraping, datasets do Kaggle, 100% sintético | Credibilidade dos indicadores exige preço, data e ciclo de vida verificáveis; pessoas não podem ser reais (LGPD) |
+| [ADR-012](../adr/0012-software-como-ativo.md) | Software adquirido é Ativo (`ativo.tipo = SOFTWARE`); resolve QA-06 | Só Licença; Ativo e Licença com valor patrimonial nos dois | Um único lugar para valor, depreciação, responsável e baixa; evita contar a mesma compra duas vezes |
+| [ADR-013](../adr/0013-precedencia-prd-spec.md) | PRD prevalece em regra de negócio; SPEC prevalece em implementação | SPEC sempre prevalece; decidir caso a caso | Divergência entre documentos passa a ter resolução automática e rastreável |
 
 > A partir da ADR-011, registros de decisão completos ficam em `docs/adr/`; esta tabela permanece como resumo histórico das ADR-001 a ADR-010.
 

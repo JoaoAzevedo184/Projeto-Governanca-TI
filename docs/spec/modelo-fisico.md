@@ -89,7 +89,8 @@ Parte de [SPEC — ITAM](README.md).
 | `localizacao` | VARCHAR(120) | | |
 | `observacoes` | VARCHAR(500) | | |
 | `lote_importacao_id` | BIGINT | FK, nullable | procedência |
-| `data_source` | VARCHAR(20) | NOT NULL | `compras_gov` ou `importacao` |
+| `produto_software_id` | BIGINT | FK → `produto_software`, nullable | catálogo (só `SOFTWARE`) |
+| `data_source` | VARCHAR(20) | NOT NULL | `compras_gov`, `importacao` ou `manual` (cadastro direto pela API) |
 | `criado_em` / `atualizado_em` | TIMESTAMPTZ | NOT NULL | |
 
 **Constraint de tipo (BR-002):**
@@ -115,7 +116,7 @@ CONSTRAINT ck_ativo_identificador CHECK (
 | `data_fim` | DATE | NULL = vínculo aberto |
 | `motivo` | VARCHAR(200) | |
 | `registrado_por_id` | BIGINT | NOT NULL, FK → usuario |
-| `data_source` | VARCHAR(20) | NOT NULL, sempre `sintetico` |
+| `data_source` | VARCHAR(20) | NOT NULL, `manual` (API) ou `sintetico` (ETL) |
 | `criado_em` | TIMESTAMPTZ | NOT NULL |
 
 **Invariante crítica (BR-007) — um único vínculo aberto por ativo:**
@@ -156,15 +157,30 @@ CONSTRAINT ck_baixa_justificativa CHECK (
 | Coluna | Tipo | Restrições |
 |---|---|---|
 | `id` | BIGINT | PK |
-| `software` | VARCHAR(120) | NOT NULL |
+| `ativo_id` | BIGINT | FK → `ativo` (`SOFTWARE`), nullable; obrigatório em `PERPETUA` |
+| `software` | VARCHAR(120) | nullable; só sem `ativo_id` |
 | `fornecedor_id` | BIGINT | NOT NULL, FK |
 | `chave_licenca` | VARCHAR(200) | NOT NULL |
 | `quantidade_contratada` | INTEGER | NOT NULL, CHECK ≥ 1 |
-| `data_aquisicao` | DATE | NOT NULL |
-| `data_expiracao` | DATE | NOT NULL, CHECK > `data_aquisicao` (BR-019) |
-| `valor_total` | NUMERIC(12,2) | NOT NULL, CHECK > 0 |
+| `data_inicio_vigencia` | DATE | NOT NULL |
+| `data_expiracao` | DATE | NOT NULL, CHECK > `data_inicio_vigencia` (BR-019) |
+| `valor_total` | NUMERIC(12,2) | nullable, CHECK > 0; só em `SUBSCRICAO` |
 | `tipo_licenciamento` | VARCHAR(20) | NOT NULL |
 | `data_source` | VARCHAR(20) | NOT NULL, sempre `sintetico` |
+
+A licença é **só o contrato de direito de uso** (ADR-012). `software`, `data_aquisicao` e `valor_total` deixaram de duplicar o ativo: o nome e o valor patrimonial da licença perpétua vêm do ativo `SOFTWARE`.
+
+```sql
+-- Um único dono para nome e valor (ADR-012, item 4 da resolução do Sprint 2):
+-- perpétua aponta para o ativo; subscrição e OEM não são ativo e guardam o nome aqui.
+CONSTRAINT ck_licenca_tipo CHECK (
+  (tipo_licenciamento = 'PERPETUA'   AND ativo_id IS NOT NULL AND software IS NULL     AND valor_total IS NULL) OR
+  (tipo_licenciamento = 'SUBSCRICAO' AND ativo_id IS NULL     AND software IS NOT NULL AND valor_total IS NOT NULL) OR
+  (tipo_licenciamento = 'OEM'        AND ativo_id IS NULL     AND software IS NOT NULL AND valor_total IS NULL)
+)
+```
+
+`licenca.ativo_id` deve apontar para ativo com `tipo = 'SOFTWARE'`. Como o CHECK não enxerga outra tabela, a regra é validada no serviço de licenças.
 
 > `quantidade_em_uso` **não é coluna** — é derivada de `COUNT(*)` em `licenca_vinculo` (BR-021). Se a medição de desempenho exigir materialização, criar coluna sincronizada por trigger e cobrir com teste de consistência.
 
@@ -174,7 +190,7 @@ CONSTRAINT ck_baixa_justificativa CHECK (
 |---|---|---|
 | `id` | BIGINT | PK |
 | `licenca_id` | BIGINT | NOT NULL, FK |
-| `ativo_id` | BIGINT | NOT NULL, FK |
+| `ativo_id` | BIGINT | NOT NULL, FK → máquina hospedeira (hardware onde o software está instalado) |
 | `data_vinculo` | DATE | NOT NULL |
 | `ativo_vinculo` | BOOLEAN | NOT NULL, DEFAULT true |
 | `data_source` | VARCHAR(20) | NOT NULL, sempre `sintetico` |
@@ -188,6 +204,8 @@ Alimentadas pelos coletores `endoflife` e `nvd`; a associação com o ativo é s
 |---|---|
 | `vulnerabilidade` | `id`, `cve_id` (UNIQUE), `produto_software_id` (FK), `descricao`, `severidade_cvss`, `data_publicacao`, `data_source` (`nvd`) |
 | `ativo_software` | `id`, `ativo_id` (FK), `produto_software_id` (FK), `data_instalacao`, `data_source` (`sintetico`) |
+
+`produto_software` é catálogo; `ativo_software` é instalação observada e **não** é unificada com `licenca_vinculo` (consumo de assento). Ver o dicionário §3.11.
 
 #### `lote_importacao` e `erro_importacao`
 
