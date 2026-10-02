@@ -4,6 +4,7 @@ from decimal import Decimal
 from pydantic import BaseModel, Field, model_validator
 
 from app.models.enums import StatusAtivo, TipoAtivo
+from app.schemas.depreciacao import DepreciacaoResponse
 
 
 class AtivoCreate(BaseModel):
@@ -43,7 +44,7 @@ class AtivoUpdate(BaseModel):
     observacoes: str | None = Field(default=None, max_length=500)
 
 
-class AtivoResponse(BaseModel):
+class AtivoDados(BaseModel):
     id: int
     nome: str
     tipo: TipoAtivo
@@ -62,6 +63,12 @@ class AtivoResponse(BaseModel):
     atualizado_em: datetime
 
     model_config = {"from_attributes": True}
+
+
+class AtivoResponse(AtivoDados):
+    """Ativo com o bloco `depreciacao` calculado na hora (contrato §6.3, AC-018)."""
+
+    depreciacao: DepreciacaoResponse
 
 
 class ListaAtivosResponse(BaseModel):
