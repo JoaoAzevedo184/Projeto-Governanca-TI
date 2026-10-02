@@ -4,6 +4,8 @@ Parte do [Guia — ITAM](README.md). Ver também o [README da raiz](../../README
 
 ## Testes
 
+`audit_log` e `baixa_ativo` recusam UPDATE e DELETE por trigger: a limpeza entre testes é `TRUNCATE` (não aciona trigger de linha), e um teste não pode apagar linhas de auditoria nem de baixa; para isolar o que a operação gravou, compare os `id` antes e depois.
+
 A suíte inteira roda contra **PostgreSQL 16**, nunca SQLite: trigger de imutabilidade, índice único parcial e `CHECK` só se comportam como em produção no banco real. Localmente o banco de teste é o `itam_test`, no mesmo contêiner `db` do `docker-compose` (criado por `infra/postgres/init/` na primeira subida); no CI é um *service container* do GitHub Actions.
 
 ```bash
