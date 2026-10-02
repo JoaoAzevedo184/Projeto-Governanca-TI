@@ -1,4 +1,5 @@
 import io
+import zipfile
 from decimal import Decimal
 
 import pandas as pd
@@ -186,5 +187,43 @@ def test_recusa_arquivo_acima_de_5000_linhas_sem_criar_lote(
 
     assert resposta.status_code == 422
     assert "5.000 linhas" in resposta.json()["detalhe"]
+    assert _total(db, LoteImportacao) == 0
+    assert _total(db, Ativo) == 0
+
+
+_CSV_VALIDO = (CABECALHO + "\nNotebook,HARDWARE,Notebook,Dell,SN-1,2025-01-10,1000.00\n").encode()
+_ZIP_SEM_PLANILHA = io.BytesIO()
+with zipfile.ZipFile(_ZIP_SEM_PLANILHA, "w") as _zip:
+    _zip.writestr("lixo.txt", "x")
+_XLSX_VALIDO = io.BytesIO()
+pd.DataFrame({"nome": ["a"]}).to_excel(_XLSX_VALIDO, index=False)
+
+ARQUIVOS_RECUSADOS = [
+    pytest.param("inventario.csv", b"", "vazio", id="csv-vazio"),
+    pytest.param("inventario.csv", b"  \n\n", "vazio", id="csv-so-espacos"),
+    pytest.param("inventario.xlsx", b"", "vazio", id="xlsx-vazio"),
+    pytest.param("inventario.csv", bytes(range(128, 256)) * 4, "ilegível", id="csv-binario"),
+    pytest.param("inventario.csv", "nome;ação\n".encode("latin-1"), "ilegível", id="csv-nao-utf8"),
+    pytest.param("inventario.xlsx", _CSV_VALIDO, "ilegível", id="csv-com-extensao-xlsx"),
+    pytest.param("inventario.xlsx", _XLSX_VALIDO.getvalue()[:100], "ilegível", id="xlsx-truncado"),
+    pytest.param(
+        "inventario.xlsx", _ZIP_SEM_PLANILHA.getvalue(), "ilegível", id="zip-sem-planilha"
+    ),
+    pytest.param("inventario.txt", _CSV_VALIDO, "Extensão", id="extensao-txt"),
+    pytest.param("inventario.xls", _CSV_VALIDO, "Extensão", id="extensao-xls"),
+    pytest.param("inventario", _CSV_VALIDO, "Extensão", id="sem-extensao"),
+]
+
+
+@pytest.mark.parametrize(("nome_arquivo", "conteudo", "trecho"), ARQUIVOS_RECUSADOS)
+def test_recusa_arquivo_vazio_ou_ilegivel_sem_criar_lote(
+    client, db, token_admin, nome_arquivo, conteudo, trecho
+):
+    resposta = _importar(client, token_admin, conteudo, nome_arquivo)
+
+    assert resposta.status_code == 422
+    corpo = resposta.json()
+    assert corpo["tipo"] == "/erros/arquivo-invalido"
+    assert trecho in corpo["detalhe"]
     assert _total(db, LoteImportacao) == 0
     assert _total(db, Ativo) == 0

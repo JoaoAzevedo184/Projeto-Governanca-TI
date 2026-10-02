@@ -1,4 +1,5 @@
-"""Matriz RBAC do FR-015, restrita às rotas que existem hoje (docs/spec/contrato-api.md §6).
+"""Matriz RBAC do FR-015, restrita às rotas que existem hoje (docs/spec/contrato-api.md §6),
+incluindo baixas e licenças.
 
 Permitido = resposta não é 401 nem 403 (o corpo pode falhar por outro motivo,
 mas a autorização não pode ser o que barra). Negado = 403 e nada gravado: toda escrita
@@ -42,6 +43,24 @@ def ativo_existente(client, token_admin, categoria, fornecedor):
     return resposta.json()["id"]
 
 
+@pytest.fixture
+def licenca_existente(client, token_admin, fornecedor):
+    payload = {
+        "tipo_licenciamento": "SUBSCRICAO",
+        "software": "Suite RBAC",
+        "fornecedor_id": fornecedor.id,
+        "chave_licenca": "RBAC-1234-5678",
+        "quantidade_contratada": 10,
+        "data_inicio_vigencia": "2025-01-01",
+        "data_expiracao": "2099-12-31",
+        "valor_total": "100.00",
+    }
+    resposta = client.post(
+        "/api/v1/licencas", headers={"Authorization": f"Bearer {token_admin}"}, json=payload
+    )
+    return resposta.json()["id"]
+
+
 def _rotas(
     cat_id: int,
     forn_id: int,
@@ -50,6 +69,8 @@ def _rotas(
     forn_nome: str,
     resp_id: int,
     setor_id: int,
+    lic_id: int,
+    forn_id_licenca: int,
 ):
     """(método, path, payload_por_perfil, kind, perfis_permitidos)."""
     todos = set(PERFIS)
@@ -137,6 +158,53 @@ def _rotas(
             {"admin"},
         ),
         ("GET", "/api/v1/importacoes", None, "json", todos),
+        (
+            "POST",
+            f"/api/v1/ativos/{ativo_id}/baixa",
+            lambda p: {"motivo": "DEFEITO", "data_baixa": "2025-07-10", "destinacao": "DESCARTE"},
+            "json",
+            {"admin", "operador"},  # FR-015: Baixas = Criar para ADMIN e OPERADOR
+        ),
+        # FR-015, coluna Licenças: ADMIN CRUD · OPERADOR Ler e Editar · GESTOR e AUDITOR Ler.
+        ("GET", "/api/v1/licencas", None, "json", todos),
+        (
+            "POST",
+            "/api/v1/licencas",
+            lambda p: {
+                "tipo_licenciamento": "OEM",
+                "software": f"Software RBAC {p}",
+                "fornecedor_id": forn_id_licenca,
+                "chave_licenca": f"RBAC-OEM-{p}",
+                "quantidade_contratada": 1,
+                "data_inicio_vigencia": "2025-01-01",
+                "data_expiracao": "2099-12-31",
+            },
+            "json",
+            {"admin"},
+        ),
+        ("GET", f"/api/v1/licencas/{lic_id}", None, "json", todos),
+        (
+            "PATCH",
+            f"/api/v1/licencas/{lic_id}",
+            lambda p: {"quantidade_contratada": 11},
+            "json",
+            {"admin", "operador"},
+        ),
+        ("GET", f"/api/v1/licencas/{lic_id}/vinculos", None, "json", todos),
+        (
+            "POST",
+            f"/api/v1/licencas/{lic_id}/vinculos",
+            lambda p: {"ativo_id": ativo_id},
+            "json",
+            {"admin", "operador"},
+        ),
+        (
+            "DELETE",
+            f"/api/v1/licencas/{lic_id}/vinculos/{ativo_id}",
+            None,
+            "json",
+            {"admin", "operador"},
+        ),
         ("GET", "/api/v1/auth/me", None, "json", todos),
     ]
 
@@ -166,7 +234,16 @@ def _total_auditoria(db) -> int:
 
 @pytest.mark.parametrize("perfil", PERFIS)
 def test_matriz_rbac_por_perfil(
-    request, client, db, categoria, fornecedor, responsavel, setor, ativo_existente, perfil
+    request,
+    client,
+    db,
+    categoria,
+    fornecedor,
+    responsavel,
+    setor,
+    ativo_existente,
+    licenca_existente,
+    perfil,
 ):
     tokens = _tokens(request)
     rotas = _rotas(
@@ -177,6 +254,8 @@ def test_matriz_rbac_por_perfil(
         fornecedor.razao_social,
         responsavel.id,
         setor.id,
+        licenca_existente,
+        fornecedor.id,
     )
 
     for metodo, path, payload, kind, permitidos in rotas:
@@ -191,7 +270,7 @@ def test_matriz_rbac_por_perfil(
 
 
 def test_matriz_rbac_sem_token_retorna_401(
-    client, categoria, fornecedor, responsavel, setor, ativo_existente
+    client, categoria, fornecedor, responsavel, setor, ativo_existente, licenca_existente
 ):
     rotas = _rotas(
         categoria.id,
@@ -201,6 +280,8 @@ def test_matriz_rbac_sem_token_retorna_401(
         fornecedor.razao_social,
         responsavel.id,
         setor.id,
+        licenca_existente,
+        fornecedor.id,
     )
     for metodo, path, payload, kind, _permitidos in rotas:
         resposta = _requisitar(client, metodo, path, None, payload, kind, "sem_token")

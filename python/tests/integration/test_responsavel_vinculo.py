@@ -8,9 +8,7 @@ import pytest
 from sqlalchemy import text
 
 from app.core.database import engine
-from app.models.ativo import Ativo
 from app.models.auditoria import AuditLog
-from app.models.enums import StatusAtivo
 from app.models.historico import HistoricoTransferencia
 from app.models.responsavel import Responsavel
 
@@ -118,10 +116,12 @@ def test_ac010_transferencia_encerra_anterior_com_data_fim_igual_ao_novo_inicio(
 def test_ac011_ativo_baixado_nao_recebe_responsavel(
     client, db, token_admin, ativo_id, responsavel, setor
 ):
-    # Baixa real é Sprint 3 (FR-005); o status é forçado direto no banco.
-    ativo = db.get(Ativo, ativo_id)
-    ativo.status = StatusAtivo.BAIXADO
-    db.commit()
+    baixa = client.post(
+        f"/api/v1/ativos/{ativo_id}/baixa",
+        headers=_headers(token_admin),
+        json={"motivo": "DEFEITO", "data_baixa": "2025-02-01", "destinacao": "DESCARTE"},
+    )
+    assert baixa.status_code == 201
 
     resposta = _vincular(client, token_admin, ativo_id, responsavel.id, setor.id, "2025-02-01")
 
@@ -321,7 +321,8 @@ def test_br007_conflito_real_no_indice_grava_recusa_na_auditoria(
     thread = threading.Thread(target=transferir)
     thread.start()
     try:
-        with engine.connect() as monitor:
+        # AUTOCOMMIT: pg_stat_activity é congelada por transação; sem isso o polling não atualiza.
+        with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as monitor:
             consulta = text(
                 "SELECT count(*) FROM pg_stat_activity WHERE :pid = ANY(pg_blocking_pids(pid))"
             )
