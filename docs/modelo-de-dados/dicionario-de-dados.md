@@ -4,6 +4,8 @@ Parte de [Modelo de Dados — ITAM](README.md).
 
 ## 3. Dicionário de dados
 
+> **Unicidades de schema.** `categoria.nome`, `fornecedor.cnpj`, `setor.nome` e `responsavel.matricula` são `UNIQUE` como garantia de integridade de cadastro, **sem BR** no PRD (diferente de `ativo.numero_serie`, que é BR-001). A violação responde 409 sem campo `regra`. Decisão no item 11 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md).
+
 ### 3.1 `categoria`
 
 | Coluna | Tipo | Nulo | Padrão | Descrição |
@@ -66,7 +68,8 @@ Parte de [Modelo de Dados — ITAM](README.md).
 | `localizacao` | VARCHAR(120) | sim | — | Texto livre |
 | `observacoes` | VARCHAR(500) | sim | — | — |
 | `lote_importacao_id` | BIGINT | sim | — | Procedência; nulo em cadastro manual |
-| `data_source` | VARCHAR(20) | não | — | `compras_gov` para itens coletados, `importacao` para itens vindos de planilha do usuário |
+| `produto_software_id` | BIGINT | sim | — | FK → `produto_software` (catálogo, §3.11). Opcional, só para `tipo = SOFTWARE`: liga o ativo ao ciclo de vida e às vulnerabilidades do produto |
+| `data_source` | VARCHAR(20) | não | — | `compras_gov` para itens coletados, `importacao` para itens vindos de planilha do usuário (`POST /importacoes`), `manual` para cadastro direto pela API (`POST /ativos`) |
 | `criado_em`, `atualizado_em` | TIMESTAMPTZ | não | — | UTC |
 
 ```sql
@@ -90,7 +93,7 @@ CONSTRAINT ck_ativo_identificador CHECK (
 | `data_fim` | DATE | **sim** | **Nulo = vínculo vigente** |
 | `motivo` | VARCHAR(200) | sim | Texto livre |
 | `registrado_por_id` | BIGINT | não | FK → `usuario` |
-| `data_source` | VARCHAR(20) | não | Sempre `sintetico` — evento gerado pelo ETL (`SYNTHETIC_SEED`) |
+| `data_source` | VARCHAR(20) | não | `manual` quando registrado pela API (`POST /ativos/{id}/responsavel`); `sintetico` quando gerado pelo ETL (`SYNTHETIC_SEED`) |
 | `criado_em` | TIMESTAMPTZ | não | — |
 
 ```sql
@@ -122,24 +125,39 @@ O `UNIQUE` em `ativo_id` é o que torna BR-024 ("ativo já baixado não pode ser
 
 ### 3.7 `licenca` e `licenca_vinculo`
 
+`licenca` representa **só o contrato de direito de uso** (item 4 da resolução do Sprint 2). O valor patrimonial e o ciclo patrimonial do software perpétuo ficam no `ativo` (ADR-012); a licença guarda assentos, vigência e chave. Cada informação tem um único dono, e o valor não é contado duas vezes.
+
 | `licenca` | Tipo | Regra |
 |---|---|---|
 | `id` | BIGINT | PK |
-| `software` | VARCHAR(120) | — |
+| `ativo_id` | BIGINT | FK → `ativo` (`tipo = SOFTWARE`). Obrigatório em `PERPETUA`; nulo em `SUBSCRICAO` e `OEM`, que não são ativo |
+| `software` | VARCHAR(120) | Só quando `ativo_id` é nulo; em `PERPETUA` o nome vem do ativo |
 | `fornecedor_id` | BIGINT | FK |
-| `chave_licenca` | VARCHAR(200) | Mascarada fora do ADMIN |
+| `chave_licenca` | VARCHAR(200) | Mascarada fora do ADMIN (RI-08). Fica na licença: a chave pertence ao contrato |
 | `quantidade_contratada` | INTEGER | `CHECK ≥ 1` |
-| `data_aquisicao` | DATE | Não futura |
-| `data_expiracao` | DATE | `CHECK > data_aquisicao` (BR-019) |
-| `valor_total` | NUMERIC(12,2) | `CHECK > 0` |
+| `data_inicio_vigencia` | DATE | Não futura |
+| `data_expiracao` | DATE | `CHECK > data_inicio_vigencia` (BR-019) |
+| `valor_total` | NUMERIC(12,2) | Só em `SUBSCRICAO` (custo recorrente), `CHECK > 0`. Em `PERPETUA` o valor está no ativo; em `OEM`, no hardware |
 | `tipo_licenciamento` | VARCHAR(20) | enum |
 | `data_source` | VARCHAR(20) | Sempre `sintetico` — contrato de licença gerado pelo ETL |
+
+```sql
+-- Um único dono para nome e valor (ADR-012, item 4 da resolução do Sprint 2):
+-- perpétua aponta para o ativo; subscrição e OEM não são ativo e guardam o nome aqui.
+CONSTRAINT ck_licenca_tipo CHECK (
+  (tipo_licenciamento = 'PERPETUA'   AND ativo_id IS NOT NULL AND software IS NULL     AND valor_total IS NULL) OR
+  (tipo_licenciamento = 'SUBSCRICAO' AND ativo_id IS NULL     AND software IS NOT NULL AND valor_total IS NOT NULL) OR
+  (tipo_licenciamento = 'OEM'        AND ativo_id IS NULL     AND software IS NOT NULL AND valor_total IS NULL)
+)
+```
+
+`licenca.ativo_id` deve apontar para ativo com `tipo = 'SOFTWARE'`. Como o CHECK não enxerga outra tabela, a regra é validada no serviço de licenças.
 
 | `licenca_vinculo` | Tipo | Regra |
 |---|---|---|
 | `id` | BIGINT | PK |
-| `licenca_id` | BIGINT | FK |
-| `ativo_id` | BIGINT | FK |
+| `licenca_id` | BIGINT | FK. O software é alcançado pela licença |
+| `ativo_id` | BIGINT | FK → **máquina hospedeira**: o hardware onde o software está instalado, nunca o ativo `SOFTWARE` |
 | `data_vinculo` | DATE | — |
 | `ativo_vinculo` | BOOLEAN | Padrão `true`; desvínculo é lógico |
 | `data_source` | VARCHAR(20) | Sempre `sintetico` |
@@ -150,7 +168,7 @@ CREATE UNIQUE INDEX ux_licenca_ativo
   WHERE ativo_vinculo = true;
 ```
 
-**`quantidade_em_uso` não é coluna** (BR-021, ADR-008). É `COUNT(*)` sobre `licenca_vinculo` com `ativo_vinculo = true`.
+**`quantidade_em_uso` não é coluna** (BR-021, ADR-008). É `COUNT(*)` sobre `licenca_vinculo` com `ativo_vinculo = true`. É por isso que `licenca_vinculo.ativo_id` aponta para a máquina: o compliance conta quantas máquinas usam a licença e compara com os assentos contratados (item 5 da resolução).
 
 ### 3.8 Importação
 
@@ -204,6 +222,16 @@ CREATE UNIQUE INDEX ux_licenca_ativo
 ### 3.11 Ciclo de vida de software e vulnerabilidades
 
 Tabelas alimentadas pelos coletores `endoflife` e `nvd` (ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md)). A associação com o ativo é sintética; o produto, a versão, a data de fim de suporte e a vulnerabilidade em si são reais.
+
+**Três conceitos, três tabelas** (item 6 da resolução do Sprint 2):
+
+| Tabela | Representa | Usada em |
+|---|---|---|
+| `produto_software` | **Catálogo de referência**: produto e versão (ex.: "Windows 11"), sem valor nem dono | Cruzamento com ciclo de vida (endoflife.date) e CVE (NVD), etapa D.6 do pipeline. O ativo `SOFTWARE` tem FK opcional para ele (§3.4) |
+| `ativo_software` | **Instalação observada**: tal versão está instalada em tal máquina | Alertas de fim de suporte e de vulnerabilidade, inclusive de software livre e OEM, que não têm licença |
+| `licenca_vinculo` | **Consumo de assento**: tal máquina usa um assento de tal licença (§3.7) | Conformidade de licenciamento (BR-018, BR-021, CP-01 a CP-03) |
+
+`ativo_software` e `licenca_vinculo` **não são unificadas**, embora as duas liguem software a uma máquina. `licenca_vinculo` exige licença, e unificar perderia as instalações sem licença (software livre, que é o caso dos exemplos do endoflife.date, e OEM, que pelo item 2 não é ativo nem licença). Também incluiria na contagem de assentos da BR-021 instalações que não consomem assento. Decisão da equipe em 2026-09-30.
 
 #### `produto_software`
 

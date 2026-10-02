@@ -16,7 +16,7 @@ Parte de [Modelo de Dados — ITAM](README.md).
 | `resposta_risco` | `ACEITAR`, `MITIGAR`, `TRANSFERIR`, `EVITAR` | `risco.resposta` |
 | `status_recomendacao` | `PROPOSTA`, `APROVADA`, `REJEITADA`, `IMPLEMENTADA` | `recomendacao.status` |
 | `tipo_evidencia` | `INDICADOR`, `RISCO`, `ATIVO`, `LICENCA`, `SCORECARD`, `CENARIO`, `PREMISSA` | `evidencia.tipo` |
-| `data_source` | `compras_gov`, `endoflife`, `nvd`, `sintetico`, `importacao` | Coluna presente em toda tabela populada a partir de fonte externa ou de geração sintética — ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md) |
+| `data_source` | `compras_gov`, `endoflife`, `nvd` (fontes reais, ADR-011); `sintetico` (ETL); `importacao` (planilha via `POST /importacoes`); `manual` (cadastro direto pela API) | Coluna presente em toda tabela com origem rastreável — ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md). Ainda sem `CHECK` no schema |
 
 Todos implementados como `VARCHAR` com `CHECK`, nunca como `ENUM` nativo do PostgreSQL (ADR-007): enums nativos exigem migração dedicada para cada valor novo e não existem no SQLite.
 

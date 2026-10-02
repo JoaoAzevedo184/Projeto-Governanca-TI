@@ -19,4 +19,4 @@ Parte de [Modelo de Dados — ITAM](README.md).
 
 Toda migração precisa de `downgrade` funcional e testado. Triggers e funções são criados e removidos na própria migração, nunca por script externo — do contrário o ambiente do professor diverge do da equipe no primeiro `alembic upgrade head`.
 
-**Compatibilidade com SQLite:** triggers em PL/pgSQL não existem no SQLite. No perfil local, a imutabilidade cai para a camada de serviço. Os testes que validam AC-013 devem rodar contra PostgreSQL — marcá-los com `@pytest.mark.postgres` e executá-los no CI, não apenas na máquina de quem desenvolve.
+**Compatibilidade com SQLite:** triggers em PL/pgSQL não existem no SQLite. No perfil local, a imutabilidade cai para a camada de serviço. A suíte de testes inteira roda contra PostgreSQL 16, local e no CI (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)), então AC-013 é sempre verificado com o trigger real.

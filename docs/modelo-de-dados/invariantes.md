@@ -53,11 +53,15 @@ BEGIN
   IF OLD.data_fim IS NOT NULL THEN
     RAISE EXCEPTION 'Vínculo já encerrado é imutável (BR-011)';
   END IF;
-  IF NEW.ativo_id          IS DISTINCT FROM OLD.ativo_id
+  IF NEW.id                IS DISTINCT FROM OLD.id
+  OR NEW.ativo_id          IS DISTINCT FROM OLD.ativo_id
   OR NEW.responsavel_id    IS DISTINCT FROM OLD.responsavel_id
   OR NEW.setor_id          IS DISTINCT FROM OLD.setor_id
   OR NEW.data_inicio       IS DISTINCT FROM OLD.data_inicio
-  OR NEW.registrado_por_id IS DISTINCT FROM OLD.registrado_por_id THEN
+  OR NEW.motivo            IS DISTINCT FROM OLD.motivo
+  OR NEW.registrado_por_id IS DISTINCT FROM OLD.registrado_por_id
+  OR NEW.data_source       IS DISTINCT FROM OLD.data_source
+  OR NEW.criado_em         IS DISTINCT FROM OLD.criado_em THEN
     RAISE EXCEPTION 'Somente data_fim pode ser preenchida (BR-011)';
   END IF;
   RETURN NEW;
@@ -65,5 +69,5 @@ END;
 $$ LANGUAGE plpgsql;
 ```
 
-O trigger permite exatamente uma transição — nulo para não-nulo em `data_fim` — e nada mais. É a materialização da ADR-005.
+O trigger permite exatamente uma transição — nulo para não-nulo em `data_fim` — e nada mais. É a materialização da ADR-005. Todas as colunas além de `data_fim` são protegidas, inclusive `motivo`, `data_source` e `criado_em`: deixá-las editáveis permitiria reescrever o passado (BR-011, BR-025). Esta é a DDL aplicada pela migração `c8365ce7e5e4` e por `app/models/historico.py` (item 10 da resolução do Sprint 2).
 
