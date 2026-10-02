@@ -30,7 +30,7 @@ Parte de [PRD — ITAM](README.md).
 
 | ID | Requisito | Critério de verificação |
 |---|---|---|
-| NFR-AUD-01 | Histórico de alterações imutável: registros de vínculo, baixa e auditoria não admitem UPDATE nem DELETE | Tentativa de exclusão retorna erro; teste automatizado |
+| NFR-AUD-01 | Histórico de alterações imutável: registros de vínculo, baixa e auditoria não admitem UPDATE nem DELETE | Tentativa de exclusão retorna erro; teste automatizado. *Estado atual:* verificado para vínculo (AC-013), auditoria e baixa, com teste direto no PostgreSQL |
 | NFR-AUD-02 | Toda operação de escrita grava usuário autor, operação, entidade, identificador e carimbo de tempo | Trilha consultável por entidade e por período |
 | NFR-AUD-03 | Carimbos de tempo em UTC, com fuso apresentado na interface | Verificado na resposta da API |
 | NFR-AUD-04 | Relatórios exportados identificam data, hora e usuário gerador | Cabeçalho do arquivo exportado |
@@ -63,7 +63,7 @@ Parte de [PRD — ITAM](README.md).
 | NFR-MAN-02 | Documentação OpenAPI gerada automaticamente e acessível | `/docs` e `/swagger-ui` disponíveis |
 | NFR-MAN-03 | Cobertura de testes automatizados ≥ 70% nas regras de negócio | Relatório de cobertura |
 | NFR-MAN-04 | Execução via Docker Compose com um único comando | `docker compose up` sobe o ambiente completo |
-| NFR-MAN-05 | Banco de dados local simplificado (SQLite/H2) e definitivo (PostgreSQL) selecionáveis por variável de ambiente | Ambos os perfis executam os mesmos testes |
+| NFR-MAN-05 | Banco de dados local simplificado (SQLite/H2) e definitivo (PostgreSQL) selecionáveis por variável de ambiente | Ambos os perfis executam os mesmos testes. *Revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):* a aplicação continua rodando em SQLite para execução local sem Docker (`DATABASE_URL`), mas os testes rodam só em PostgreSQL 16, local e no CI |
 | NFR-MAN-06 | Migrações de banco versionadas | Base criada do zero por script |
 
 ### 13.7 Observabilidade

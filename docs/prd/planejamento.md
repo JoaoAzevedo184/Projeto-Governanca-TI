@@ -17,7 +17,7 @@ Parte de [PRD — ITAM](README.md).
 | RI-07 | Escopo expandindo para funcionalidades de ERP durante o desenvolvimento | 3 | 3 | 9 | Seção 7.2 como referência contratual; mudança de escopo exige registro formal |
 | RI-08 | Vazamento de chaves de licença armazenadas em texto claro | 2 | 4 | 8 | Acesso à chave restrito ao perfil `ADMIN`; mascaramento na listagem |
 | RI-09 | Degradação de desempenho com crescimento da base | 2 | 3 | 6 | Paginação obrigatória; índices definidos nas migrações (NFR-PER-05) |
-| RI-10 | Indisponibilidade do ambiente durante a demonstração | 2 | 4 | 8 | Perfil de execução local com SQLite/H2, independente de infraestrutura externa; smoke test antes da apresentação |
+| RI-10 | Indisponibilidade do ambiente durante a demonstração | 2 | 4 | 8 | Perfil de execução local com SQLite/H2, independente de infraestrutura externa; smoke test antes da apresentação. *Revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):* o SQLite serve só para executar a aplicação, sem trigger de imutabilidade; os testes rodam em PostgreSQL 16 |
 
 ### 17.2 Restrições
 
