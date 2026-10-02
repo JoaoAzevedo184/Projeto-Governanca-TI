@@ -66,7 +66,7 @@ def criar_ativo(db: Session, dados: AtivoCreate, usuario: Usuario) -> Ativo:
         vida_util_meses=dados.vida_util_meses or categoria.vida_util_meses,
         localizacao=dados.localizacao,
         observacoes=dados.observacoes,
-        data_source="importacao",
+        data_source="manual",
     )
     db.add(ativo)
     db.flush()
