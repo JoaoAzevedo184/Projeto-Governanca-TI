@@ -48,7 +48,8 @@ jobs:
         run: bandit -r app -ll
 
   # ------------------------------------------------------------------
-  # Testes contra PostgreSQL real (índices parciais e triggers)
+  # Suíte inteira contra PostgreSQL 16 (sem SQLite): o conftest aplica
+  # `alembic upgrade head` e trunca as tabelas antes de cada teste
   # ------------------------------------------------------------------
   testes:
     name: Testes (pytest + PostgreSQL)
@@ -73,6 +74,7 @@ jobs:
     env:
       ENVIRONMENT: local
       DATABASE_URL: postgresql+psycopg://itam:itam_ci@localhost:5432/itam_test
+      TEST_DATABASE_URL: postgresql+psycopg://itam:itam_ci@localhost:5432/itam_test
       SECRET_KEY: chave-exclusiva-do-ci-sem-valor-real
       DATASET_DIR: ${{ github.workspace }}/dataset
 
