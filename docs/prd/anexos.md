@@ -57,11 +57,15 @@ Parte de [PRD — ITAM](README.md).
 | **Ativo de TI** | Qualquer item de hardware ou software de valor econômico sob gestão da área de tecnologia |
 | **Baixa** | Evento terminal que retira o ativo do inventário operacional, preservando seu histórico |
 | **CAPEX** | Despesa de capital: investimento em aquisição de bens |
+| **Amortização** | Equivalente contábil da depreciação para bem intangível (CPC 04). No sistema, para ativos do tipo `SOFTWARE`, o valor chamado de "depreciação" na API e no código representa contabilmente a amortização; o cálculo é o mesmo (linear, sem residual) |
 | **Depreciação linear** | Método que distribui uniformemente o valor do bem ao longo de sua vida útil |
 | **Entitlement** | Direito de uso de software concedido por uma licença |
+| **Licença perpétua** | Direito de uso por prazo indeterminado, pago uma vez. É ativo (`tipo = SOFTWARE`) e deprecia pela vida útil da categoria |
 | **ITAM** | *IT Asset Management* — gestão de ativos de tecnologia da informação |
+| **OEM** | Software pré-instalado no equipamento, com custo embutido no hardware. Não é ativo separado |
 | **OPEX** | Despesa operacional: custo recorrente de manutenção e operação |
 | **RBAC** | *Role-Based Access Control* — controle de acesso por perfil |
+| **Subscrição** | Direito de uso por período determinado, com pagamento recorrente. É despesa, registrada só como licença com vigência; não é ativo |
 | **TCO** | *Total Cost of Ownership* — custo total de propriedade ao longo do ciclo de vida |
 | **Valor residual** | Valor contábil remanescente após a depreciação acumulada |
 | **Vida útil** | Período estimado de uso econômico do bem, em meses |

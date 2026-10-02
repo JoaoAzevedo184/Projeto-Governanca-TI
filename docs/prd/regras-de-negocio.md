@@ -41,7 +41,7 @@ Parte de [PRD — ITAM](README.md).
 | ID | Regra |
 |---|---|
 | BR-018 | A quantidade em uso não pode exceder a quantidade contratada; a operação que violaria a regra é bloqueada. |
-| BR-019 | A data de expiração deve ser posterior à data de aquisição. |
+| BR-019 | A data de expiração deve ser posterior à data de início da vigência. |
 | BR-020 | Licença vencida não pode receber novas vinculações de uso. |
 | BR-021 | A quantidade em uso é derivada da contagem de vínculos ativos, nunca informada manualmente. |
 

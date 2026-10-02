@@ -23,15 +23,19 @@ Parte de [PRD — ITAM](README.md).
 
 ### 8.2 Cadastro de Software
 
-**Ator:** Marcos · **Gatilho:** renovação anual de um pacote de licenças
+**Ator:** Marcos · **Gatilho:** compra de uma licença perpétua com 50 assentos
 
-1. Marcos acessa **Licenças → Nova Licença**.
-2. Informa o software, o fornecedor, a quantidade contratada (50), a data de aquisição, a data de expiração e o valor total.
-3. O sistema valida que a data de expiração é posterior à data de aquisição.
-4. Ao salvar, a quantidade em uso inicia em zero e o status de conformidade é **Conforme**.
-5. Marcos vincula as instalações existentes, incrementando a quantidade em uso.
-6. Ao atingir 50 de 50, o sistema exibe aviso de saturação. Na tentativa de vincular a 51ª, o sistema bloqueia e registra um alerta de excedente.
-7. A licença passa a ser monitorada: quando faltarem 30 dias para a expiração, entra no painel de alertas.
+1. Marcos acessa **Ativos → Novo Ativo** e escolhe o tipo **Software**.
+2. Informa nome, categoria "Software perpétuo", fornecedor, chave de licença, data de aquisição e valor de compra. O ativo herda 60 meses de vida útil e passa a depreciar (ADR-012).
+3. Em seguida acessa **Licenças → Nova Licença**, vinculada ao ativo criado.
+4. Informa a quantidade contratada (50), o início da vigência e a data de expiração. Nome e valor vêm do ativo.
+5. O sistema valida que a data de expiração é posterior ao início da vigência (BR-019).
+6. Ao salvar, a quantidade em uso inicia em zero e o status de conformidade é **Conforme**.
+7. Marcos vincula as máquinas onde o software está instalado, incrementando a quantidade em uso.
+8. Ao atingir 50 de 50, o sistema exibe aviso de saturação. Na tentativa de vincular a 51ª, o sistema bloqueia e registra um alerta de excedente.
+9. A licença passa a ser monitorada: quando faltarem 30 dias para a expiração, entra no painel de alertas.
+
+> **Subscrição e OEM** não são ativo (item 2 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)). Numa renovação anual de subscrição, Marcos cadastra só a licença (passos 3 a 9), informando o nome do software e o valor da subscrição.
 
 **Resultado:** licença sob controle quantitativo e temporal, com bloqueio preventivo de uso irregular.
 

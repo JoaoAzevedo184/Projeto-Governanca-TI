@@ -34,7 +34,7 @@ Parte de [PRD — ITAM](README.md).
 
 **Descrição.** O sistema deve permitir registrar, consultar, editar e listar ativos de TI.
 
-**Origem dos dados.** Na base de demonstração, o ativo é criado a partir de um item de TI realmente adquirido por um órgão público (`data_source = compras_gov`) ou a partir de uma planilha enviada pelo usuário via FR-008 (`data_source = importacao`) — nunca digitado manualmente com valores inventados. Nome, valor de compra e data de aquisição são, portanto, reais quando `data_source = compras_gov`.
+**Origem dos dados.** Na base de demonstração, o ativo é criado a partir de um item de TI realmente adquirido por um órgão público (`data_source = compras_gov`) ou a partir de uma planilha enviada pelo usuário via FR-008 (`data_source = importacao`) — nunca digitado manualmente com valores inventados. Nome, valor de compra e data de aquisição são, portanto, reais quando `data_source = compras_gov`. Fora da base de demonstração, o cadastro direto pela API (`POST /ativos`) grava `data_source = manual`, para que a origem continue rastreável.
 
 **Campos:**
 
@@ -65,7 +65,7 @@ Parte de [PRD — ITAM](README.md).
 
 **Descrição.** O sistema deve associar cada ativo a um responsável (usuário e/ou setor) e manter o histórico completo de transferências.
 
-**Origem dos dados.** O colaborador responsável é sempre sintético (`data_source = sintetico`, gerado por Mockaroo) — dado de pessoa real não é usado, por exigência da LGPD (ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md), seção 10). O evento de vínculo/transferência em si também é sintético, gerado pelo ETL com semente fixa, respeitando BR-009 e BR-010.
+**Origem dos dados.** O colaborador responsável é sempre sintético (`data_source = sintetico`, gerado por Mockaroo) — dado de pessoa real não é usado, por exigência da LGPD (ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md), seção 10). O evento de vínculo/transferência em si também é sintético, gerado pelo ETL com semente fixa, respeitando BR-009 e BR-010. Fora da base de demonstração, o vínculo registrado pela API (`POST /ativos/{id}/responsavel`) grava `data_source = manual`.
 
 **Campos do vínculo:**
 
@@ -120,6 +120,10 @@ percentual_depreciado = (depreciacao_acumulada / valor_compra) × 100
 | Nobreak | 60 | 20% |
 | Software (licença perpétua) | 60 | 20% |
 
+- **Software por tipo de licenciamento** ([ADR-012](../adr/0012-software-como-ativo.md), item 2 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):
+  - **Licença perpétua** é ativo (`tipo = SOFTWARE`) e deprecia pela vida útil da categoria "Software perpétuo" (60 meses).
+  - **Subscrição** não é ativo: é despesa recorrente, registrada só como licença com vigência (início e fim), sem depreciação.
+  - **OEM** não é ativo separado: o valor já está incorporado ao hardware em que veio instalado.
 - O valor residual nunca é negativo; ao atingir a vida útil, estabiliza em zero.
 - O cálculo é determinístico e recalculado sob demanda, não persistido como valor congelado — exceto na baixa.
 - Arredondamento em duas casas decimais, modo *half-up*.
@@ -136,15 +140,18 @@ percentual_depreciado = (depreciacao_acumulada / valor_compra) × 100
 
 | Campo | Tipo | Obrigatório | Regra |
 |---|---|---|---|
-| `software` | Texto (3–120) | Sim | — |
+| `ativo` | Referência | Só em `PERPETUA` | Ativo `SOFTWARE` a que a licença se refere; dele vêm o nome e o valor patrimonial |
+| `software` | Texto (3–120) | Só sem `ativo` | Nome do software em `SUBSCRICAO` e `OEM` |
 | `fornecedor` | Referência | Sim | — |
 | `chave_licenca` | Texto (até 200) | Sim | — |
 | `quantidade_contratada` | Inteiro | Sim | ≥ 1 |
 | `quantidade_em_uso` | Inteiro | Sim | ≥ 0; derivado dos vínculos |
-| `data_aquisicao` | Data | Sim | Não futura |
-| `data_expiracao` | Data | Sim | > `data_aquisicao` |
-| `valor_total` | Decimal(12,2) | Sim | > 0 |
+| `data_inicio_vigencia` | Data | Sim | Não futura |
+| `data_expiracao` | Data | Sim | > `data_inicio_vigencia` |
+| `valor_total` | Decimal(12,2) | Só em `SUBSCRICAO` | > 0; custo recorrente. Em `PERPETUA` o valor está no ativo; em `OEM`, no hardware |
 | `tipo_licenciamento` | Enum | Sim | `PERPETUA` \| `SUBSCRICAO` \| `OEM` |
+
+A licença representa **só o contrato de direito de uso**. O valor patrimonial de uma licença perpétua fica no ativo, nunca nos dois lugares (ADR-012).
 
 **Alertas gerados:**
 

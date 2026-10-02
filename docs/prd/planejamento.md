@@ -81,7 +81,7 @@ Parte de [PRD — ITAM](README.md).
 | QA-03 | Haverá integração com ERP para conciliação patrimonial, ainda que por exportação? | Define o formato de exportação exigido | Patrimônio / TI |
 | QA-04 | Qual o formato do inventário legado a ser importado? | Define o parser e o mapeamento de colunas do FR-008 | Administrador de TI |
 | QA-05 | A vida útil deve seguir a tabela fiscal ou uma política interna própria? | Afeta a parametrização padrão das categorias | Contabilidade |
-| QA-06 | Software adquirido deve ser modelado como Ativo, como Licença ou como ambos? | Afeta o modelo de dados e a interpretação dos indicadores | Arquitetura / Patrimônio |
+| QA-06 | ~~Software adquirido deve ser modelado como Ativo, como Licença ou como ambos?~~ **Resolvida em 2026-09-29:** software adquirido é Ativo ([ADR-012](../adr/0012-software-como-ativo.md)) | Afeta o modelo de dados e a interpretação dos indicadores | Arquitetura / Patrimônio |
 | QA-07 | A janela de alerta de vencimento de licença é fixa em 30 dias ou varia por fornecedor? | Define se o parâmetro é global ou por licença | Administrador de TI |
 | QA-08 | Ativos compartilhados (impressoras, projetores) devem ter pessoa responsável ou apenas setor? | Afeta a obrigatoriedade do campo responsável no FR-002 | Administrador de TI |
 | QA-09 | Deve existir estorno de baixa, ou a operação é definitiva? | Afeta a imutabilidade assumida no BR-024 | Patrimônio / Auditoria |
