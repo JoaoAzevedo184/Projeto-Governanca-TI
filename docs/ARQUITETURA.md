@@ -10,10 +10,10 @@ A arquitetura responde a cinco forças, em ordem de peso:
 
 | # | Direcionador | Origem | Consequência arquitetural |
 |---|---|---|---|
-| D1 | O histórico é evidência de auditoria e não pode ser alterado | NFR-AUD-01, Persona Diego | Tabelas *append-only* com garantia no banco, não em convenção de código |
+| D1 | O histórico é evidência de auditoria e não pode ser alterado | NFR-AUD-01, Persona Diego | Tabelas *append-only* com garantia no banco, não em convenção de código. *Estado atual:* trigger nas três tabelas: `historico_transferencia`, `audit_log` e `baixa_ativo` |
 | D2 | O valor residual precisa conciliar com a contabilidade | KPI-05, Persona Rosângela | `Decimal` em toda cadeia, cálculo determinístico e auditável |
 | D3 | Nenhuma decisão sem evidência verificável | BR-027, princípio da disciplina | Recomendação e evidência criadas na mesma transação |
-| D4 | O ambiente precisa subir em qualquer máquina, sem dependência externa | Avaliação, RI-10 | Perfil local com SQLite, perfil orquestrado com PostgreSQL |
+| D4 | O ambiente precisa subir em qualquer máquina, sem dependência externa | Avaliação, RI-10 | Perfil local com SQLite, perfil orquestrado com PostgreSQL. *Revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](RESOLUCAO_PENDENCIAS_SPRINT2.md)):* SQLite só para executar a aplicação; testes só em PostgreSQL 16 |
 | D5 | A API é o contrato, independentemente da linguagem | NFR-MAN-01 | OpenAPI congelado e testes de contrato separados dos de integração |
 
 ---
@@ -72,7 +72,7 @@ graph TB
 | `prometheus` | Coleta e retenção de métricas | Volume próprio, descartável |
 | `grafana` | Visualização técnica | Provisionamento declarativo em `infra/grafana/` |
 
-**Perfis de execução.** `docker compose --profile local` sobe apenas a API com SQLite, para desenvolvimento e para a hipótese de o ambiente da apresentação falhar (RI-10). O perfil padrão sobe os quatro contêineres.
+**Perfis de execução.** O `docker-compose.yml` não define perfis: `docker compose up` sobe os quatro contêineres, com a API em PostgreSQL. Para desenvolvimento sem Docker e para a hipótese de o ambiente da apresentação falhar (RI-10), a API roda direto na máquina com `DATABASE_URL` em SQLite ([`guia/execucao-local.md`](guia/execucao-local.md)). *Revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](RESOLUCAO_PENDENCIAS_SPRINT2.md)):* os testes rodam só em PostgreSQL 16; no SQLite não há trigger de imutabilidade, lock de linha nem verificação de FK.
 
 ---
 
@@ -81,32 +81,39 @@ graph TB
 ```mermaid
 graph TB
     subgraph rt["api/v1/routers"]
-        R1["ativos · licencas · relatorios<br/>compliance · indicadores<br/>importacoes · riscos · recomendacoes"]
+        R1["existem: auth · categorias · fornecedores<br/>setores · responsaveis · ativos (inclui a baixa)<br/>importacoes · licencas<br/>planejados: relatorios · compliance<br/>indicadores · riscos · recomendacoes"]
     end
     subgraph sv["services — regras de negócio"]
-        S1["ativo · responsavel · depreciacao<br/>licenca · baixa · compliance<br/>indicador · importacao<br/>cenario · scorecard · risco · recomendacao"]
-    end
-    subgraph rp["repositories"]
-        P1["consultas, filtros, paginação"]
+        S1["existem: ativo · responsavel · depreciacao<br/>importacao · categoria · fornecedor · setor<br/>baixa · licenca<br/>planejados: compliance<br/>indicador · cenario · scorecard · risco<br/>recomendacao · relatorio"]
     end
     subgraph md["models — SQLAlchemy"]
         M1["mapeamento, constraints, índices"]
     end
     subgraph cr["core — transversal"]
-        C1["config · database · security<br/>exceptions · metrics · audit · logging"]
+        C1["existem: config · database · security<br/>exceptions · audit<br/>planejados: metrics · logging"]
     end
     subgraph ut["utils — funções puras"]
-        U1["depreciacao · datas · exportacao"]
+        U1["existem: depreciacao · datas · mascaramento<br/>planejado: exportacao"]
     end
 
     rt --> sv
-    sv --> rp
+    rt -.->|"leituras sem regra"| md
+    sv --> md
     sv --> ut
-    rp --> md
     cr -.-> rt
     cr -.-> sv
-    cr -.-> rp
 ```
+
+"Planejados" são módulos que existem como arquivo vazio (placeholder) e entram nas Sprints 3 a 5; ver [`ROADMAP.md`](ROADMAP.md). Não há camada de repositório: `app/repositories/` existe só com `.gitkeep`. Os serviços usam a `Session` do SQLAlchemy direto sobre os modelos. A seta tracejada `rt → md` são as leituras que não passam por serviço, porque não aplicam regra de negócio:
+
+| Onde | Consulta direta ao modelo |
+|---|---|
+| `routers/categorias.py`, `fornecedores.py`, `setores.py`, `responsaveis.py` | `GET` de listagem (`db.query(...).order_by(...)`) |
+| `routers/auth.py` | `POST /auth/login` busca o `Usuario` pelo login |
+| `routers/importacoes.py` | `GET /importacoes`, `GET /importacoes/{id}` e `GET /importacoes/{id}/erros` |
+| `api/deps.py` | `get_current_user` carrega o `Usuario` do token |
+
+Toda escrita passa por serviço. Os `if` desses routers são autenticação, autorização e 404, nunca regra de negócio (BR).
 
 ### Regra de dependência
 
@@ -116,7 +123,7 @@ A seta aponta em um sentido só. Violações comuns a evitar:
 |---|---|
 | Router com `if` de regra de negócio | A regra deixa de ser testável sem HTTP e some da matriz de rastreabilidade |
 | Serviço importando outro router | Cria ciclo e acopla negócio a transporte |
-| Repositório decidindo o que é válido | A regra se espalha; duas regras divergentes sobre o mesmo fato |
+| Consulta direta no router decidindo o que é válido | A regra se espalha; duas regras divergentes sobre o mesmo fato |
 | Modelo com lógica de cálculo | Impede testar o cálculo sem sessão de banco |
 
 **`utils/` é a camada mais protegida.** Funções puras, sem sessão, sem `date.today()` interno, sem I/O. É onde vive a depreciação — e é por isso que os critérios AC-015 a AC-020 são testáveis sem subir banco nem manipular relógio.
