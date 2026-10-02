@@ -1,5 +1,1573 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: ITAM API
-  version: "0.1.0"
-paths: {}
+  version: 0.1.0
+paths:
+  /api/v1/auth/login:
+    post:
+      tags:
+      - auth
+      summary: Login
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/me:
+    get:
+      tags:
+      - auth
+      summary: Me
+      operationId: me_api_v1_auth_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/categorias:
+    get:
+      tags:
+      - categorias
+      summary: Listar
+      operationId: listar_api_v1_categorias_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CategoriaResponse'
+                type: array
+                title: Response Listar Api V1 Categorias Get
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      tags:
+      - categorias
+      summary: Criar
+      operationId: criar_api_v1_categorias_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/categorias/{categoria_id}:
+    get:
+      tags:
+      - categorias
+      summary: Obter
+      operationId: obter_api_v1_categorias__categoria_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: categoria_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Categoria Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - categorias
+      summary: Atualizar
+      operationId: atualizar_api_v1_categorias__categoria_id__patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: categoria_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Categoria Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/fornecedores:
+    get:
+      tags:
+      - fornecedores
+      summary: Listar
+      operationId: listar_api_v1_fornecedores_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FornecedorResponse'
+                type: array
+                title: Response Listar Api V1 Fornecedores Get
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      tags:
+      - fornecedores
+      summary: Criar
+      operationId: criar_api_v1_fornecedores_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FornecedorCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FornecedorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/setores:
+    get:
+      tags:
+      - setores
+      summary: Listar
+      operationId: listar_api_v1_setores_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SetorResponse'
+                type: array
+                title: Response Listar Api V1 Setores Get
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      tags:
+      - setores
+      summary: Criar
+      operationId: criar_api_v1_setores_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetorCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/responsaveis:
+    get:
+      tags:
+      - responsaveis
+      summary: Listar
+      operationId: listar_api_v1_responsaveis_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResponsavelResponse'
+                type: array
+                title: Response Listar Api V1 Responsaveis Get
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      tags:
+      - responsaveis
+      summary: Criar
+      operationId: criar_api_v1_responsaveis_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResponsavelCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsavelResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/ativos:
+    post:
+      tags:
+      - ativos
+      summary: Criar
+      operationId: criar_api_v1_ativos_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AtivoCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtivoResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - ativos
+      summary: Listar
+      operationId: listar_api_v1_ativos_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/StatusAtivo'
+          - type: 'null'
+          title: Status
+      - name: tipo
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/TipoAtivo'
+          - type: 'null'
+          title: Tipo
+      - name: categoria_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Categoria Id
+      - name: fornecedor_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Fornecedor Id
+      - name: busca
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Busca
+      - name: pagina
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Pagina
+      - name: tamanho
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Tamanho
+      - name: ordenar_por
+        in: query
+        required: false
+        schema:
+          type: string
+          default: id
+          title: Ordenar Por
+      - name: direcao
+        in: query
+        required: false
+        schema:
+          type: string
+          default: asc
+          title: Direcao
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaAtivosResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ativos/{ativo_id}:
+    get:
+      tags:
+      - ativos
+      summary: Obter
+      operationId: obter_api_v1_ativos__ativo_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: ativo_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Ativo Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtivoResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - ativos
+      summary: Atualizar
+      operationId: atualizar_api_v1_ativos__ativo_id__patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: ativo_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Ativo Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AtivoUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtivoResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ativos/{ativo_id}/depreciacao:
+    get:
+      tags:
+      - ativos
+      summary: Depreciacao
+      operationId: depreciacao_api_v1_ativos__ativo_id__depreciacao_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: ativo_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Ativo Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepreciacaoResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ativos/{ativo_id}/historico:
+    get:
+      tags:
+      - ativos
+      summary: Historico
+      operationId: historico_api_v1_ativos__ativo_id__historico_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: ativo_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Ativo Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VinculoResponse'
+                title: Response Historico Api V1 Ativos  Ativo Id  Historico Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ativos/{ativo_id}/responsavel:
+    post:
+      tags:
+      - ativos
+      summary: Atribuir Responsavel
+      operationId: atribuir_responsavel_api_v1_ativos__ativo_id__responsavel_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: ativo_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Ativo Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VinculoCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VinculoResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/importacoes:
+    get:
+      tags:
+      - importacoes
+      summary: Listar
+      operationId: listar_api_v1_importacoes_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LoteImportacaoResponse'
+                type: array
+                title: Response Listar Api V1 Importacoes Get
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      tags:
+      - importacoes
+      summary: Importar
+      operationId: importar_api_v1_importacoes_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_importar_api_v1_importacoes_post'
+        required: true
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportacaoResumo'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/importacoes/{lote_id}:
+    get:
+      tags:
+      - importacoes
+      summary: Obter
+      operationId: obter_api_v1_importacoes__lote_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lote_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Lote Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoteImportacaoResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/importacoes/{lote_id}/erros:
+    get:
+      tags:
+      - importacoes
+      summary: Erros
+      operationId: erros_api_v1_importacoes__lote_id__erros_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lote_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Lote Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ErroImportacaoResponse'
+                title: Response Erros Api V1 Importacoes  Lote Id  Erros Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AtivoCreate:
+      properties:
+        nome:
+          type: string
+          maxLength: 120
+          minLength: 3
+          title: Nome
+        tipo:
+          $ref: '#/components/schemas/TipoAtivo'
+        categoria_id:
+          type: integer
+          title: Categoria Id
+        fornecedor_id:
+          type: integer
+          title: Fornecedor Id
+        numero_serie:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+          title: Numero Serie
+        chave_licenca:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Chave Licenca
+        data_aquisicao:
+          type: string
+          format: date
+          title: Data Aquisicao
+        valor_compra:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Valor Compra
+        vida_util_meses:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0.0
+          - type: 'null'
+          title: Vida Util Meses
+        localizacao:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Localizacao
+        observacoes:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Observacoes
+      type: object
+      required:
+      - nome
+      - tipo
+      - categoria_id
+      - fornecedor_id
+      - data_aquisicao
+      - valor_compra
+      title: AtivoCreate
+    AtivoResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        nome:
+          type: string
+          title: Nome
+        tipo:
+          $ref: '#/components/schemas/TipoAtivo'
+        categoria_id:
+          type: integer
+          title: Categoria Id
+        fornecedor_id:
+          type: integer
+          title: Fornecedor Id
+        numero_serie:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Numero Serie
+        chave_licenca:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Chave Licenca
+        data_aquisicao:
+          type: string
+          format: date
+          title: Data Aquisicao
+        valor_compra:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Valor Compra
+        vida_util_meses:
+          type: integer
+          title: Vida Util Meses
+        status:
+          $ref: '#/components/schemas/StatusAtivo'
+        localizacao:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Localizacao
+        observacoes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Observacoes
+        data_source:
+          type: string
+          title: Data Source
+        criado_em:
+          type: string
+          format: date-time
+          title: Criado Em
+        atualizado_em:
+          type: string
+          format: date-time
+          title: Atualizado Em
+        depreciacao:
+          $ref: '#/components/schemas/DepreciacaoResponse'
+      type: object
+      required:
+      - id
+      - nome
+      - tipo
+      - categoria_id
+      - fornecedor_id
+      - numero_serie
+      - chave_licenca
+      - data_aquisicao
+      - valor_compra
+      - vida_util_meses
+      - status
+      - localizacao
+      - observacoes
+      - data_source
+      - criado_em
+      - atualizado_em
+      - depreciacao
+      title: AtivoResponse
+      description: Ativo com o bloco `depreciacao` calculado na hora (contrato §6.3,
+        AC-018).
+    AtivoUpdate:
+      properties:
+        nome:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 3
+          - type: 'null'
+          title: Nome
+        categoria_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Categoria Id
+        fornecedor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Fornecedor Id
+        vida_util_meses:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0.0
+          - type: 'null'
+          title: Vida Util Meses
+        localizacao:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Localizacao
+        observacoes:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Observacoes
+      type: object
+      title: AtivoUpdate
+    Body_importar_api_v1_importacoes_post:
+      properties:
+        arquivo:
+          type: string
+          format: binary
+          title: Arquivo
+      type: object
+      required:
+      - arquivo
+      title: Body_importar_api_v1_importacoes_post
+    CategoriaCreate:
+      properties:
+        nome:
+          type: string
+          maxLength: 80
+          minLength: 2
+          title: Nome
+        descricao:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Descricao
+        vida_util_meses:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Vida Util Meses
+        tipo_aplicavel:
+          $ref: '#/components/schemas/TipoAtivo'
+        ativa:
+          type: boolean
+          title: Ativa
+          default: true
+      type: object
+      required:
+      - nome
+      - vida_util_meses
+      - tipo_aplicavel
+      title: CategoriaCreate
+    CategoriaResponse:
+      properties:
+        nome:
+          type: string
+          maxLength: 80
+          minLength: 2
+          title: Nome
+        descricao:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Descricao
+        vida_util_meses:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Vida Util Meses
+        tipo_aplicavel:
+          $ref: '#/components/schemas/TipoAtivo'
+        ativa:
+          type: boolean
+          title: Ativa
+          default: true
+        id:
+          type: integer
+          title: Id
+      type: object
+      required:
+      - nome
+      - vida_util_meses
+      - tipo_aplicavel
+      - id
+      title: CategoriaResponse
+    CategoriaUpdate:
+      properties:
+        nome:
+          anyOf:
+          - type: string
+            maxLength: 80
+            minLength: 2
+          - type: 'null'
+          title: Nome
+        descricao:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Descricao
+        vida_util_meses:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0.0
+          - type: 'null'
+          title: Vida Util Meses
+        tipo_aplicavel:
+          anyOf:
+          - $ref: '#/components/schemas/TipoAtivo'
+          - type: 'null'
+        ativa:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Ativa
+      type: object
+      title: CategoriaUpdate
+    DepreciacaoResponse:
+      properties:
+        ativo_id:
+          type: integer
+          title: Ativo Id
+        data_referencia:
+          type: string
+          format: date
+          title: Data Referencia
+        metodo:
+          type: string
+          const: LINEAR
+          title: Metodo
+          default: LINEAR
+        valor_compra:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Valor Compra
+        vida_util_meses:
+          type: integer
+          title: Vida Util Meses
+        meses_decorridos:
+          type: integer
+          title: Meses Decorridos
+        meses_efetivos:
+          type: integer
+          title: Meses Efetivos
+        depreciacao_mensal:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Depreciacao Mensal
+          description: 'Informativa: valor_compra ÷ vida_util_meses, arredondada (BR-017).
+            A acumulada é valor_compra × meses_efetivos ÷ vida_util_meses, arredondada
+            só no fim; mensal × meses pode diferir dela em centavos.'
+        depreciacao_acumulada:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Depreciacao Acumulada
+        valor_residual:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Valor Residual
+        percentual_depreciado:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Percentual Depreciado
+      type: object
+      required:
+      - ativo_id
+      - data_referencia
+      - valor_compra
+      - vida_util_meses
+      - meses_decorridos
+      - meses_efetivos
+      - depreciacao_mensal
+      - depreciacao_acumulada
+      - valor_residual
+      - percentual_depreciado
+      title: DepreciacaoResponse
+      description: 'Resposta de `GET /ativos/{id}/depreciacao` e bloco `depreciacao`
+        do ativo (contrato §6.3).
+
+
+        `meses_efetivos` e `depreciacao_mensal` expostos de propósito: cálculo auditável
+        (AC-015).
+
+        Valores monetários saem como string decimal, sem perda de precisão (contrato
+        §6.3).'
+      examples:
+      - ativo_id: 12
+        data_referencia: '2026-03-14'
+        depreciacao_acumulada: '1200.00'
+        depreciacao_mensal: '100.00'
+        meses_decorridos: 12
+        meses_efetivos: 12
+        metodo: LINEAR
+        percentual_depreciado: '20.00'
+        valor_compra: '6000.00'
+        valor_residual: '4800.00'
+        vida_util_meses: 60
+    ErroImportacaoResponse:
+      properties:
+        numero_linha:
+          type: integer
+          title: Numero Linha
+        campo:
+          type: string
+          title: Campo
+        valor_recebido:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Valor Recebido
+        motivo:
+          type: string
+          title: Motivo
+      type: object
+      required:
+      - numero_linha
+      - campo
+      - valor_recebido
+      - motivo
+      title: ErroImportacaoResponse
+    FornecedorCreate:
+      properties:
+        razao_social:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Razao Social
+        cnpj:
+          anyOf:
+          - type: string
+            maxLength: 18
+          - type: 'null'
+          title: Cnpj
+        contato:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Contato
+        telefone:
+          anyOf:
+          - type: string
+            maxLength: 20
+          - type: 'null'
+          title: Telefone
+        email:
+          anyOf:
+          - type: string
+            maxLength: 160
+          - type: 'null'
+          title: Email
+        ativo:
+          type: boolean
+          title: Ativo
+          default: true
+        data_source:
+          type: string
+          title: Data Source
+          default: sintetico
+      type: object
+      required:
+      - razao_social
+      title: FornecedorCreate
+    FornecedorResponse:
+      properties:
+        razao_social:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Razao Social
+        cnpj:
+          anyOf:
+          - type: string
+            maxLength: 18
+          - type: 'null'
+          title: Cnpj
+        contato:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Contato
+        telefone:
+          anyOf:
+          - type: string
+            maxLength: 20
+          - type: 'null'
+          title: Telefone
+        email:
+          anyOf:
+          - type: string
+            maxLength: 160
+          - type: 'null'
+          title: Email
+        ativo:
+          type: boolean
+          title: Ativo
+          default: true
+        data_source:
+          type: string
+          title: Data Source
+          default: sintetico
+        id:
+          type: integer
+          title: Id
+      type: object
+      required:
+      - razao_social
+      - id
+      title: FornecedorResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ImportacaoResumo:
+      properties:
+        lote_id:
+          type: integer
+          title: Lote Id
+        nome_arquivo:
+          type: string
+          title: Nome Arquivo
+        total_processado:
+          type: integer
+          title: Total Processado
+        total_aceito:
+          type: integer
+          title: Total Aceito
+        total_rejeitado:
+          type: integer
+          title: Total Rejeitado
+        erros_url:
+          type: string
+          title: Erros Url
+      type: object
+      required:
+      - lote_id
+      - nome_arquivo
+      - total_processado
+      - total_aceito
+      - total_rejeitado
+      - erros_url
+      title: ImportacaoResumo
+    ListaAtivosResponse:
+      properties:
+        itens:
+          items:
+            $ref: '#/components/schemas/AtivoResponse'
+          type: array
+          title: Itens
+        pagina:
+          type: integer
+          title: Pagina
+        tamanho:
+          type: integer
+          title: Tamanho
+        total:
+          type: integer
+          title: Total
+        total_paginas:
+          type: integer
+          title: Total Paginas
+      type: object
+      required:
+      - itens
+      - pagina
+      - tamanho
+      - total
+      - total_paginas
+      title: ListaAtivosResponse
+    LoginRequest:
+      properties:
+        login:
+          type: string
+          title: Login
+        senha:
+          type: string
+          title: Senha
+      type: object
+      required:
+      - login
+      - senha
+      title: LoginRequest
+    LoteImportacaoResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        nome_arquivo:
+          type: string
+          title: Nome Arquivo
+        data_importacao:
+          type: string
+          format: date-time
+          title: Data Importacao
+        usuario_id:
+          type: integer
+          title: Usuario Id
+        total_processado:
+          type: integer
+          title: Total Processado
+        total_aceito:
+          type: integer
+          title: Total Aceito
+        total_rejeitado:
+          type: integer
+          title: Total Rejeitado
+      type: object
+      required:
+      - id
+      - nome_arquivo
+      - data_importacao
+      - usuario_id
+      - total_processado
+      - total_aceito
+      - total_rejeitado
+      title: LoteImportacaoResponse
+    PerfilUsuario:
+      type: string
+      enum:
+      - ADMIN
+      - OPERADOR
+      - GESTOR
+      - AUDITOR
+      title: PerfilUsuario
+    ResponsavelCreate:
+      properties:
+        nome:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Nome
+        matricula:
+          anyOf:
+          - type: string
+            maxLength: 30
+          - type: 'null'
+          title: Matricula
+        email:
+          anyOf:
+          - type: string
+            maxLength: 160
+          - type: 'null'
+          title: Email
+        cargo:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Cargo
+        localizacao:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Localizacao
+        setor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Setor Id
+        ativo:
+          type: boolean
+          title: Ativo
+          default: true
+      type: object
+      required:
+      - nome
+      title: ResponsavelCreate
+    ResponsavelResponse:
+      properties:
+        nome:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Nome
+        matricula:
+          anyOf:
+          - type: string
+            maxLength: 30
+          - type: 'null'
+          title: Matricula
+        email:
+          anyOf:
+          - type: string
+            maxLength: 160
+          - type: 'null'
+          title: Email
+        cargo:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Cargo
+        localizacao:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Localizacao
+        setor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Setor Id
+        ativo:
+          type: boolean
+          title: Ativo
+          default: true
+        id:
+          type: integer
+          title: Id
+        data_source:
+          type: string
+          title: Data Source
+      type: object
+      required:
+      - nome
+      - id
+      - data_source
+      title: ResponsavelResponse
+    SetorCreate:
+      properties:
+        nome:
+          type: string
+          maxLength: 120
+          minLength: 2
+          title: Nome
+        sigla:
+          anyOf:
+          - type: string
+            maxLength: 12
+          - type: 'null'
+          title: Sigla
+        ativo:
+          type: boolean
+          title: Ativo
+          default: true
+      type: object
+      required:
+      - nome
+      title: SetorCreate
+    SetorResponse:
+      properties:
+        nome:
+          type: string
+          maxLength: 120
+          minLength: 2
+          title: Nome
+        sigla:
+          anyOf:
+          - type: string
+            maxLength: 12
+          - type: 'null'
+          title: Sigla
+        ativo:
+          type: boolean
+          title: Ativo
+          default: true
+        id:
+          type: integer
+          title: Id
+      type: object
+      required:
+      - nome
+      - id
+      title: SetorResponse
+    StatusAtivo:
+      type: string
+      enum:
+      - ATIVO
+      - EM_MANUTENCAO
+      - BAIXADO
+      title: StatusAtivo
+    TipoAtivo:
+      type: string
+      enum:
+      - HARDWARE
+      - SOFTWARE
+      title: TipoAtivo
+    TokenResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+      type: object
+      required:
+      - access_token
+      title: TokenResponse
+    UsuarioResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        login:
+          type: string
+          title: Login
+        nome:
+          type: string
+          title: Nome
+        perfil:
+          $ref: '#/components/schemas/PerfilUsuario'
+        ativo:
+          type: boolean
+          title: Ativo
+      type: object
+      required:
+      - id
+      - login
+      - nome
+      - perfil
+      - ativo
+      title: UsuarioResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VinculoCreate:
+      properties:
+        responsavel_id:
+          type: integer
+          title: Responsavel Id
+        setor_id:
+          type: integer
+          title: Setor Id
+        data_inicio:
+          type: string
+          format: date
+          title: Data Inicio
+        motivo:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Motivo
+      type: object
+      required:
+      - responsavel_id
+      - setor_id
+      - data_inicio
+      title: VinculoCreate
+      description: Corpo de `POST /ativos/{id}/responsavel` — atribuição inicial ou
+        transferência (FR-002).
+    VinculoResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        ativo_id:
+          type: integer
+          title: Ativo Id
+        responsavel_id:
+          type: integer
+          title: Responsavel Id
+        setor_id:
+          type: integer
+          title: Setor Id
+        data_inicio:
+          type: string
+          format: date
+          title: Data Inicio
+        data_fim:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data Fim
+        motivo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Motivo
+        registrado_por_id:
+          type: integer
+          title: Registrado Por Id
+        data_source:
+          type: string
+          title: Data Source
+        criado_em:
+          type: string
+          format: date-time
+          title: Criado Em
+      type: object
+      required:
+      - id
+      - ativo_id
+      - responsavel_id
+      - setor_id
+      - data_inicio
+      - data_fim
+      - motivo
+      - registrado_por_id
+      - data_source
+      - criado_em
+      title: VinculoResponse
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /api/v1/auth/login
