@@ -128,6 +128,8 @@ Aguarde os health checks ficarem saudáveis e carregue os dados de demonstraçã
 
 Execução local sem Docker, coleta de dados reais (`python/collectors/`/`python/etl/`), verificação da instalação, importação de inventário próprio, testes e scripts operacionais estão detalhados em [`docs/guia/`](docs/guia/README.md).
 
+Os testes rodam sempre contra PostgreSQL 16: suba o banco com `docker compose up -d db` antes do `pytest` (detalhes em [`docs/guia/testes.md`](docs/guia/testes.md)).
+
 ---
 
 ## Estrutura do repositório
