@@ -12,6 +12,28 @@ class StatusAtivo(str, Enum):
     BAIXADO = "BAIXADO"
 
 
+class MotivoBaixa(str, Enum):
+    OBSOLESCENCIA = "OBSOLESCENCIA"
+    DEFEITO = "DEFEITO"
+    FURTO_ROUBO = "FURTO_ROUBO"
+    FIM_VIDA_UTIL = "FIM_VIDA_UTIL"
+    OUTRO = "OUTRO"
+
+
+class DestinacaoBaixa(str, Enum):
+    RECICLAGEM_CERTIFICADA = "RECICLAGEM_CERTIFICADA"
+    DOACAO = "DOACAO"
+    DEVOLUCAO_FORNECEDOR = "DEVOLUCAO_FORNECEDOR"
+    VENDA = "VENDA"
+    DESCARTE = "DESCARTE"
+
+
+class TipoLicenciamento(str, Enum):
+    PERPETUA = "PERPETUA"
+    SUBSCRICAO = "SUBSCRICAO"
+    OEM = "OEM"
+
+
 class PerfilUsuario(str, Enum):
     ADMIN = "ADMIN"
     OPERADOR = "OPERADOR"

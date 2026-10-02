@@ -4,6 +4,7 @@ from decimal import Decimal
 from sqlalchemy import CheckConstraint, Date, ForeignKey, Index, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.models import baixa as _baixa  # noqa: F401 — registra BaixaAtivo para o relationship
 from app.models.base import Base, TimestampMixin
 from app.models.enums import StatusAtivo, TipoAtivo, check_in
 
@@ -45,3 +46,4 @@ class Ativo(Base, TimestampMixin):
 
     categoria = relationship("Categoria")
     fornecedor = relationship("Fornecedor")
+    baixa = relationship("BaixaAtivo", back_populates="ativo", uselist=False)
