@@ -34,7 +34,7 @@ Parte de [SPEC — ITAM](README.md).
 | GET | `/ativos/{id}/depreciacao` | todos | FR-003 |
 | GET | `/ativos/{id}/historico` | todos | FR-002 |
 | POST | `/ativos/{id}/responsavel` | ADMIN, OPERADOR | FR-002 |
-| POST | `/ativos/{id}/baixa` | ADMIN | FR-005 |
+| POST | `/ativos/{id}/baixa` | ADMIN, OPERADOR | FR-005 |
 
 **Parâmetros de `GET /ativos`:** `status`, `tipo`, `categoria_id`, `fornecedor_id`, `responsavel_id`, `busca` (nome ou número de série), `valor_depreciado_min`, `valor_depreciado_max`, `percentual_depreciado_min`, `percentual_depreciado_max`, `aquisicao_de`, `aquisicao_ate`, `fim_vida_util` (bool), `pagina` (padrão 1), `tamanho` (padrão 20, máx. 100), `ordenar_por`, `direcao`.
 
@@ -108,12 +108,19 @@ Expor `meses_efetivos` e `depreciacao_mensal` é deliberado: torna o cálculo au
 }
 ```
 
+Resposta `201`: o registro de baixa, com `valor_residual_baixa` (string decimal) congelado na `data_baixa` (BR-015), e `data_source = "manual"`. Na mesma transação o ativo passa a `BAIXADO` e o vínculo de responsável aberto é encerrado com `data_fim = data_baixa` (BR-012). Depois disso `GET /ativos/{id}/depreciacao` usa a `data_baixa` como referência e o valor congelado (AC-019).
+
+Recusas, sempre `409` com `regra` e linha `RECUSADO` na auditoria: `BR-024` (ativo já baixado), `BR-023` (motivo `OUTRO` sem justificativa de 10 caracteres), `BR-022` (data futura ou anterior à aquisição), `BR-026` (sem `destinacao`) e `BR-012` (data anterior ao início do vínculo aberto). Motivo ou destinação fora do enum, e data malformada, retornam `422`.
+
+> **Permissões (ADR-013).** Esta tabela dizia só `ADMIN` para a baixa. A matriz do FR-015 permite a `OPERADOR` criar baixa; o PRD prevalece em regra de negócio, e o contrato foi corrigido (registrado no [`ROADMAP.md`](../ROADMAP.md)).
+
 ### 6.4 Licenças
 
 | Método | Rota | Perfis | FR |
 |---|---|---|---|
 | GET/POST | `/licencas` | GET: todos · POST: ADMIN | FR-004 |
-| GET/PATCH | `/licencas/{id}` | ADMIN | FR-004 |
+| GET | `/licencas/{id}` | todos | FR-004 |
+| PATCH | `/licencas/{id}` | ADMIN, OPERADOR | FR-004 |
 | GET | `/licencas/{id}/vinculos` | todos | FR-004 |
 | POST | `/licencas/{id}/vinculos` | ADMIN, OPERADOR | FR-004 |
 | DELETE | `/licencas/{id}/vinculos/{ativo_id}` | ADMIN, OPERADOR | FR-004 |
@@ -125,11 +132,21 @@ A resposta de licença sempre inclui o bloco derivado:
   "quantidade_contratada": 50,
   "quantidade_em_uso": 47,
   "saldo": 3,
-  "dias_para_expiracao": 22,
-  "status_conformidade": "ALERTA",
-  "alertas": ["CP-03"]
+  "dias_para_expiracao": 22
 }
 ```
+
+`quantidade_em_uso` é o `COUNT` dos vínculos ativos (BR-021, ADR-008), nunca informada. `dias_para_expiracao` é negativo quando a licença já venceu. **`status_conformidade` e `alertas` (por exemplo `"ALERTA"` e `["CP-03"]`) ainda não existem:** chegam com o painel de compliance (FR-007, Sprint 4).
+
+**`POST /licencas`** — o corpo segue `ck_licenca_tipo`: `PERPETUA` aponta para um ativo `SOFTWARE` (`ativo_id`), sem `software` nem `valor_total`; `SUBSCRICAO` leva `software` e `valor_total`; `OEM` leva `software`, sem valor. Valores monetários são strings decimais.
+
+**Chave de licença (RI-08).** `chave_licenca` sai mascarada (`****-****-A3F9`) em toda listagem e para quem não é `ADMIN`; completa só no detalhe e só para `ADMIN`. A mesma regra vale para a chave do ativo `SOFTWARE`. Chave com menos de 8 caracteres sai toda mascarada.
+
+**`POST /licencas/{id}/vinculos`** — corpo `{ "ativo_id": 12, "data_vinculo": "2026-03-20" }`; `ativo_id` é a máquina hospedeira (`HARDWARE`) e `data_vinculo` é opcional (padrão hoje). Recusas `409` com `regra` e auditoria `RECUSADO`: `BR-018` (excederia o contratado, AC-021), `BR-020` (licença vencida, AC-025) e `FR-004` (máquina que não é `HARDWARE`, ou já vinculada a esta licença). `DELETE /licencas/{id}/vinculos/{ativo_id}` é desvínculo **lógico** (`ativo_vinculo = false`, `204`): a quantidade em uso cai sozinha (AC-026) e nenhum registro é apagado. `GET .../vinculos` lista ativos e desvinculados.
+
+**`PATCH /licencas/{id}`** — edita `fornecedor_id`, `chave_licenca`, `quantidade_contratada`, `data_inicio_vigencia` e `data_expiracao`. Recusas: `BR-019` (expiração não posterior ao início, AC-024) e `BR-018` (contratada abaixo do uso). `POST /licencas` também recusa `BR-019` com `409`.
+
+> **Permissões (ADR-013).** Esta tabela dizia `ADMIN` para `GET` e `PATCH /licencas/{id}`. A matriz do FR-015 dá `Ler` a todos e `Ler, Editar` ao `OPERADOR`; o contrato foi corrigido.
 
 ### 6.5 Relatórios, compliance e indicadores
 

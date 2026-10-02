@@ -6,7 +6,7 @@ Parte de [SPEC — ITAM](README.md).
 
 | Camada | Alvo | Ferramenta | Meta |
 |---|---|---|---|
-| Unitário | Funções puras (`utils/depreciacao.py`) e serviços com repositório falso | pytest | 100% das regras de cálculo |
+| Unitário | Funções puras (`utils/depreciacao.py`). Os serviços não têm teste unitário: não há camada de repositório para substituir, e eles são cobertos pelos testes de integração, com banco real | pytest | 100% das regras de cálculo |
 | Integração | Endpoints com banco real: PostgreSQL 16, banco `*_test` migrado por `alembic upgrade head` e truncado antes de cada teste (ver [`docs/guia/testes.md`](../guia/testes.md)) | pytest + httpx | Um teste por critério de aceite |
 | Contrato | Validação das respostas contra `api/openapi.yaml` | schemathesis | Todos os endpoints |
 | Coletores | `python/collectors/` (Compras.gov.br, endoflife.date, NVD) | pytest + fixtures gravadas | Nenhum teste acessa a internet |

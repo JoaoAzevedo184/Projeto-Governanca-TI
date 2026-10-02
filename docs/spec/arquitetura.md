@@ -20,12 +20,6 @@ Parte de [SPEC — ITAM](README.md).
 └────────────────────────┬─────────────────────────────────┘
                          ▼
 ┌──────────────────────────────────────────────────────────┐
-│  REPOSITÓRIOS  —  app/repositories/                      │
-│  Acesso a dados. Consultas, filtros, paginação.          │
-│  Nenhuma decisão de negócio.                             │
-└────────────────────────┬─────────────────────────────────┘
-                         ▼
-┌──────────────────────────────────────────────────────────┐
 │  MODELOS  —  app/models/                                 │
 │  Mapeamento SQLAlchemy, constraints, índices.            │
 └────────────────────────┬─────────────────────────────────┘
@@ -33,7 +27,13 @@ Parte de [SPEC — ITAM](README.md).
               PostgreSQL 16  /  SQLite (local)
 ```
 
-**Regras de dependência:** a seta aponta em um sentido só. Router importa serviço; serviço importa repositório; repositório importa modelo. Nunca o inverso. Um serviço nunca importa outro router; um repositório nunca importa um serviço.
+*SQLite revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):* a aplicação continua rodando em SQLite para execução local sem Docker (`DATABASE_URL`), mas os testes rodam só em PostgreSQL 16. A migração `c8365ce7e5e4` só cria o trigger `permitir_apenas_encerramento` quando o dialeto é PostgreSQL (`_postgres()`); o índice único parcial `ux_vinculo_aberto` é criado nos dois bancos.
+
+**Regras de dependência:** a seta aponta em um sentido só. Router importa serviço; serviço importa modelo e usa a `Session` do SQLAlchemy direto. Nunca o inverso: um serviço nunca importa router, um modelo nunca importa serviço.
+
+**Não há camada de repositório.** `app/repositories/` existe só com `.gitkeep`; nenhum módulo a importa. O acesso a dados fica nos serviços, pela `Session`.
+
+**Leituras diretas no router.** Consultas sem regra de negócio acessam o modelo direto pela `Session`, sem passar por serviço: listagens de `categorias`, `fornecedores`, `setores` e `responsaveis`; `POST /auth/login`; `GET /importacoes`, `GET /importacoes/{id}` e `GET /importacoes/{id}/erros`; e a dependência `get_current_user` em `app/api/deps.py`. Toda escrita passa por serviço. Os desvios condicionais nesses pontos são autenticação, autorização e 404, não regra de negócio (BR).
 
 ### 2.2 Módulos transversais
 

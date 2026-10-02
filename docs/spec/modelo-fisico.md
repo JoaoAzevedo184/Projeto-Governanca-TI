@@ -143,7 +143,7 @@ CREATE UNIQUE INDEX ux_vinculo_aberto
 | `destinacao` | VARCHAR(30) | NOT NULL (BR-026) |
 | `valor_residual_baixa` | NUMERIC(12,2) | NOT NULL, CHECK ≥ 0 (BR-015) |
 | `registrado_por_id` | BIGINT | NOT NULL, FK |
-| `data_source` | VARCHAR(20) | NOT NULL, sempre `sintetico` |
+| `data_source` | VARCHAR(20) | NOT NULL, `manual` (API) ou `sintetico` (ETL); mesmo critério do item 8 da resolução do Sprint 2 |
 | `criado_em` | TIMESTAMPTZ | NOT NULL |
 
 ```sql
@@ -165,8 +165,10 @@ CONSTRAINT ck_baixa_justificativa CHECK (
 | `data_inicio_vigencia` | DATE | NOT NULL |
 | `data_expiracao` | DATE | NOT NULL, CHECK > `data_inicio_vigencia` (BR-019) |
 | `valor_total` | NUMERIC(12,2) | nullable, CHECK > 0; só em `SUBSCRICAO` |
-| `tipo_licenciamento` | VARCHAR(20) | NOT NULL |
-| `data_source` | VARCHAR(20) | NOT NULL, sempre `sintetico` |
+| `tipo_licenciamento` | VARCHAR(20) | NOT NULL, CHECK IN `tipo_licenciamento` |
+| `data_source` | VARCHAR(20) | NOT NULL, `manual` (API) ou `sintetico` (ETL) |
+
+*Implementado na Sprint 3 (migração `f5f9acc0de7b`). Além do que está na tabela, o banco tem `ck_licenca_quantidade_minima`, `ck_licenca_vigencia` (BR-019) e `ck_licenca_valor_positivo`.*
 
 A licença é **só o contrato de direito de uso** (ADR-012). `software`, `data_aquisicao` e `valor_total` deixaram de duplicar o ativo: o nome e o valor patrimonial da licença perpétua vêm do ativo `SOFTWARE`.
 
@@ -193,8 +195,8 @@ CONSTRAINT ck_licenca_tipo CHECK (
 | `ativo_id` | BIGINT | NOT NULL, FK → máquina hospedeira (hardware onde o software está instalado) |
 | `data_vinculo` | DATE | NOT NULL |
 | `ativo_vinculo` | BOOLEAN | NOT NULL, DEFAULT true |
-| `data_source` | VARCHAR(20) | NOT NULL, sempre `sintetico` |
-| UNIQUE | | (`licenca_id`, `ativo_id`) onde `ativo_vinculo = true` |
+| `data_source` | VARCHAR(20) | NOT NULL, `manual` (API) ou `sintetico` (ETL) |
+| UNIQUE | | (`licenca_id`, `ativo_id`) onde `ativo_vinculo = true` (`ux_licenca_ativo`) |
 
 #### `produto_software`, `vulnerabilidade` e `ativo_software`
 
@@ -243,7 +245,7 @@ score INTEGER GENERATED ALWAYS AS (probabilidade * impacto) STORED
 
 ### 5.3 Garantia de imutabilidade (NFR-AUD-01)
 
-Para `historico_transferencia`, `baixa_ativo` e `audit_log`, aplicar no PostgreSQL:
+Para `historico_transferencia`, `baixa_ativo` e `audit_log`, aplicar no PostgreSQL (aplicado nas três; ver [`migracoes.md`](../modelo-de-dados/migracoes.md)):
 
 ```sql
 CREATE OR REPLACE FUNCTION bloquear_mutacao() RETURNS TRIGGER AS $$

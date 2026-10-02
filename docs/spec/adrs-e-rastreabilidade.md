@@ -12,7 +12,7 @@ Parte de [SPEC — ITAM](README.md).
 | ADR-004 | `Decimal` com `Numeric(12,2)` | `float` | Precisão contábil exigida pelo KPI-05 |
 | ADR-005 | Imutabilidade por trigger no banco | Convenção de código | Garantia independente da disciplina da equipe (NFR-AUD-01) |
 | ADR-006 | Índice único parcial para vínculo aberto | Validação só na aplicação | Só o banco garante a invariante sob concorrência (BR-007) |
-| ADR-007 | Enums como VARCHAR + CHECK | Tipo ENUM do PostgreSQL | Portabilidade para SQLite e migrações mais simples |
+| ADR-007 | Enums como VARCHAR + CHECK | Tipo ENUM do PostgreSQL | Portabilidade para SQLite e migrações mais simples. *Revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):* o SQLite segue só para executar a aplicação localmente; os testes rodam em PostgreSQL 16 |
 | ADR-008 | `quantidade_em_uso` derivada por COUNT | Coluna materializada | Elimina risco de dessincronização (BR-021) |
 | ADR-009 | Campo `regra` no payload de erro | Mensagem livre | Rastreabilidade runtime → requisito, verificável na defesa |
 | ADR-010 | Testes nomeados pelo identificador do critério | Nomes livres | Matriz de rastreabilidade verificável por comando |

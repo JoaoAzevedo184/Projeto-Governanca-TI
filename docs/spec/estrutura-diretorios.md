@@ -4,6 +4,8 @@ Parte de [SPEC — ITAM](README.md).
 
 ## 4. Estrutura de Diretórios
 
+A árvore mostra a estrutura-alvo. Os arquivos marcados `# planejado (arquivo vazio)` existem como placeholder e entram nas Sprints 3 a 5; os demais serviços listados já estão implementados.
+
 ```
 itam-api/
 ├── python/                           # build context da imagem da API
@@ -14,6 +16,7 @@ itam-api/
 │   │   └── gerar_sinteticos.py       # gera as entidades via Mockaroo
 │   ├── app/
 │   │   ├── main.py                      # criação do app, routers, handlers, métricas
+│   │   ├── seed.py                      # seed mínimo: usuários de demonstração e categorias (python -m app.seed)
 │   │   ├── core/
 │   │   │   ├── config.py
 │   │   │   ├── database.py
@@ -29,7 +32,7 @@ itam-api/
 │   │   │   ├── fornecedor.py
 │   │   │   ├── responsavel.py
 │   │   │   ├── setor.py
-│   │   │   ├── licenca.py
+│   │   │   ├── licenca.py               # Licenca, LicencaVinculo
 │   │   │   ├── historico.py             # HistoricoTransferencia (append-only)
 │   │   │   ├── baixa.py                 # BaixaAtivo (append-only)
 │   │   │   ├── importacao.py            # LoteImportacao, ErroImportacao
@@ -37,30 +40,34 @@ itam-api/
 │   │   │   ├── recomendacao.py          # Recomendacao, Evidencia
 │   │   │   ├── usuario.py
 │   │   │   └── auditoria.py             # AuditLog (append-only)
-│   │   ├── schemas/                     # um módulo por agregado
-│   │   ├── repositories/
+│   │   ├── schemas/                     # um módulo por agregado (ativo, baixa, licenca, ...)
+│   │   ├── repositories/            # vazio (.gitkeep): sem camada de repositório, ver arquitetura.md §2.1
 │   │   ├── services/
 │   │   │   ├── ativo_service.py
+│   │   │   ├── categoria_service.py
+│   │   │   ├── fornecedor_service.py
+│   │   │   ├── setor_service.py
 │   │   │   ├── responsavel_service.py
 │   │   │   ├── depreciacao_service.py
+│   │   │   ├── importacao_service.py
 │   │   │   ├── licenca_service.py
 │   │   │   ├── baixa_service.py
-│   │   │   ├── relatorio_service.py
-│   │   │   ├── compliance_service.py
-│   │   │   ├── indicador_service.py
-│   │   │   ├── importacao_service.py
-│   │   │   ├── cenario_service.py
-│   │   │   ├── scorecard_service.py
-│   │   │   ├── risco_service.py
-│   │   │   └── recomendacao_service.py
+│   │   │   ├── relatorio_service.py     # planejado (arquivo vazio)
+│   │   │   ├── compliance_service.py    # planejado (arquivo vazio)
+│   │   │   ├── indicador_service.py     # planejado (arquivo vazio)
+│   │   │   ├── cenario_service.py       # planejado (arquivo vazio)
+│   │   │   ├── scorecard_service.py     # planejado (arquivo vazio)
+│   │   │   ├── risco_service.py         # planejado (arquivo vazio)
+│   │   │   └── recomendacao_service.py  # planejado (arquivo vazio)
 │   │   ├── api/
 │   │   │   ├── deps.py                  # get_db, get_current_user, require_perfil
 │   │   │   └── v1/
 │   │   │       ├── router.py            # agregador
-│   │   │       └── routers/
+│   │   │       └── routers/             # existem: auth, categorias, fornecedores, setores, responsaveis, ativos, importacoes, licencas (a baixa é POST /ativos/{id}/baixa, em ativos.py)
 │   │   └── utils/
 │   │       ├── depreciacao.py
-│   │       ├── datas.py
+│   │       ├── datas.py                 # hoje(): relógio injetável nos serviços
+│   │       ├── mascaramento.py          # chave de licença mascarada (RI-08)
 │   │       └── exportacao.py            # CSV/XLSX
 │   ├── alembic.ini
 │   ├── alembic/
@@ -88,7 +95,7 @@ itam-api/
 │   ├── start.sh
 │   ├── stop.sh
 │   ├── reset.sh
-│   ├── seed.sh                       # alembic upgrade head (carrega os CSVs já versionados em dataset/)
+│   ├── seed.sh                       # alembic upgrade head + python -m app.seed (usuários de demonstração e categorias); carga de dataset/ pendente (D.9)
 │   ├── collect.sh                    # coleta + normalização de todas as fontes públicas
 │   └── smoke_test.sh
 ├── infra/

@@ -22,6 +22,7 @@ Parte de [SPEC — ITAM](README.md).
 
 ```
 1. Ler arquivo (pandas: read_csv | read_excel)
+   └── vazio, extensão diferente de .csv/.xlsx, CSV fora de UTF-8 ou XLSX inválido → 422 `/erros/arquivo-invalido`, nenhum lote criado
 2. Validar cabeçalhos
    └── divergente → 422, arquivo inteiro recusado, nenhuma linha processada (AC-045)
 3. Para cada linha:
