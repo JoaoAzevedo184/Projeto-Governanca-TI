@@ -1,3 +1,6 @@
+from sqlalchemy import func, select
+
+from app.models.ativo import Ativo
 from app.models.auditoria import AuditLog
 
 
@@ -19,57 +22,74 @@ def _postar_ativo(client, token, payload):
     return client.post("/api/v1/ativos", headers={"Authorization": f"Bearer {token}"}, json=payload)
 
 
-def test_ac001_cadastra_ativo_com_status_ativo(client, token_admin, categoria, fornecedor):
+def _total_ativos(db) -> int:
+    return db.scalar(select(func.count()).select_from(Ativo))
+
+
+def test_ac001_cadastra_ativo_com_status_ativo(client, db, token_admin, categoria, fornecedor):
     resposta = _postar_ativo(client, token_admin, _payload_valido(categoria, fornecedor))
     assert resposta.status_code == 201
     corpo = resposta.json()
     assert corpo["status"] == "ATIVO"
-    assert corpo["id"] is not None
+
+    gravado = db.get(Ativo, corpo["id"])
+    assert gravado.status == "ATIVO"
+    assert gravado.numero_serie == "BR9K2LM7"
+    assert gravado.data_source == "manual"  # cadastro direto pela API, não planilha
 
 
-def test_ac002_recusa_numero_serie_duplicado(client, token_admin, categoria, fornecedor):
+def test_ac002_recusa_numero_serie_duplicado(client, db, token_admin, categoria, fornecedor):
     payload = _payload_valido(categoria, fornecedor, numero_serie="SN-DUP")
     assert _postar_ativo(client, token_admin, payload).status_code == 201
 
     resposta = _postar_ativo(client, token_admin, payload)
     assert resposta.status_code == 409
     assert resposta.json()["regra"] == "BR-001"
+    assert _total_ativos(db) == 1
 
 
-def test_ac003_hardware_sem_numero_serie_e_invalido(client, token_admin, categoria, fornecedor):
+def test_ac003_hardware_sem_numero_serie_e_invalido(client, db, token_admin, categoria, fornecedor):
     payload = _payload_valido(categoria, fornecedor, numero_serie=None)
     assert _postar_ativo(client, token_admin, payload).status_code == 422
+    assert _total_ativos(db) == 0
 
 
-def test_ac004_software_sem_chave_licenca_e_invalido(client, token_admin, categoria, fornecedor):
+def test_ac004_software_sem_chave_licenca_e_invalido(
+    client, db, token_admin, categoria, fornecedor
+):
     payload = _payload_valido(categoria, fornecedor, tipo="SOFTWARE", numero_serie=None)
     assert _postar_ativo(client, token_admin, payload).status_code == 422
+    assert _total_ativos(db) == 0
 
 
-def test_ac005_recusa_data_aquisicao_futura(client, token_admin, categoria, fornecedor):
+def test_ac005_recusa_data_aquisicao_futura(client, db, token_admin, categoria, fornecedor):
     payload = _payload_valido(
         categoria, fornecedor, numero_serie="SN-FUT", data_aquisicao="2099-01-01"
     )
     assert _postar_ativo(client, token_admin, payload).status_code == 422
+    assert _total_ativos(db) == 0
 
 
-def test_ac006_recusa_valor_compra_zero(client, token_admin, categoria, fornecedor):
+def test_ac006_recusa_valor_compra_zero(client, db, token_admin, categoria, fornecedor):
     payload = _payload_valido(categoria, fornecedor, numero_serie="SN-ZERO", valor_compra=0)
     assert _postar_ativo(client, token_admin, payload).status_code == 422
+    assert _total_ativos(db) == 0
 
 
 def test_ac007_herda_vida_util_da_categoria_quando_omitida(
-    client, token_admin, categoria, fornecedor
+    client, db, token_admin, categoria, fornecedor
 ):
     payload = _payload_valido(categoria, fornecedor, numero_serie="SN-HERDA")
     resposta = _postar_ativo(client, token_admin, payload)
     assert resposta.status_code == 201
-    assert resposta.json()["vida_util_meses"] == categoria.vida_util_meses
+    assert resposta.json()["vida_util_meses"] == 60  # categoria "Notebook" do conftest
+    assert db.get(Ativo, resposta.json()["id"]).vida_util_meses == 60
 
 
-def test_ac055_auditor_nao_pode_criar_ativo(client, token_auditor, categoria, fornecedor):
+def test_ac055_auditor_nao_pode_criar_ativo(client, db, token_auditor, categoria, fornecedor):
     payload = _payload_valido(categoria, fornecedor, numero_serie="SN-AUD")
     assert _postar_ativo(client, token_auditor, payload).status_code == 403
+    assert _total_ativos(db) == 0
 
 
 def test_ac056_sem_token_retorna_401(client):
@@ -78,10 +98,11 @@ def test_ac056_sem_token_retorna_401(client):
 
 def test_ac057_registra_trilha_de_auditoria(client, db, token_admin, categoria, fornecedor):
     payload = _payload_valido(categoria, fornecedor, numero_serie="SN-AUDIT")
-    assert _postar_ativo(client, token_admin, payload).status_code == 201
+    resposta = _postar_ativo(client, token_admin, payload)
+    assert resposta.status_code == 201
 
-    registro = db.query(AuditLog).filter(AuditLog.entidade == "ativo").first()
-    assert registro is not None
+    registro = db.query(AuditLog).filter(AuditLog.entidade == "ativo").one()
+    assert registro.entidade_id == resposta.json()["id"]
     assert registro.operacao == "CRIAR"
     assert registro.resultado == "SUCESSO"
 

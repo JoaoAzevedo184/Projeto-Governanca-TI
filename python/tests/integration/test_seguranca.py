@@ -1,13 +1,17 @@
 """Matriz RBAC do FR-015, restrita às rotas que existem hoje (docs/spec/contrato-api.md §6).
 
 Permitido = resposta não é 401 nem 403 (o corpo pode falhar por outro motivo,
-mas a autorização não pode ser o que barra). Negado = 403. Sem token = 401
-em qualquer rota, inclusive as de leitura.
+mas a autorização não pode ser o que barra). Negado = 403 e nada gravado: toda escrita
+bem-sucedida gera linha em audit_log, então o total de auditoria não pode mudar.
+Sem token = 401 em qualquer rota, inclusive as de leitura.
 """
 
 import io
 
 import pytest
+from sqlalchemy import func, select
+
+from app.models.auditoria import AuditLog
 
 PERFIS = ["admin", "operador", "gestor", "auditor"]
 
@@ -38,7 +42,15 @@ def ativo_existente(client, token_admin, categoria, fornecedor):
     return resposta.json()["id"]
 
 
-def _rotas(cat_id: int, forn_id: int, ativo_id: int, cat_nome: str, forn_nome: str):
+def _rotas(
+    cat_id: int,
+    forn_id: int,
+    ativo_id: int,
+    cat_nome: str,
+    forn_nome: str,
+    resp_id: int,
+    setor_id: int,
+):
     """(método, path, payload_por_perfil, kind, perfis_permitidos)."""
     todos = set(PERFIS)
     return [
@@ -82,6 +94,19 @@ def _rotas(cat_id: int, forn_id: int, ativo_id: int, cat_nome: str, forn_nome: s
         ),
         ("GET", "/api/v1/ativos", None, "json", todos),
         ("GET", f"/api/v1/ativos/{ativo_id}", None, "json", todos),
+        ("GET", f"/api/v1/ativos/{ativo_id}/depreciacao", None, "json", todos),
+        ("GET", f"/api/v1/ativos/{ativo_id}/historico", None, "json", todos),
+        (
+            "POST",
+            f"/api/v1/ativos/{ativo_id}/responsavel",
+            lambda p: {
+                "responsavel_id": resp_id,
+                "setor_id": setor_id,
+                "data_inicio": "2025-02-01",
+            },
+            "json",
+            {"admin", "operador"},
+        ),
         (
             "POST",
             "/api/v1/ativos",
@@ -135,25 +160,47 @@ def _requisitar(client, metodo, path, token, payload, kind, perfil):
     return client.request(metodo, path, headers=headers, json=corpo)
 
 
+def _total_auditoria(db) -> int:
+    return db.scalar(select(func.count()).select_from(AuditLog))
+
+
 @pytest.mark.parametrize("perfil", PERFIS)
-def test_matriz_rbac_por_perfil(request, client, categoria, fornecedor, ativo_existente, perfil):
+def test_matriz_rbac_por_perfil(
+    request, client, db, categoria, fornecedor, responsavel, setor, ativo_existente, perfil
+):
     tokens = _tokens(request)
     rotas = _rotas(
-        categoria.id, fornecedor.id, ativo_existente, categoria.nome, fornecedor.razao_social
+        categoria.id,
+        fornecedor.id,
+        ativo_existente,
+        categoria.nome,
+        fornecedor.razao_social,
+        responsavel.id,
+        setor.id,
     )
 
     for metodo, path, payload, kind, permitidos in rotas:
+        auditoria_antes = _total_auditoria(db)
         resposta = _requisitar(client, metodo, path, tokens[perfil], payload, kind, perfil)
         contexto = f"{perfil} {metodo} {path} -> {resposta.status_code}: {resposta.text}"
         if perfil in permitidos:
             assert resposta.status_code not in (401, 403), contexto
         else:
             assert resposta.status_code == 403, contexto
+            assert _total_auditoria(db) == auditoria_antes, contexto
 
 
-def test_matriz_rbac_sem_token_retorna_401(client, categoria, fornecedor, ativo_existente):
+def test_matriz_rbac_sem_token_retorna_401(
+    client, categoria, fornecedor, responsavel, setor, ativo_existente
+):
     rotas = _rotas(
-        categoria.id, fornecedor.id, ativo_existente, categoria.nome, fornecedor.razao_social
+        categoria.id,
+        fornecedor.id,
+        ativo_existente,
+        categoria.nome,
+        fornecedor.razao_social,
+        responsavel.id,
+        setor.id,
     )
     for metodo, path, payload, kind, _permitidos in rotas:
         resposta = _requisitar(client, metodo, path, None, payload, kind, "sem_token")
