@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from jose import JWTError, jwt
+import jwt
 from passlib.context import CryptContext
 
 from app.core.config import get_settings
@@ -33,5 +33,5 @@ def criar_token_acesso(usuario_id: int, login: str, perfil: str) -> str:
 def decodificar_token(token: str) -> dict:
     try:
         return jwt.decode(token, settings.secret_key, algorithms=[settings.jwt_algorithm])
-    except JWTError as exc:
+    except jwt.InvalidTokenError as exc:
         raise NaoAutenticadoError("Token JWT ausente, expirado ou inválido.") from exc
