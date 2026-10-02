@@ -6,6 +6,7 @@ from app.api.v1.routers import (
     categorias,
     fornecedores,
     importacoes,
+    licencas,
     responsaveis,
     setores,
 )
@@ -18,3 +19,4 @@ router.include_router(setores.router)
 router.include_router(responsaveis.router)
 router.include_router(ativos.router)
 router.include_router(importacoes.router)
+router.include_router(licencas.router)
