@@ -28,7 +28,7 @@ Ele resolve cinco problemas concretos:
 
 1. **Nenhuma recomendação sem evidência.** Uma decisão registrada no sistema exige ao menos um dado verificável que a sustente.
 2. **A decisão é humana.** O sistema ordena alternativas por custo e risco; nunca escolhe por você.
-3. **O histórico não se apaga.** Transferências, baixas e auditoria são *append-only*, garantido no banco.
+3. **O histórico não se apaga.** Transferências, baixas e auditoria são *append-only*, garantido no banco. O trigger existe nas três tabelas (transferências, auditoria e baixas).
 4. **Todo dado declara sua origem.** Cada registro carrega o campo `data_source`; a fronteira entre dado real e dado sintético é consultável, nunca implícita.
 
 ---
@@ -81,7 +81,7 @@ Detalhamento fonte a fonte, regras de uso e conformidade com a LGPD em [`docs/FO
 - Acesso à internet
 - Chave de API do NVD (gratuita, recomendada — sem ela o NVD aplica limite de requisições mais restrito). Solicite em https://nvd.nist.gov/developers/request-an-api-key e defina `NVD_API_KEY` no `.env`.
 
-> A coleta **não é necessária** para executar o projeto: o repositório já inclui os datasets processados em `dataset/processed/`, usados pelo seed.
+> A coleta **não é necessária** para executar o projeto: o repositório já inclui os datasets processados em `dataset/processed/`. O seed atual **não** os carrega: ele cria só os usuários de demonstração e as categorias (a carga do pipeline é a pendência D.9 do [`ROADMAP.md`](docs/ROADMAP.md)).
 
 ---
 
@@ -94,7 +94,7 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Aguarde os health checks ficarem saudáveis e carregue os dados de demonstração:
+Aguarde os health checks ficarem saudáveis e carregue o seed mínimo (migrações, os quatro usuários de demonstração e as 11 categorias). Com a API no ar, o script roda dentro do contêiner `api`; as senhas vêm das variáveis `SEED_*_PASSWORD` do `.env`:
 
 ```bash
 ./scripts/seed.sh
@@ -115,7 +115,7 @@ Aguarde os health checks ficarem saudáveis e carregue os dados de demonstraçã
 
 **Credenciais didáticas do Grafana:** definidas em `.env` (`GRAFANA_USER` / `GRAFANA_PASSWORD`). Altere-as em qualquer ambiente que não seja exclusivamente laboratorial.
 
-**Usuários de demonstração** criados pelo seed — senhas no `.env`, para uso apenas em laboratório:
+**Usuários de demonstração** criados pelo seed — senhas nas variáveis `SEED_ADMIN_PASSWORD`, `SEED_OPERADOR_PASSWORD`, `SEED_GESTOR_PASSWORD` e `SEED_AUDITOR_PASSWORD` do `.env`, para uso apenas em laboratório. O seed é idempotente (rodar de novo não duplica nem altera o que já existe) e recusa rodar com `ENVIRONMENT=producao`:
 
 | Login | Perfil | Pode |
 |---|---|---|
@@ -141,7 +141,7 @@ python/
 │   ├── core/             # config, banco, segurança, exceções, auditoria
 │   ├── models/           # mapeamento SQLAlchemy
 │   ├── schemas/          # contratos Pydantic
-│   ├── repositories/     # acesso a dados
+│   ├── repositories/     # vazio (.gitkeep): não há camada de repositório
 │   ├── services/         # regras de negócio (BR-001 a BR-030)
 │   ├── api/v1/routers/   # endpoints
 │   └── utils/            # cálculos puros (depreciação, exportação)
@@ -162,7 +162,7 @@ infra/                # configuração de Prometheus e Grafana
 docs/                 # PRD, arquitetura, modelo de dados, ADRs
 ```
 
-A regra de dependência entre camadas é unidirecional: router → serviço → repositório → modelo. Regra de negócio vive em `services/`, nunca em `routers/` nem em `models/`. Os módulos `python/collectors/` e `python/etl/` ficam fora de `app/`: a API nunca chama APIs externas durante uma requisição.
+A regra de dependência entre camadas é unidirecional: router → serviço → modelo. Não existe camada de repositório: os serviços consultam e gravam pela `Session` do SQLAlchemy, direto nos modelos. Leituras sem regra de negócio também acessam o modelo direto, sem passar por serviço: as listagens de `categorias`, `fornecedores`, `setores` e `responsaveis`, o login (`auth.py`), as consultas de lote e de erros em `importacoes.py` e a dependência `get_current_user` (`api/deps.py`). Regra de negócio (BR) vive em `services/`, nunca em `routers/` nem em `models/`; os únicos desvios nos routers são autenticação, autorização e 404. Os módulos `python/collectors/` e `python/etl/` ficam fora de `app/`: a API nunca chama APIs externas durante uma requisição.
 
 ---
 
