@@ -42,6 +42,8 @@ CREATE TRIGGER tg_audit_imutavel
   FOR EACH ROW EXECUTE FUNCTION bloquear_mutacao();
 ```
 
+**Estado atual:** os triggers `tg_audit_imutavel` (`audit_log`, migração `25b1f6d20128`, `app/models/auditoria.py`, teste `tests/integration/test_audit_log_postgres.py`) e `tg_baixa_imutavel` (`baixa_ativo`, migração `ee62f9bcb421`, `app/models/baixa.py`, teste `tests/integration/test_baixa_postgres.py`) estão aplicados, os dois sobre a função `bloquear_mutacao()` (NFR-AUD-01). A migração da baixa usa `CREATE OR REPLACE FUNCTION bloquear_mutacao()` e o seu `downgrade` não remove a função, porque `audit_log` depende dela.
+
 `historico_transferencia` precisa de tratamento próprio, porque a transferência escreve `data_fim` no vínculo anterior:
 
 ```sql

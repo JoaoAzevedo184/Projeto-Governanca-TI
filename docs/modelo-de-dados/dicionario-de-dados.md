@@ -112,7 +112,7 @@ CONSTRAINT ck_periodo CHECK (data_fim IS NULL OR data_fim >= data_inicio)
 | `destinacao` | VARCHAR(30) | não | BR-026 — evidência de TI Verde |
 | `valor_residual_baixa` | NUMERIC(12,2) | não | `CHECK ≥ 0`. Congelado (BR-015) |
 | `registrado_por_id` | BIGINT | não | FK |
-| `data_source` | VARCHAR(20) | não | Sempre `sintetico` — evento gerado pelo ETL, preferencialmente em ativos com vida útil encerrada |
+| `data_source` | VARCHAR(20) | não | `manual` quando registrada pela API (`POST /ativos/{id}/baixa`); `sintetico` quando gerada pelo ETL, preferencialmente em ativos com vida útil encerrada |
 | `criado_em` | TIMESTAMPTZ | não | — |
 
 ```sql
@@ -139,7 +139,7 @@ O `UNIQUE` em `ativo_id` é o que torna BR-024 ("ativo já baixado não pode ser
 | `data_expiracao` | DATE | `CHECK > data_inicio_vigencia` (BR-019) |
 | `valor_total` | NUMERIC(12,2) | Só em `SUBSCRICAO` (custo recorrente), `CHECK > 0`. Em `PERPETUA` o valor está no ativo; em `OEM`, no hardware |
 | `tipo_licenciamento` | VARCHAR(20) | enum |
-| `data_source` | VARCHAR(20) | Sempre `sintetico` — contrato de licença gerado pelo ETL |
+| `data_source` | VARCHAR(20) | `manual` quando criada pela API; `sintetico` quando gerada pelo ETL |
 
 ```sql
 -- Um único dono para nome e valor (ADR-012, item 4 da resolução do Sprint 2):
@@ -160,7 +160,7 @@ CONSTRAINT ck_licenca_tipo CHECK (
 | `ativo_id` | BIGINT | FK → **máquina hospedeira**: o hardware onde o software está instalado, nunca o ativo `SOFTWARE` |
 | `data_vinculo` | DATE | — |
 | `ativo_vinculo` | BOOLEAN | Padrão `true`; desvínculo é lógico |
-| `data_source` | VARCHAR(20) | Sempre `sintetico` |
+| `data_source` | VARCHAR(20) | `manual` (API) ou `sintetico` (ETL) |
 
 ```sql
 CREATE UNIQUE INDEX ux_licenca_ativo
