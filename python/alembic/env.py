@@ -9,6 +9,7 @@ from app.models import (  # noqa: F401 — importados para registrar as tabelas 
     auditoria,
     categoria,
     fornecedor,
+    historico,
     importacao,
     responsavel,
     setor,
