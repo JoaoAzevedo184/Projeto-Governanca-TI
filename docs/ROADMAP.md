@@ -2,7 +2,7 @@
 
 Snapshot de progresso contra os gates e sprints definidos em [`BACKLOG_E_GATES.md`](BACKLOG_E_GATES.md). Atualizar a cada gate liberado.
 
-_Última atualização: 2026-09-27_
+_Última atualização: 2026-09-30_
 
 > Legenda: `[x]` concluído · `[ ]` pendente ou aguardando verificação. Observações após o travessão indicam o que ainda falta.
 
@@ -14,7 +14,7 @@ _Última atualização: 2026-09-27_
 |---|---|---|
 | Gate 0 | Enquadramento | Completo |
 | Gate 1 | Inventário operacional | Aguardando liberação (importar arquivo real de 100 linhas) |
-| Gate 2 | Responsabilidade e valor | Não iniciado |
+| Gate 2 | Responsabilidade e valor | Sprint 2 implementado; aguardando liberação (demonstração da linha do tempo com três transferências e conferência manual do residual) |
 | Gate 3 | Conformidade e evento surpresa | Não iniciado |
 | Gate 4 | Decisão e defesa | Não iniciado |
 
@@ -56,12 +56,30 @@ _Última atualização: 2026-09-27_
 
 ## Sprint 2 — Responsabilidade e depreciação
 
-- [ ] Modelo `historico_transferencia` — `app/models/historico.py` vazio
-- [ ] Serviço de responsável / transferência — `app/services/responsavel_service.py` vazio
-- [ ] `utils/depreciacao.py` — vazio
-- [ ] Serviço de depreciação — `app/services/depreciacao_service.py` vazio
-- [ ] Endpoints `/ativos/{id}/depreciacao` e `/historico`
-- [ ] Bloco `depreciacao` na resposta de `POST/GET /ativos` (contrato da API) — depende de `utils/depreciacao.py` acima; adiado do Sprint 1
+- [x] ADR-012 — software é Ativo, resolve QA-06 ([`adr/0012-software-como-ativo.md`](adr/0012-software-como-ativo.md))
+- [x] Modelo `historico_transferencia` (`app/models/historico.py`) — índice único parcial `ux_vinculo_aberto` (BR-007) e trigger `permitir_apenas_encerramento` no PostgreSQL (BR-011/BR-025): só a transição de `data_fim` de nulo para preenchido é aceita, a opção (a) de `docs/modelo-de-dados/invariantes.md` (ADR-005)
+- [x] Transferência em `app/services/responsavel_service.py`, junto do CRUD do Sprint 1, como prevê `docs/spec/estrutura-diretorios.md` — lock no ativo, encerra o vínculo aberto e cria o novo na mesma transação; recusas 409 com `regra` (BR-008, BR-009, BR-010, FR-002 para responsável/setor inativo) registradas na auditoria
+- [x] `utils/depreciacao.py` — função pura com `Decimal` e `ROUND_HALF_UP`, sem ramo por tipo de ativo (ADR-012)
+- [x] `app/services/depreciacao_service.py`
+- [x] Endpoints `GET /ativos/{id}/depreciacao`, `GET /ativos/{id}/historico` e `POST /ativos/{id}/responsavel`, na matriz RBAC e no teste "sem token → 401"
+- [x] Bloco `depreciacao` na resposta de `POST/GET/PATCH /ativos` (AC-018)
+- [x] Migração `c8365ce7e5e4` (tabela, índice parcial e trigger) — `upgrade` → `downgrade` → `upgrade` e `alembic check` testados em SQLite e em PostgreSQL 16
+- [x] `api/openapi.yaml` regenerado a partir do app (também cobre as rotas do Sprint 1, que ainda estavam em `paths: {}`)
+- [x] Testes AC-009 a AC-020 — AC-013 testado no banco (trigger) e na API (nenhuma rota de edição/exclusão)
+- [x] **Resolução de pendências** ([`RESOLUCAO_PENDENCIAS_SPRINT2.md`](RESOLUCAO_PENDENCIAS_SPRINT2.md), aprovada em 2026-09-30) — itens 0 a 15 aplicados:
+  - ADR-013: PRD prevalece em regra de negócio, SPEC em implementação (item 0);
+  - depreciação arredonda só no resultado final, `valor × meses ÷ vida_útil`; a mensal é informativa (item 1, AC-020 passa a 2.000,00);
+  - subscrição e OEM não são ativo; nota de amortização no glossário (itens 2 e 3);
+  - `licenca` passa a ser só o contrato de uso; `licenca_vinculo.ativo_id` é a máquina hospedeira; `produto_software` é catálogo; `ativo_software` continua separada (itens 4 a 6, só docs; tabelas implementadas no Sprint 3);
+  - jornada §8.2 reescrita e QA-06 marcada como resolvida (item 7);
+  - `data_source = manual` para `POST /ativos` e para o vínculo (item 8);
+  - dinheiro como string no contrato; trigger e unicidades documentados (itens 9 a 11);
+  - recusa BR-007 por concorrência grava `RECUSADO` na auditoria via savepoint (item 12, ver abaixo);
+  - suíte inteira em PostgreSQL 16, local e CI; schema via `alembic upgrade head` (item 13);
+  - cobertura de `utils/` + `services/` em 100% (item 14);
+  - testes revisados contra os critérios anti falso positivo (item 15).
+- [x] Recusa por concorrência com auditoria (NFR-AUD-05). **Só um escritor externo provoca o conflito** (ETL, carga D.8). Pela API, as transferências travam o ativo e se serializam. Com o lock antigo (`FOR UPDATE`), nem o escritor externo o provocava: a FK do insert externo toma `KEY SHARE` no ativo, e a transferência esperava no lock e respondia 201. O lock passou a `FOR NO KEY UPDATE`. Teste com conflito real em `test_br007_conflito_real_no_indice_grava_recusa_na_auditoria`
+- [ ] AC-019 só no nível da função pura — o serviço usa a data corrente para todo ativo; trocar por `baixa_ativo.data_baixa` quando a baixa existir (Sprint 3). O teste da função pura perdeu o prefixo `test_ac019`, porque o critério em si ainda não é verificável
 
 ## Sprint 3 — Licenças, baixas e compliance
 
@@ -70,6 +88,11 @@ _Última atualização: 2026-09-27_
 - [ ] Endpoints correspondentes
 - [ ] Regras CP-01 a CP-09
 - [ ] Mascaramento de `chave_licenca` em listagens (RI-08, `****-****-A3F9`, completa só no detalhe e só para ADMIN) — adiado do Sprint 1, natural aqui por tratar do módulo de licenças
+- [ ] Depreciação do ativo baixado pela `data_baixa` (BR-015, AC-019) em `depreciacao_service.calcular_para_ativo`
+- **Observação — impacto da ADR-012 em `licenca`:** com software patrimonial em `ativo`, `licenca` não pode registrar valor patrimonial de novo. Antes de modelar `licenca`, a equipe decide:
+  - se `licenca` vira só o contrato de direito de uso (quantidade, vigência, CP-01 a CP-03) apontando para o ativo `SOFTWARE`;
+  - o que fazer com `software`, `chave_licenca`, `data_aquisicao` e `valor_total`, que duplicam o ativo;
+  - se `licenca_vinculo.ativo_id` é a máquina onde o software está instalado ou o próprio ativo `SOFTWARE` (o diagrama ER diz só "instala").
 
 ## Sprint 4 — Indicadores, relatórios e observabilidade
 
@@ -85,7 +108,7 @@ _Última atualização: 2026-09-27_
 - [ ] Serviços de cenário, scorecard, risco e recomendação — `cenario_service.py`, `scorecard_service.py`, `risco_service.py`, `recomendacao_service.py` vazios
 - [ ] Endpoints correspondentes
 - [ ] Testes de contrato — `tests/contract/` vazio
-- [ ] Cobertura ≥ 70% global / 100% em `utils` e `services` — hoje: 96% global (passa), 93% no escopo `utils+services` (subiu de 90%: `categoria_service.py`/`fornecedor_service.py`/`responsavel_service.py`/`setor_service.py` 100%, `ativo_service.py` 96%, `importacao_service.py` 86%, `utils/*` ainda vazio); o job "Cobertura de 100% em utils/ e services/" do CI **continua falhando** (verificado: `exit 2`, "total of 93 is less than fail-under=100")
+- [ ] Cobertura ≥ 70% global / 100% em `utils` e `services` — hoje: 97% global (passa), 95% no escopo `utils+services`. Os arquivos novos do Sprint 2 estão em 100% (`utils/depreciacao.py`, `depreciacao_service.py`, `responsavel_service.py`), assim como os cadastros; faltam `ativo_service.py` (96%) e `importacao_service.py` (86%), ambos do Sprint 1. O job "Cobertura de 100% em utils/ e services/" do CI **continua falhando**: verificado em 2026-09-29, "total of 95 is less than fail-under=100"
 - [x] `scripts/smoke_test.sh` — arquivo existe; validar execução quando `/health` estiver exposto
 - [ ] Roteiro de defesa
 
@@ -107,14 +130,23 @@ Hoje `python/collectors/` só tem `config.yaml` (sem código) e `python/etl/` s�
 
 ## Próximos passos (ordem sugerida)
 
-- [ ] 1. Modelo `historico_transferencia` com índice único parcial (BR-007) e trigger de imutabilidade.
-- [ ] 2. `POST /ativos/{id}/responsavel` (atribuição e transferência) e `GET /ativos/{id}/historico`.
-- [ ] 3. `utils/depreciacao.py` como função pura com `Decimal` e `GET /ativos/{id}/depreciacao`.
-- [ ] 4. Gerar a migração de Sprint 2 a partir desses modelos.
-- [ ] 5. Testes `test_ac009_...` a `test_ac020_...` (FR-002, FR-003).
+- [x] 1. Equipe decide as contradições com a ADR-012 e o papel de `licenca` — resolvido (itens 2 a 7 da resolução).
+- [x] 2. Equipe decide o arredondamento da depreciação — segue o PRD (item 1, ADR-013).
+- [ ] 3. Liberar o Gate 2: demonstrar a linha do tempo de um ativo com três transferências e conferir o residual à mão.
+- [x] 4. Fechar a cobertura de `ativo_service.py` e `importacao_service.py` — 100% em `utils/` + `services/`.
+- [ ] 5. Preencher os papéis em `docs/guia/equipe-e-ia.md`.
+- [ ] 6. Sprint 3 — licenças (com `ck_licenca_tipo` e FK para o ativo `SOFTWARE`), baixas (com `data_baixa` na depreciação, AC-019) e compliance.
 
 ## Riscos do roadmap
 
-- `app/models/historico.py`, `licenca.py`, `baixa.py`, `risco.py`, `recomendacao.py` e os serviços de Sprints 2–5 (`depreciacao_service.py`, `licenca_service.py`, `baixa_service.py`, etc.) ainda são placeholders vazios.
-- O job de CI que exige 100% de cobertura em `utils/` e `services/` está vermelho hoje (93%) — normal enquanto `utils/depreciacao.py` e o resto de `services/` não são implementados, mas fica registrado para não ser confundido com regressão.
-- Gate 1 não está formalmente liberado: falta demonstrar a importação de um arquivo real de 100 linhas via `POST /importacoes` (D.2), com relatório de aceitos/rejeitados — não só o teste sintético em `tests/integration/test_importacao.py`.
+- `app/models/licenca.py`, `baixa.py`, `risco.py`, `recomendacao.py` e os serviços de Sprints 3–5 (`licenca_service.py`, `baixa_service.py` etc.) ainda são placeholders vazios.
+- **Pendências abertas pela resolução do Sprint 2** (decisões da equipe em 2026-09-30, ver [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](RESOLUCAO_PENDENCIAS_SPRINT2.md)):
+  - `produto_software`, `ativo_software`, `licenca` e `licenca_vinculo` existem só na documentação. A FK `ativo.produto_software_id` e o `ck_licenca_tipo` entram na migração do Sprint 3;
+  - `licenca.data_expiracao` continua `NOT NULL` também para licença perpétua ("prazo indeterminado"). Mantido por decisão da equipe (mudar alteraria BR-019); revisar no Sprint 3;
+  - a validação "`licenca.ativo_id` aponta para ativo `SOFTWARE`" fica no serviço de licenças, porque o CHECK não enxerga outra tabela;
+  - `POST /responsaveis` grava `data_source = sintetico` e `POST /fornecedores` aceita `data_source` enviado pelo cliente. A resolução do item 8 cobre só ativo e vínculo (decisão da equipe);
+  - `data_source` não tem `CHECK` no schema, embora `enumeracoes.md` diga que todo enum é `VARCHAR` com `CHECK`;
+  - o `FR-003` do PRD mostra `depreciacao_acumulada = depreciacao_mensal × meses_efetivos`, sem dizer onde arredonda. O código segue a leitura aprovada no item 1 (arredondar só no fim); a redação da fórmula no PRD fica para a equipe;
+  - **NFR-MAN-05** (PRD) e a premissa P6 do SPEC (`escopo-e-premissas.md`) dizem que os perfis SQLite e PostgreSQL "executam os mesmos testes". O item 13 tirou o SQLite dos testes, então a redação do NFR contradiz a resolução. Não foi editada: a equipe decide se o perfil SQLite continua existindo só para executar a aplicação;
+  - `licenca.ck_licenca_tipo` é por tipo (PERPETUA → `ativo_id`; SUBSCRICAO → `software` + `valor_total`; OEM → `software`, sem valor), como a equipe confirmou em 2026-09-30;
+  - a mensagem 409 genérica de `flush_ou_conflito` (cadastros sem BR) continua desfazendo a transação inteira, sem auditoria `RECUSADO`. Essas unicidades não são BR (item 11), então a NFR-AUD-05 não se aplica a elas.
