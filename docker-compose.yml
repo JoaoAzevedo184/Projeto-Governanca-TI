@@ -11,6 +11,10 @@ services:
       DATABASE_URL: postgresql+psycopg://itam:itam@db:5432/itam
       ENVIRONMENT: docker
       DATASET_DIR: /dataset
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+      SEED_OPERADOR_PASSWORD: ${SEED_OPERADOR_PASSWORD:-}
+      SEED_GESTOR_PASSWORD: ${SEED_GESTOR_PASSWORD:-}
+      SEED_AUDITOR_PASSWORD: ${SEED_AUDITOR_PASSWORD:-}
     volumes:
       - ./dataset:/dataset:ro
     depends_on:
