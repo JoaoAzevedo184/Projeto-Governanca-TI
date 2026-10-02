@@ -234,7 +234,7 @@ Essa escolha conecta o comportamento em tempo de execução ao documento de requ
 | Consistência sob concorrência | Índice único parcial + `SELECT FOR UPDATE` | Teste com requisições paralelas |
 | Precisão contábil | `Decimal` + `Numeric(12,2)`, arredondamento half-up explícito | AC-015, conciliação manual |
 | Testabilidade | Cálculo como função pura com data injetada | 100% de cobertura em `utils/` |
-| Portabilidade | Enums como VARCHAR + CHECK; sem tipos exclusivos do Postgres | Suíte roda em SQLite e PostgreSQL |
+| Portabilidade | Enums como VARCHAR + CHECK; sem tipos exclusivos do Postgres | Migrações rodam em SQLite e PostgreSQL; a suíte de testes roda só em PostgreSQL 16 |
 | Intercambialidade de implementação | OpenAPI congelado + testes de contrato | Contrato passa em qualquer stack |
 | Operabilidade | Health check, métricas, smoke test, scripts de ciclo de vida | `scripts/smoke_test.sh` |
 
