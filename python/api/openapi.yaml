@@ -553,6 +553,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/ativos/{ativo_id}/baixa:
+    post:
+      tags:
+      - ativos
+      summary: Registrar Baixa
+      operationId: registrar_baixa_api_v1_ativos__ativo_id__baixa_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: ativo_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Ativo Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaixaCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaixaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/importacoes:
     get:
       tags:
@@ -650,6 +684,243 @@ paths:
                 items:
                   $ref: '#/components/schemas/ErroImportacaoResponse'
                 title: Response Erros Api V1 Importacoes  Lote Id  Erros Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/licencas:
+    post:
+      tags:
+      - licencas
+      summary: Criar
+      operationId: criar_api_v1_licencas_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicencaCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicencaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - licencas
+      summary: Listar
+      operationId: listar_api_v1_licencas_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: tipo_licenciamento
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/TipoLicenciamento'
+          - type: 'null'
+          title: Tipo Licenciamento
+      - name: fornecedor_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Fornecedor Id
+      - name: pagina
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Pagina
+      - name: tamanho
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Tamanho
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaLicencasResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/licencas/{licenca_id}:
+    get:
+      tags:
+      - licencas
+      summary: Obter
+      operationId: obter_api_v1_licencas__licenca_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: licenca_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Licenca Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicencaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - licencas
+      summary: Atualizar
+      operationId: atualizar_api_v1_licencas__licenca_id__patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: licenca_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Licenca Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicencaUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicencaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/licencas/{licenca_id}/vinculos:
+    get:
+      tags:
+      - licencas
+      summary: Listar Vinculos
+      operationId: listar_vinculos_api_v1_licencas__licenca_id__vinculos_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: licenca_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Licenca Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VinculoLicencaResponse'
+                title: Response Listar Vinculos Api V1 Licencas  Licenca Id  Vinculos
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - licencas
+      summary: Vincular
+      operationId: vincular_api_v1_licencas__licenca_id__vinculos_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: licenca_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Licenca Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VinculoLicencaCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VinculoLicencaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/licencas/{licenca_id}/vinculos/{ativo_id}:
+    delete:
+      tags:
+      - licencas
+      summary: Desvincular
+      operationId: desvincular_api_v1_licencas__licenca_id__vinculos__ativo_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: licenca_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Licenca Id
+      - name: ativo_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Ativo Id
+      responses:
+        '204':
+          description: Successful Response
         '422':
           description: Validation Error
           content:
@@ -856,6 +1127,86 @@ components:
           title: Observacoes
       type: object
       title: AtivoUpdate
+    BaixaCreate:
+      properties:
+        motivo:
+          $ref: '#/components/schemas/MotivoBaixa'
+        justificativa:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Justificativa
+        data_baixa:
+          type: string
+          format: date
+          title: Data Baixa
+        destinacao:
+          anyOf:
+          - $ref: '#/components/schemas/DestinacaoBaixa'
+          - type: 'null'
+      type: object
+      required:
+      - motivo
+      - data_baixa
+      title: BaixaCreate
+      description: 'Corpo de `POST /ativos/{id}/baixa` (FR-005, contrato §6.3).
+
+
+        `destinacao` e a justificativa de `OUTRO` são opcionais no schema de propósito:
+        a ausência é
+
+        recusada pelo serviço com 409 e `regra` (BR-026, BR-023), registrada na auditoria
+
+        (NFR-AUD-05). O mesmo vale para a data (BR-022).'
+    BaixaResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        ativo_id:
+          type: integer
+          title: Ativo Id
+        motivo:
+          $ref: '#/components/schemas/MotivoBaixa'
+        justificativa:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Justificativa
+        data_baixa:
+          type: string
+          format: date
+          title: Data Baixa
+        destinacao:
+          $ref: '#/components/schemas/DestinacaoBaixa'
+        valor_residual_baixa:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Valor Residual Baixa
+        registrado_por_id:
+          type: integer
+          title: Registrado Por Id
+        data_source:
+          type: string
+          title: Data Source
+        criado_em:
+          type: string
+          format: date-time
+          title: Criado Em
+      type: object
+      required:
+      - id
+      - ativo_id
+      - motivo
+      - justificativa
+      - data_baixa
+      - destinacao
+      - valor_residual_baixa
+      - registrado_por_id
+      - data_source
+      - criado_em
+      title: BaixaResponse
     Body_importar_api_v1_importacoes_post:
       properties:
         arquivo:
@@ -1040,6 +1391,15 @@ components:
         valor_compra: '6000.00'
         valor_residual: '4800.00'
         vida_util_meses: 60
+    DestinacaoBaixa:
+      type: string
+      enum:
+      - RECICLAGEM_CERTIFICADA
+      - DOACAO
+      - DEVOLUCAO_FORNECEDOR
+      - VENDA
+      - DESCARTE
+      title: DestinacaoBaixa
     ErroImportacaoResponse:
       properties:
         numero_linha:
@@ -1191,6 +1551,187 @@ components:
       - total_rejeitado
       - erros_url
       title: ImportacaoResumo
+    LicencaCreate:
+      properties:
+        tipo_licenciamento:
+          $ref: '#/components/schemas/TipoLicenciamento'
+        ativo_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ativo Id
+        software:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 3
+          - type: 'null'
+          title: Software
+        fornecedor_id:
+          type: integer
+          title: Fornecedor Id
+        chave_licenca:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Chave Licenca
+        quantidade_contratada:
+          type: integer
+          minimum: 1.0
+          title: Quantidade Contratada
+        data_inicio_vigencia:
+          type: string
+          format: date
+          title: Data Inicio Vigencia
+        data_expiracao:
+          type: string
+          format: date
+          title: Data Expiracao
+        valor_total:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Valor Total
+      type: object
+      required:
+      - tipo_licenciamento
+      - fornecedor_id
+      - chave_licenca
+      - quantidade_contratada
+      - data_inicio_vigencia
+      - data_expiracao
+      title: LicencaCreate
+      description: 'Corpo de `POST /licencas` (FR-004, contrato §6.4).
+
+
+        A forma por tipo segue `ck_licenca_tipo`: PERPETUA aponta para o ativo SOFTWARE;
+        SUBSCRICAO e
+
+        OEM guardam o nome do software, e só a subscrição tem `valor_total`. A ordem
+        das datas
+
+        (BR-019) é recusada pelo serviço com 409 e `regra`, registrada na auditoria
+        (NFR-AUD-05).'
+    LicencaResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        tipo_licenciamento:
+          $ref: '#/components/schemas/TipoLicenciamento'
+        ativo_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ativo Id
+        software:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Software
+        fornecedor_id:
+          type: integer
+          title: Fornecedor Id
+        chave_licenca:
+          type: string
+          title: Chave Licenca
+        quantidade_contratada:
+          type: integer
+          title: Quantidade Contratada
+        quantidade_em_uso:
+          type: integer
+          title: Quantidade Em Uso
+          description: COUNT dos vínculos ativos (BR-021, ADR-008).
+        saldo:
+          type: integer
+          title: Saldo
+          description: quantidade_contratada − quantidade_em_uso.
+        data_inicio_vigencia:
+          type: string
+          format: date
+          title: Data Inicio Vigencia
+        data_expiracao:
+          type: string
+          format: date
+          title: Data Expiracao
+        dias_para_expiracao:
+          type: integer
+          title: Dias Para Expiracao
+          description: Negativo quando a licença já venceu.
+        valor_total:
+          anyOf:
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Valor Total
+        data_source:
+          type: string
+          title: Data Source
+      type: object
+      required:
+      - id
+      - tipo_licenciamento
+      - ativo_id
+      - software
+      - fornecedor_id
+      - chave_licenca
+      - quantidade_contratada
+      - quantidade_em_uso
+      - saldo
+      - data_inicio_vigencia
+      - data_expiracao
+      - dias_para_expiracao
+      - valor_total
+      - data_source
+      title: LicencaResponse
+      description: 'Licença com o bloco derivado do contrato §6.4. `status_conformidade`
+        e `alertas` chegam
+
+        com o painel de compliance (FR-007, Sprint 4). A chave sai mascarada, salvo
+        no detalhe para
+
+        ADMIN (RI-08).'
+    LicencaUpdate:
+      properties:
+        fornecedor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Fornecedor Id
+        chave_licenca:
+          anyOf:
+          - type: string
+            maxLength: 200
+            minLength: 1
+          - type: 'null'
+          title: Chave Licenca
+        quantidade_contratada:
+          anyOf:
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
+          title: Quantidade Contratada
+        data_inicio_vigencia:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data Inicio Vigencia
+        data_expiracao:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data Expiracao
+      type: object
+      title: LicencaUpdate
+      description: 'Corpo de `PATCH /licencas/{id}`: só o que muda ao longo do contrato.
+        Tipo, ativo, nome do
+
+        software e valor não mudam (alterariam `ck_licenca_tipo`).'
     ListaAtivosResponse:
       properties:
         itens:
@@ -1218,6 +1759,33 @@ components:
       - total
       - total_paginas
       title: ListaAtivosResponse
+    ListaLicencasResponse:
+      properties:
+        itens:
+          items:
+            $ref: '#/components/schemas/LicencaResponse'
+          type: array
+          title: Itens
+        pagina:
+          type: integer
+          title: Pagina
+        tamanho:
+          type: integer
+          title: Tamanho
+        total:
+          type: integer
+          title: Total
+        total_paginas:
+          type: integer
+          title: Total Paginas
+      type: object
+      required:
+      - itens
+      - pagina
+      - tamanho
+      - total
+      - total_paginas
+      title: ListaLicencasResponse
     LoginRequest:
       properties:
         login:
@@ -1265,6 +1833,15 @@ components:
       - total_aceito
       - total_rejeitado
       title: LoteImportacaoResponse
+    MotivoBaixa:
+      type: string
+      enum:
+      - OBSOLESCENCIA
+      - DEFEITO
+      - FURTO_ROUBO
+      - FIM_VIDA_UTIL
+      - OUTRO
+      title: MotivoBaixa
     PerfilUsuario:
       type: string
       enum:
@@ -1428,6 +2005,13 @@ components:
       - HARDWARE
       - SOFTWARE
       title: TipoAtivo
+    TipoLicenciamento:
+      type: string
+      enum:
+      - PERPETUA
+      - SUBSCRICAO
+      - OEM
+      title: TipoLicenciamento
     TokenResponse:
       properties:
         access_token:
@@ -1512,6 +2096,54 @@ components:
       title: VinculoCreate
       description: Corpo de `POST /ativos/{id}/responsavel` — atribuição inicial ou
         transferência (FR-002).
+    VinculoLicencaCreate:
+      properties:
+        ativo_id:
+          type: integer
+          title: Ativo Id
+        data_vinculo:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data Vinculo
+          description: 'Padrão: hoje.'
+      type: object
+      required:
+      - ativo_id
+      title: VinculoLicencaCreate
+      description: 'Corpo de `POST /licencas/{id}/vinculos`: `ativo_id` é a máquina
+        hospedeira.'
+    VinculoLicencaResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        licenca_id:
+          type: integer
+          title: Licenca Id
+        ativo_id:
+          type: integer
+          title: Ativo Id
+        data_vinculo:
+          type: string
+          format: date
+          title: Data Vinculo
+        ativo_vinculo:
+          type: boolean
+          title: Ativo Vinculo
+        data_source:
+          type: string
+          title: Data Source
+      type: object
+      required:
+      - id
+      - licenca_id
+      - ativo_id
+      - data_vinculo
+      - ativo_vinculo
+      - data_source
+      title: VinculoLicencaResponse
     VinculoResponse:
       properties:
         id:
