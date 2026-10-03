@@ -32,6 +32,14 @@ Os testes dos coletores usam respostas gravadas das APIs (fixtures em `tests/fix
 
 Cobertura mínima exigida: **70% global**, **100%** em `app/utils/` e `app/services/`.
 
+**Nomes de arquivo de teste são únicos na árvore** (`tests/unit` e `tests/integration` não têm `__init__.py`): dois `test_x.py` com o mesmo nome derrubam a coleta com "import file mismatch". Por isso o teste de API dos indicadores é `test_indicadores_api.py`, ao lado de `tests/unit/test_indicadores.py`.
+
+**Fábricas do `conftest.py`:** `novo_ativo(tipo=..., data_aquisicao=..., valor=...)` e `nova_licenca(quantidade=..., expiracao=..., inicio=...)` criam registros pela API e devolvem o id. Datas relativas a hoje (compliance, relatórios) são calculadas no teste a partir de `date.today()`; os limites exatos ficam nos testes unitários das funções puras, com data de referência injetada.
+
+**Métricas nos testes:** os contadores do Prometheus são globais ao processo e não zeram entre testes. Compare o valor antes e depois da operação (`REGISTRY.get_sample_value`), nunca o valor absoluto.
+
+**Smoke test do ambiente completo:** `docker compose up -d --build`, `./scripts/seed.sh` e `./scripts/smoke_test.sh` (ver [`verificacao.md`](verificacao.md)).
+
 O banco usado vem de `TEST_DATABASE_URL` (padrão `postgresql+psycopg://itam:itam@localhost:5432/itam_test`). O `tests/conftest.py` aplica `alembic upgrade head` uma vez por sessão (o schema nunca vem de `create_all`) e trunca todas as tabelas antes de cada teste. Por segurança, recusa qualquer banco cujo nome não termine em `_test`.
 
 ## Convenção contra falso positivo
