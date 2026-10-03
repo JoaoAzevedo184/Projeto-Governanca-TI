@@ -123,6 +123,8 @@ CONSTRAINT ck_baixa_justificativa CHECK (
 
 O `UNIQUE` em `ativo_id` é o que torna BR-024 ("ativo já baixado não pode ser baixado de novo") uma garantia, e não uma verificação que pode falhar sob concorrência.
 
+Se o ativo baixado é o `SOFTWARE` de uma licença perpétua, a baixa encerra também os vínculos ativos dessa licença, em qualquer máquina (BR-036), e a licença passa a recusar vínculos novos (BR-037); a licença em si não é alterada, e o bloqueio é derivado do status do ativo, sem coluna. A baixa também encerra os vínculos de licença ativos da máquina (BR-031): em `licenca_vinculo`, `ativo_vinculo` passa a `false` na mesma transação, cada vínculo com uma linha de auditoria `EXCLUIR`, e a `quantidade_em_uso` das licenças afetadas cai (§3.7). O encerramento é lógico: nenhum vínculo é apagado.
+
 ### 3.7 `licenca` e `licenca_vinculo`
 
 `licenca` representa **só o contrato de direito de uso** (item 4 da resolução do Sprint 2). O valor patrimonial e o ciclo patrimonial do software perpétuo ficam no `ativo` (ADR-012); a licença guarda assentos, vigência e chave. Cada informação tem um único dono, e o valor não é contado duas vezes.
@@ -157,9 +159,9 @@ CONSTRAINT ck_licenca_tipo CHECK (
 |---|---|---|
 | `id` | BIGINT | PK |
 | `licenca_id` | BIGINT | FK. O software é alcançado pela licença |
-| `ativo_id` | BIGINT | FK → **máquina hospedeira**: o hardware onde o software está instalado, nunca o ativo `SOFTWARE` |
-| `data_vinculo` | DATE | — |
-| `ativo_vinculo` | BOOLEAN | Padrão `true`; desvínculo é lógico |
+| `ativo_id` | BIGINT | FK → **máquina hospedeira**: o hardware onde o software está instalado, nunca o ativo `SOFTWARE` (BR-033). Máquina `BAIXADO` não recebe vínculo (BR-032) |
+| `data_vinculo` | DATE | Data de criação do vínculo. **Limitação conhecida do MVP:** não há data de fim; o encerramento (desvínculo ou baixa) só consta no carimbo da auditoria. Uma baixa com `data_baixa` retroativa pode, portanto, ficar anterior a `data_vinculo` do vínculo que encerra, e nenhuma regra recusa isso (diferente do BR-012, para o vínculo de responsável) |
+| `ativo_vinculo` | BOOLEAN | Padrão `true`; desvínculo é lógico. A baixa da máquina põe `false` em todos os vínculos ativos dela (BR-031); a baixa do ativo `SOFTWARE` da licença, em todos os da licença (BR-036) |
 | `data_source` | VARCHAR(20) | `manual` (API) ou `sintetico` (ETL) |
 
 ```sql
@@ -168,7 +170,7 @@ CREATE UNIQUE INDEX ux_licenca_ativo
   WHERE ativo_vinculo = true;
 ```
 
-**`quantidade_em_uso` não é coluna** (BR-021, ADR-008). É `COUNT(*)` sobre `licenca_vinculo` com `ativo_vinculo = true`. É por isso que `licenca_vinculo.ativo_id` aponta para a máquina: o compliance conta quantas máquinas usam a licença e compara com os assentos contratados (item 5 da resolução).
+**`quantidade_em_uso` não é coluna** (BR-021, ADR-008). É `COUNT(*)` sobre `licenca_vinculo` com `ativo_vinculo = true`. É por isso que `licenca_vinculo.ativo_id` aponta para a máquina: o compliance conta quantas máquinas usam a licença e compara com os assentos contratados (item 5 da resolução). Como a baixa encerra os vínculos da máquina (BR-031) e máquina baixada não recebe vínculo (BR-032), toda máquina contada está em operação. A unicidade do par licença × máquina ativa (BR-034) é o índice `ux_licenca_ativo`; BR-032 e BR-033 são verificados no serviço.
 
 ### 3.8 Importação
 

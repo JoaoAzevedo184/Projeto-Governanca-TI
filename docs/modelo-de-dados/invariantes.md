@@ -13,10 +13,19 @@ Parte de [Modelo de Dados — ITAM](README.md).
 | Ativo baixado não recebe responsável | BR-009 | Verificação com lock | Serviço |
 | Histórico não pode ser alterado | BR-011, BR-025 | Trigger `BEFORE UPDATE OR DELETE` | **Banco** |
 | Um ativo tem no máximo uma baixa | BR-024 | `UNIQUE (ativo_id)` | Banco |
+| Baixa encerra os vínculos de licença da máquina | BR-031 | Mesma transação da baixa, com lock no ativo | Serviço |
+| Baixa do SOFTWARE encerra os vínculos da licença perpétua | BR-036 | Mesma transação da baixa, com lock no ativo | Serviço |
+| Licença de software baixado não recebe vínculo | BR-037 | Status do ativo SOFTWARE lido sob `FOR SHARE`, conflitando com o lock da baixa; sem coluna | Serviço |
+| Licença perpétua aponta para ativo SOFTWARE | BR-035 | Verificação no serviço (o CHECK não enxerga outra tabela) | Serviço |
+| Máquina baixada não recebe vínculo de licença | BR-032 | Verificação do status sob lock no ativo (mesmo lock da baixa) | Serviço |
+| Vínculo de licença exige máquina `HARDWARE` | BR-033 | Verificação no serviço (o CHECK não enxerga outra tabela) | Serviço |
+| Uma máquina não tem dois vínculos ativos da mesma licença | BR-034 | Índice único parcial `ux_licenca_ativo` | **Banco** |
 | Uso de licença ≤ contratado | BR-018 | Verificação com lock na licença | Serviço |
 | Valor residual nunca negativo | BR-014 | `max(..., 0)` + `CHECK ≥ 0` na baixa | Cálculo + banco |
 | Recomendação exige evidência | BR-027 | Criação na mesma transação | **Serviço** (ver abaixo) |
 | Pesos do scorecard somam 100% | BR-029 | Validação com `Decimal` | Serviço |
+
+**BR-031, BR-032, BR-036 e BR-037 são do serviço, não do banco.** Valem só para quem passa pela API: baixa e vinculação travam a linha do `ativo` (`FOR NO KEY UPDATE` na máquina e na baixa; `FOR SHARE` no software da licença, em `vincular`) antes de ler o status e os vínculos, então uma operação sempre enxerga o resultado da outra. Ordem de travamento em `vincular`: máquina, licença, ativo SOFTWARE; a baixa trava só o próprio ativo e depois as linhas de `licenca_vinculo` em ordem de `id`. Um escritor externo (ETL, carga D.8) que insira em `licenca_vinculo` ou em `baixa_ativo` sem esse lock contorna as duas; o dataset precisa respeitar a coerência listada em [`datasets-de-demonstracao.md`](datasets-de-demonstracao.md).
 
 ### O caso do BR-027
 

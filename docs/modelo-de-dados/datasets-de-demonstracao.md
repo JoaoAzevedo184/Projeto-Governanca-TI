@@ -45,6 +45,7 @@ Sem esses desvios o painel de compliance aparece vazio na defesa, e um painel va
 - Nenhum ativo com dois vínculos abertos (BR-007);
 - Todo ativo em `baixas.csv` com status `BAIXADO` em `inventario.csv`;
 - Nenhum vínculo de responsável iniciando após a data de baixa;
+- Nenhum vínculo de licença ativo (`ativo_vinculo = true`) em ativo `BAIXADO` (BR-031, BR-032), nenhum vínculo ativo em licença cujo ativo `SOFTWARE` esteja `BAIXADO` (BR-036, BR-037), e `ativo_id` de `licenca_vinculo` sempre `HARDWARE` (BR-033);
 - `data_expiracao` > `data_aquisicao` em toda licença (BR-019);
 - Números de série únicos no arquivo inteiro (BR-001).
 
