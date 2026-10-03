@@ -195,8 +195,9 @@ sequenceDiagram
 ```
 docker-compose.yml
 ├── itam-api        depends_on: db (service_healthy)
-│                   healthcheck: GET /health
-│                   env_file: .env
+│                   entrypoint: alembic upgrade head → uvicorn
+│                   healthcheck: GET /health (só passa depois da migração)
+│                   environment: SECRET_KEY e SEED_* vindos do .env
 ├── db              image: postgres:16-alpine
 │                   healthcheck: pg_isready
 │                   volume: itam_pgdata
@@ -208,7 +209,11 @@ docker-compose.yml
 
 **Ordem de inicialização garantida por health check**, não por `sleep`. A API só inicia depois que o Postgres responde a `pg_isready`, e o Prometheus só inicia depois que o `healthcheck` da API (`/health` retorna 200, com o banco respondendo) passa.
 
-**Migrações** rodam no start da API via entrypoint (`alembic upgrade head`), nunca `create_all()`. A carga de demonstração é separada, em `scripts/seed.sh`, para que o ambiente possa subir vazio.
+**Migrações** rodam na inicialização do contêiner da API, não no código da aplicação: `python/entrypoint.sh` executa `alembic upgrade head` (idempotente) e só então inicia o `uvicorn`. O servidor não sobe se a migração falhar, então o `healthcheck` só passa com o banco migrado. Nunca `create_all()`. Isso não afeta a execução local nem os testes, que migram por conta própria (`scripts/seed.sh`, `conftest.py`). Uma única instância da API migra por vez; com réplicas, a migração teria de virar um passo separado.
+
+**O que `docker compose up` entrega:** banco migrado, vazio, e `/health` em 200. A **carga de demonstração é separada** e fica em `scripts/seed.sh` (usuários e categorias), que se roda uma vez depois de a API ficar saudável; o `start` nunca cria usuário.
+
+**`SECRET_KEY` obrigatória.** O Compose roda com `ENVIRONMENT=docker`, e `core/config.py` recusa iniciar com a chave padrão ou vazia fora de `local`. A chave vem do `.env` (`SECRET_KEY: ${SECRET_KEY:-}` no Compose, sem valor fixo), e `scripts/start.sh` confere antes de subir.
 
 ---
 

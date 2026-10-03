@@ -190,7 +190,7 @@ Cada gate é um ponto de verificação com entrega obrigatória. Não se avança
 | 3.7 | `POST /ativos/{id}/baixa` em transação única | FR-005 | AC-027 |
 | 3.8 | Congelamento do valor residual na data da baixa | BR-015 | AC-019 |
 | 3.9 | Validações de motivo, justificativa, data e destinação | BR-022, BR-023, BR-026 | AC-028, AC-029, AC-033 |
-| 3.10 | `compliance_service` com as nove regras CP-01 a CP-09 | FR-007 | AC-039 a AC-043 |
+| 3.10 | `compliance_service` com as nove regras CP-01 a CP-09 (**no MVP: CP-01 a CP-04**; CP-05 a CP-09 fora do MVP, ver FR-007) | FR-007 | AC-039 a AC-043 |
 | 3.11 | Registro de tentativas bloqueadas na auditoria | NFR-AUD-05 | — |
 
 ### Sprint 4 — Indicadores, relatórios e observabilidade
