@@ -4,9 +4,12 @@ from app.api.v1.routers import (
     ativos,
     auth,
     categorias,
+    compliance,
     fornecedores,
     importacoes,
+    indicadores,
     licencas,
+    relatorios,
     responsaveis,
     setores,
 )
@@ -20,3 +23,6 @@ router.include_router(responsaveis.router)
 router.include_router(ativos.router)
 router.include_router(importacoes.router)
 router.include_router(licencas.router)
+router.include_router(relatorios.router)
+router.include_router(compliance.router)
+router.include_router(indicadores.router)
