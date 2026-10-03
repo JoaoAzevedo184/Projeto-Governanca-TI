@@ -10,6 +10,8 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://itam:itam@db:5432/itam
       ENVIRONMENT: docker
+      # Sem valor padrão no Compose: a chave vem do .env. Vazia ou padrão, a API recusa iniciar.
+      SECRET_KEY: ${SECRET_KEY:-}
       DATASET_DIR: /dataset
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
       SEED_OPERADOR_PASSWORD: ${SEED_OPERADOR_PASSWORD:-}
