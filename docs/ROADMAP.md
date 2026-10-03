@@ -124,12 +124,12 @@ Implementada em 2026-10-02. Ambiente completo (API, banco, Prometheus, Grafana) 
 - [x] Log estruturado JSON com `request_id`, sem dado sensível (`core/logging.py`)
 - [x] Grafana provisionado: dashboard `itam-tecnico` na pasta **Governança de TI** (`infra/grafana/dashboards/`)
 - [x] Pendências da sessão anterior: BR-038 (responsável e setor ativos, AC-065) e BR-037 ampliada para a criação de licença perpétua (AC-066)
-- [ ] `/relatorios/depreciacao`, `/relatorios/baixas` e `/relatorios/historico-responsaveis` (contrato §6.5): sem AC próprio, não implementados
-- [ ] CP-05, CP-06 e CP-08 (deriváveis, sem AC); CP-07 e CP-09 não disparam com o modelo atual; alertas MEDIO/BAIXO do FR-004 sem código CP. Ver FR-007 no PRD
-- [ ] Gráficos do painel gerencial (FR-014, PRD §16.2) e a evolução do valor residual no tempo: o contrato não tem endpoint para eles
-- [ ] KPI-01, KPI-04 e KPI-05 do PRD não são calculáveis só com o banco (precisam de estimativa do parque, cronometragem e dado contábil)
-- [ ] `docker compose up` ainda não migra o banco sozinho: `scripts/seed.sh` roda `alembic upgrade head` (a ARQUITETURA §6 fala em migração no start da API via entrypoint, que não existe)
-- [ ] A recusa de inicialização com `SECRET_KEY` padrão fora de `local` (configuracao.md §13.1) não está implementada em `core/config.py`
+- **Fora do MVP** (marcado nos docs, com o motivo de cada um): `/relatorios/depreciacao`, `/relatorios/baixas`, `/relatorios/historico-responsaveis` e o termo de responsabilidade (contrato §6.5, dashboard-relatorios §16.3); CP-05 a CP-09 (FR-007); KPI-01, KPI-04 e KPI-05 (visao-geral §4.3)
+- Fora do MVP: CP-05, CP-06 e CP-08 (deriváveis, sem AC); CP-07 e CP-09 não disparam com o modelo atual; alertas MEDIO/BAIXO do FR-004 sem código CP. Ver FR-007 no PRD
+- Fora do MVP: gráficos do painel gerencial (FR-014, PRD §16.2) e a evolução do valor residual no tempo: o contrato não tem endpoint para eles
+- Fora do MVP: KPI-01, KPI-04 e KPI-05 do PRD, que não são calculáveis só com o banco (precisam de estimativa do parque, cronometragem e dado contábil)
+- [x] `docker compose up` migra o banco ao iniciar o contêiner da API (`python/entrypoint.sh`); o seed segue separado
+- [x] Recusa de inicialização com `SECRET_KEY` padrão fora de `local` (configuracao.md §13.1), em `core/config.py`; a chave do Compose vem do `.env`
 
 ### Decisões da Sprint 4 (os docs não definiam; revisar com a equipe)
 
