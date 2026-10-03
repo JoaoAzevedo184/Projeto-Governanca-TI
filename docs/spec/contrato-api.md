@@ -108,7 +108,7 @@ Expor `meses_efetivos` e `depreciacao_mensal` é deliberado: torna o cálculo au
 }
 ```
 
-Resposta `201`: o registro de baixa, com `valor_residual_baixa` (string decimal) congelado na `data_baixa` (BR-015), e `data_source = "manual"`. Na mesma transação o ativo passa a `BAIXADO` e o vínculo de responsável aberto é encerrado com `data_fim = data_baixa` (BR-012). Depois disso `GET /ativos/{id}/depreciacao` usa a `data_baixa` como referência e o valor congelado (AC-019).
+Resposta `201`: o registro de baixa, com `valor_residual_baixa` (string decimal) congelado na `data_baixa` (BR-015), e `data_source = "manual"`. Na mesma transação o ativo passa a `BAIXADO`, o vínculo de responsável aberto é encerrado com `data_fim = data_baixa` (BR-012) e todos os vínculos de licença ativos da máquina são encerrados por desvínculo lógico (BR-031, AC-058). Se o ativo baixado é o `SOFTWARE` de uma licença perpétua, os vínculos ativos dessa licença, em qualquer máquina, também são encerrados (BR-036, AC-063); a licença não é apagada nem alterada. Cada encerramento gera uma linha `EXCLUIR` na auditoria (`entidade = licenca_vinculo`, `detalhe.origem = "baixa"`) e a `quantidade_em_uso` e o `saldo` das licenças afetadas passam a refletir a liberação. Depois disso `GET /ativos/{id}/depreciacao` usa a `data_baixa` como referência e o valor congelado (AC-019).
 
 Recusas, sempre `409` com `regra` e linha `RECUSADO` na auditoria: `BR-024` (ativo já baixado), `BR-023` (motivo `OUTRO` sem justificativa de 10 caracteres), `BR-022` (data futura ou anterior à aquisição), `BR-026` (sem `destinacao`) e `BR-012` (data anterior ao início do vínculo aberto). Motivo ou destinação fora do enum, e data malformada, retornam `422`.
 
@@ -136,13 +136,13 @@ A resposta de licença sempre inclui o bloco derivado:
 }
 ```
 
-`quantidade_em_uso` é o `COUNT` dos vínculos ativos (BR-021, ADR-008), nunca informada. `dias_para_expiracao` é negativo quando a licença já venceu. **`status_conformidade` e `alertas` (por exemplo `"ALERTA"` e `["CP-03"]`) ainda não existem:** chegam com o painel de compliance (FR-007, Sprint 4).
+`quantidade_em_uso` é o `COUNT` dos vínculos ativos (BR-021, ADR-008), nunca informada. `dias_para_expiracao` é negativo quando a licença já venceu. O bloco ganha `status_conformidade` e `alertas`, derivados na hora (nada é armazenado): `alertas` lista os códigos CP-01 a CP-03 disparados hoje (por exemplo `["CP-03"]`) e `status_conformidade` é `NAO_CONFORME` quando há CP-01 ou CP-02 (críticos), `ALERTA` quando só há CP-03, e `CONFORME` sem alertas. A janela do CP-03 vem de `JANELA_ALERTA_LICENCA_DIAS` (padrão 30).
 
-**`POST /licencas`** — o corpo segue `ck_licenca_tipo`: `PERPETUA` aponta para um ativo `SOFTWARE` (`ativo_id`), sem `software` nem `valor_total`; `SUBSCRICAO` leva `software` e `valor_total`; `OEM` leva `software`, sem valor. Valores monetários são strings decimais.
+**`POST /licencas`** — o corpo segue `ck_licenca_tipo`: `PERPETUA` aponta para um ativo `SOFTWARE` (`ativo_id`), sem `software` nem `valor_total`; `SUBSCRICAO` leva `software` e `valor_total`; `OEM` leva `software`, sem valor. `PERPETUA` que aponta para ativo que não é `SOFTWARE` é recusada com `409`, `regra = BR-035` (AC-062) e auditoria `RECUSADO`. Valores monetários são strings decimais.
 
 **Chave de licença (RI-08).** `chave_licenca` sai mascarada (`****-****-A3F9`) em toda listagem e para quem não é `ADMIN`; completa só no detalhe e só para `ADMIN`. A mesma regra vale para a chave do ativo `SOFTWARE`. Chave com menos de 8 caracteres sai toda mascarada.
 
-**`POST /licencas/{id}/vinculos`** — corpo `{ "ativo_id": 12, "data_vinculo": "2026-03-20" }`; `ativo_id` é a máquina hospedeira (`HARDWARE`) e `data_vinculo` é opcional (padrão hoje). Recusas `409` com `regra` e auditoria `RECUSADO`: `BR-018` (excederia o contratado, AC-021), `BR-020` (licença vencida, AC-025) e `FR-004` (máquina que não é `HARDWARE`, ou já vinculada a esta licença). `DELETE /licencas/{id}/vinculos/{ativo_id}` é desvínculo **lógico** (`ativo_vinculo = false`, `204`): a quantidade em uso cai sozinha (AC-026) e nenhum registro é apagado. `GET .../vinculos` lista ativos e desvinculados.
+**`POST /licencas/{id}/vinculos`** — corpo `{ "ativo_id": 12, "data_vinculo": "2026-03-20" }`; `ativo_id` é a máquina hospedeira (`HARDWARE`) e `data_vinculo` é opcional (padrão hoje). Recusas `409` com `regra` e auditoria `RECUSADO`: `BR-018` (excederia o contratado, AC-021), `BR-020` (licença vencida, AC-025), `BR-032` (máquina `BAIXADO`, AC-059), `BR-037` (o ativo `SOFTWARE` da licença está `BAIXADO`, AC-064), `BR-033` (máquina que não é `HARDWARE`, AC-060) e `BR-034` (máquina já vinculada a esta licença, AC-061). Se a máquina falha em mais de uma regra, vale a primeira nesta ordem de verificação: `BR-032`, `BR-037`, `BR-020`, `BR-033`, `BR-034`, `BR-018`. `BR-037` é derivado do status do ativo, sem coluna própria, e só se aplica a licença `PERPETUA`. `DELETE /licencas/{id}/vinculos/{ativo_id}` é desvínculo **lógico** (`ativo_vinculo = false`, `204`): a quantidade em uso cai sozinha (AC-026) e nenhum registro é apagado. `GET .../vinculos` lista ativos e desvinculados.
 
 **`PATCH /licencas/{id}`** — edita `fornecedor_id`, `chave_licenca`, `quantidade_contratada`, `data_inicio_vigencia` e `data_expiracao`. Recusas: `BR-019` (expiração não posterior ao início, AC-024) e `BR-018` (contratada abaixo do uso). `POST /licencas` também recusa `BR-019` com `409`.
 
@@ -159,6 +159,12 @@ A resposta de licença sempre inclui o bloco derivado:
 | GET | `/relatorios/historico-responsaveis` | todos | FR-002 |
 | GET | `/compliance/alertas` | todos | FR-007 |
 | GET | `/indicadores` | todos | FR-009 |
+
+**Implementados na Sprint 4:** `/relatorios/inventario`, `/relatorios/conformidade`, `/compliance/alertas` e `/indicadores`. `/relatorios/depreciacao`, `/relatorios/baixas` e `/relatorios/historico-responsaveis` seguem previstos, sem AC próprio, e não foram implementados.
+
+**`GET /relatorios/inventario`** — filtros `status` (repetível), `tipo` (repetível), `categoria_id` (repetível), `fornecedor_id` (repetível), `responsavel_id`, `valor_depreciado_min|max`, `percentual_depreciado_min|max`, `aquisicao_de|ate` e `fim_vida_util` (≥ 80% da vida útil, `LIMIAR_FIM_VIDA_UTIL_PERCENTUAL`), todos em conjunção. **Sem `status`, o ativo `BAIXADO` não aparece** (inventário ativo, AC-031); `status=BAIXADO` o traz de volta. A resposta é o envelope de listagem mais `totais` (`quantidade`, `valor_compra`, `valor_residual`) sobre todo o resultado filtrado, não só a página. A chave de licença do ativo `SOFTWARE` sai sempre mascarada (RI-08). O baixado usa a data da baixa e o residual congelado (AC-019).
+
+**`GET /compliance/alertas`** — alertas CP-01 a CP-04 derivados na hora, agrupados por severidade da mais crítica para a menos (AC-040). Cada alerta traz `codigo`, `severidade`, `regra` (a regra aplicada, legível, AC-042), `mensagem`, `entidade`, `entidade_id`, `recurso` e `link` para o registro de origem (AC-041). Resposta: `{ "data_referencia", "total", "por_severidade", "grupos": [{ "severidade", "total", "alertas": [] }] }`. Só entram grupos com alerta. `/relatorios/conformidade` devolve o mesmo conteúdo e, em `csv`/`xlsx`, como relatório datado.
 
 Todo relatório aceita `formato=json|csv|xlsx`. Em `csv` e `xlsx`, o cabeçalho traz data, hora e login do solicitante (AC-036) e a paginação é ignorada (AC-037).
 
@@ -182,6 +188,8 @@ Todo relatório aceita `formato=json|csv|xlsx`. Em `csv` e `xlsx`, o cabeçalho 
   ]
 }
 ```
+
+Códigos: `KPI-02` (cobertura de responsáveis), `KPI-03` (conformidade de licenças), `KPI-06` (ativos sem movimentação), `KPI-07` (idade média), `KPI-08` (baixas com destinação) e, para os indicadores do FR-009 sem código KPI no PRD, `IND-01` (total por status), `IND-02` (hardware × software), `IND-03` (valor bruto), `IND-04` (valor residual), `IND-05` (percentual depreciado), `IND-06` (custo médio) e `IND-07` (taxa de baixas no período). `valor` é string decimal para dinheiro e número para percentual e contagem; fica nulo quando a amostra é vazia. `sentido_meta` (`>=` ou `<=`) acompanha `meta`. Os de distribuição trazem `detalhe`. Filtros: `categoria_id`, `setor_id` (setor do vínculo de responsável aberto), `fornecedor_id`, `data_inicio` e `data_fim` (esta janela só afeta `IND-07`; padrão: os 365 dias até hoje).
 
 ### 6.6 Importação
 
@@ -243,4 +251,6 @@ Todo relatório aceita `formato=json|csv|xlsx`. Em `csv` e `xlsx`, o cabeçalho 
 ```json
 { "status": "UP", "environment": "docker", "database": { "status": "UP", "dialect": "postgresql" }, "version": "1.0.0" }
 ```
+
+Com o banco fora do ar, `/health` responde `503` com `status` e `database.status` `DOWN`. `/metrics` responde sempre `200` no formato de exposição Prometheus (`text/plain; version=0.0.4`), com `itam_database_up` indicando o estado do banco (ver [`observabilidade.md`](observabilidade.md)). Toda resposta traz `X-Request-ID`.
 

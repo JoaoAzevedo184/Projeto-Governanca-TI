@@ -4,7 +4,7 @@ Parte de [SPEC — ITAM](README.md).
 
 ## 4. Estrutura de Diretórios
 
-A árvore mostra a estrutura-alvo. Os arquivos marcados `# planejado (arquivo vazio)` existem como placeholder e entram nas Sprints 3 a 5; os demais serviços listados já estão implementados.
+A árvore mostra a estrutura-alvo. Os arquivos marcados `# planejado (arquivo vazio)` existem como placeholder e entram na Sprint 5; os demais serviços listados já estão implementados.
 
 ```
 itam-api/
@@ -52,23 +52,27 @@ itam-api/
 │   │   │   ├── importacao_service.py
 │   │   │   ├── licenca_service.py
 │   │   │   ├── baixa_service.py
-│   │   │   ├── relatorio_service.py     # planejado (arquivo vazio)
-│   │   │   ├── compliance_service.py    # planejado (arquivo vazio)
-│   │   │   ├── indicador_service.py     # planejado (arquivo vazio)
+│   │   │   ├── relatorio_service.py     # inventário filtrado e relatório de conformidade, CSV/XLSX
+│   │   │   ├── compliance_service.py    # alertas CP-01 a CP-04, derivados na hora
+│   │   │   ├── indicador_service.py     # indicadores do FR-009 com fórmula e amostra
+│   │   │   ├── observabilidade_service.py # saúde do banco e gauges de /metrics
 │   │   │   ├── cenario_service.py       # planejado (arquivo vazio)
 │   │   │   ├── scorecard_service.py     # planejado (arquivo vazio)
 │   │   │   ├── risco_service.py         # planejado (arquivo vazio)
 │   │   │   └── recomendacao_service.py  # planejado (arquivo vazio)
 │   │   ├── api/
 │   │   │   ├── deps.py                  # get_db, get_current_user, require_perfil
+│   │   │   ├── tecnico.py               # /health e /metrics (públicos, fora de /api/v1)
 │   │   │   └── v1/
 │   │   │       ├── router.py            # agregador
-│   │   │       └── routers/             # existem: auth, categorias, fornecedores, setores, responsaveis, ativos, importacoes, licencas (a baixa é POST /ativos/{id}/baixa, em ativos.py)
+│   │   │       └── routers/             # existem: auth, categorias, fornecedores, setores, responsaveis, ativos, importacoes, licencas, relatorios, compliance, indicadores (a baixa é POST /ativos/{id}/baixa, em ativos.py)
 │   │   └── utils/
 │   │       ├── depreciacao.py
 │   │       ├── datas.py                 # hoje(): relógio injetável nos serviços
 │   │       ├── mascaramento.py          # chave de licença mascarada (RI-08)
-│   │       └── exportacao.py            # CSV/XLSX
+│   │       ├── conformidade.py          # CP-01 a CP-04 e status de conformidade (função pura)
+│   │       ├── indicadores.py           # fórmulas dos indicadores (funções puras)
+│   │       └── exportacao.py            # CSV/XLSX, com cabeçalho datado
 │   ├── alembic.ini
 │   ├── alembic/
 │   │   ├── env.py
@@ -101,7 +105,8 @@ itam-api/
 ├── infra/
 │   ├── prometheus.yml
 │   └── grafana/
-│       └── datasources/prometheus.yml
+│       ├── datasources/prometheus.yml
+│       └── dashboards/               # provider.yml e itam.json (dashboard técnico)
 ├── docs/
 │   ├── prd/                          # dividido por responsabilidade, ver docs/prd/README.md
 │   ├── spec/                         # este documento, dividido por responsabilidade

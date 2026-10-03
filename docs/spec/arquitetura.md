@@ -15,7 +15,7 @@ Parte de [SPEC — ITAM](README.md).
                          ▼
 ┌──────────────────────────────────────────────────────────┐
 │  SERVIÇOS  —  app/services/                              │
-│  Regras de negócio (BR-001 a BR-030), orquestração de    │
+│  Regras de negócio (BR-001 a BR-037), orquestração de    │
 │  transações, cálculos, validações de invariante.         │
 └────────────────────────┬─────────────────────────────────┘
                          ▼
