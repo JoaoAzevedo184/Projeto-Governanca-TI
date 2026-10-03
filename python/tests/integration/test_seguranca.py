@@ -205,6 +205,11 @@ def _rotas(
             "json",
             {"admin", "operador"},
         ),
+        # FR-015, coluna Relatórios: Ler para os quatro perfis (compliance e indicadores incluídos).
+        ("GET", "/api/v1/relatorios/inventario", None, "json", todos),
+        ("GET", "/api/v1/relatorios/conformidade", None, "json", todos),
+        ("GET", "/api/v1/compliance/alertas", None, "json", todos),
+        ("GET", "/api/v1/indicadores", None, "json", todos),
         ("GET", "/api/v1/auth/me", None, "json", todos),
     ]
 

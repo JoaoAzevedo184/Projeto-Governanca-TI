@@ -1,4 +1,5 @@
-"""Controle de licenças (FR-004): AC-021, AC-024, AC-025, AC-026, BR-018 a BR-021, RI-08."""
+"""Controle de licenças (FR-004): AC-021, AC-024 a AC-026, AC-058 a AC-064, BR-018 a BR-021,
+BR-031 a BR-037, RI-08."""
 
 from datetime import date, timedelta
 
@@ -118,7 +119,8 @@ def test_cria_licenca_subscricao_com_bloco_derivado(client, token_admin, fornece
     assert corpo["saldo"] == 2
     assert corpo["dias_para_expiracao"] == (date(2099, 12, 31) - date.today()).days
     assert corpo["data_source"] == "manual"
-    assert "status_conformidade" not in corpo and "alertas" not in corpo  # FR-007, Sprint 4
+    assert corpo["status_conformidade"] == "CONFORME"  # FR-007: derivado, nada armazenado
+    assert corpo["alertas"] == []
 
 
 def test_cria_licenca_perpetua_apontando_para_ativo_software(
@@ -147,7 +149,9 @@ def test_cria_licenca_oem_sem_valor(client, token_admin, fornecedor):
     assert resposta.json()["valor_total"] is None
 
 
-def test_perpetua_apontando_para_hardware_e_recusada(client, db, token_admin, fornecedor, maquinas):
+def test_ac062_perpetua_apontando_para_hardware_e_recusada(
+    client, db, token_admin, fornecedor, maquinas
+):
     resposta = _criar(
         client,
         token_admin,
@@ -159,9 +163,9 @@ def test_perpetua_apontando_para_hardware_e_recusada(client, db, token_admin, fo
     )
 
     assert resposta.status_code == 409
-    assert resposta.json()["regra"] == "FR-004"
+    assert resposta.json()["regra"] == "BR-035"
     assert _total(db, Licenca) == 0
-    assert _recusas(db) == [("licenca", "CRIAR", "FR-004")]
+    assert _recusas(db) == [("licenca", "CRIAR", "BR-035")]
 
 
 @pytest.mark.parametrize(
@@ -329,7 +333,7 @@ def test_listagem_de_vinculos_traz_ativos_e_desvinculados(
     ]
 
 
-def test_vinculo_duplicado_na_mesma_maquina_e_recusado(
+def test_ac061_vinculo_duplicado_na_mesma_maquina_e_recusado(
     client, db, token_admin, licenca_id, maquinas
 ):
     _vincular(client, token_admin, licenca_id, maquinas[0])
@@ -337,16 +341,101 @@ def test_vinculo_duplicado_na_mesma_maquina_e_recusado(
     repetido = _vincular(client, token_admin, licenca_id, maquinas[0])
 
     assert repetido.status_code == 409
-    assert repetido.json()["regra"] == "FR-004"
+    assert repetido.json()["regra"] == "BR-034"
     assert _obter(client, token_admin, licenca_id)["quantidade_em_uso"] == 1
+    assert _total(db, LicencaVinculo) == 1
+    assert _recusas(db) == [("licenca_vinculo", "CRIAR", "BR-034")]
 
 
-def test_vinculo_so_aceita_maquina_hardware(client, db, token_admin, licenca_id, software_id):
+def test_ac061_maquina_desvinculada_pode_receber_a_licenca_de_novo(
+    client, token_admin, licenca_id, maquinas
+):
+    _vincular(client, token_admin, licenca_id, maquinas[0])
+    client.delete(
+        f"/api/v1/licencas/{licenca_id}/vinculos/{maquinas[0]}", headers=_headers(token_admin)
+    )
+
+    assert _vincular(client, token_admin, licenca_id, maquinas[0]).status_code == 201
+
+
+def test_ac060_vinculo_so_aceita_maquina_hardware(client, db, token_admin, licenca_id, software_id):
     resposta = _vincular(client, token_admin, licenca_id, software_id)
 
     assert resposta.status_code == 409
-    assert resposta.json()["regra"] == "FR-004"
+    assert resposta.json()["regra"] == "BR-033"
     assert _total(db, LicencaVinculo) == 0
+    assert _recusas(db) == [("licenca_vinculo", "CRIAR", "BR-033")]
+
+
+def _baixar(client, token, ativo_id):
+    return client.post(
+        f"/api/v1/ativos/{ativo_id}/baixa",
+        headers=_headers(token),
+        json={"motivo": "DEFEITO", "data_baixa": "2025-07-10", "destinacao": "DESCARTE"},
+    )
+
+
+def test_ac059_maquina_baixada_nao_recebe_vinculo_de_licenca(
+    client, db, token_admin, licenca_id, maquinas
+):
+    assert _baixar(client, token_admin, maquinas[0]).status_code == 201
+
+    resposta = _vincular(client, token_admin, licenca_id, maquinas[0])
+
+    assert resposta.status_code == 409
+    assert resposta.json()["regra"] == "BR-032"
+    assert _total(db, LicencaVinculo) == 0
+    assert _obter(client, token_admin, licenca_id)["quantidade_em_uso"] == 0
+    assert _recusas(db) == [("licenca_vinculo", "CRIAR", "BR-032")]
+
+
+def test_maquina_baixada_que_nao_e_hardware_recebe_br032_antes_de_br033(
+    client, db, token_admin, licenca_id, software_id
+):
+    # Decisão: o estado da máquina é checado antes do tipo (os docs não definem a precedência).
+    assert _baixar(client, token_admin, software_id).status_code == 201
+
+    resposta = _vincular(client, token_admin, licenca_id, software_id)
+
+    assert resposta.status_code == 409
+    assert resposta.json()["regra"] == "BR-032"
+
+
+def test_ac058_baixa_encerra_os_vinculos_de_licenca_e_devolve_os_assentos(
+    client, db, token_admin, fornecedor, licenca_id, maquinas
+):
+    saturada = _criar(client, token_admin, fornecedor, quantidade_contratada=1).json()["id"]
+    v1 = _vincular(client, token_admin, licenca_id, maquinas[0]).json()["id"]
+    v2 = _vincular(client, token_admin, saturada, maquinas[0]).json()["id"]
+    _vincular(client, token_admin, licenca_id, maquinas[1])  # outra máquina: não é afetada
+    antes = {i: _obter(client, token_admin, i) for i in (licenca_id, saturada)}
+    assert [(antes[i]["quantidade_em_uso"], antes[i]["saldo"]) for i in (licenca_id, saturada)] == [
+        (2, 0),
+        (1, 0),
+    ]
+    auditoria_antes = {a.id for a in db.scalars(select(AuditLog))}
+
+    resposta = _baixar(client, token_admin, maquinas[0])
+
+    assert resposta.status_code == 201, resposta.text
+    db.expire_all()
+    vinculos = {v.id: v for v in db.scalars(select(LicencaVinculo))}
+    assert [vinculos[v].ativo_vinculo for v in (v1, v2)] == [False, False]  # lógico, sem apagar
+    assert sum(v.ativo_vinculo for v in vinculos.values()) == 1  # só o da outra máquina
+    principal, saturada_depois = (_obter(client, token_admin, i) for i in (licenca_id, saturada))
+    assert (principal["quantidade_em_uso"], principal["saldo"]) == (1, 1)  # 2 - 1 assento liberado
+    assert (saturada_depois["quantidade_em_uso"], saturada_depois["saldo"]) == (0, 1)
+    novos = [
+        a for a in db.scalars(select(AuditLog).order_by(AuditLog.id)) if a.id not in auditoria_antes
+    ]
+    encerramentos = [a for a in novos if a.entidade == "licenca_vinculo"]
+    assert sorted(a.entidade_id for a in encerramentos) == sorted([v1, v2])
+    assert all(
+        (a.operacao, a.resultado, a.detalhe["origem"], a.detalhe["ativo_id"])
+        == ("EXCLUIR", "SUCESSO", "baixa", maquinas[0])
+        for a in encerramentos
+    )
+    assert _vincular(client, token_admin, saturada, maquinas[2]).status_code == 201  # assento livre
 
 
 def test_referencias_inexistentes_nos_vinculos_retornam_404(
@@ -586,3 +675,132 @@ def test_ac057_escritas_de_licenca_registram_auditoria(
         ("ATUALIZAR", "licenca", licenca),
         ("EXCLUIR", "licenca_vinculo", vinculo),
     }
+
+
+# --- baixa do ativo SOFTWARE de uma licença perpétua (BR-036, BR-037) ---
+
+
+@pytest.fixture
+def perpetua_id(client, token_admin, fornecedor, software_id):
+    resposta = _criar(
+        client,
+        token_admin,
+        fornecedor,
+        tipo_licenciamento="PERPETUA",
+        ativo_id=software_id,
+        software=...,
+        valor_total=...,
+        quantidade_contratada=3,
+    )
+    assert resposta.status_code == 201, resposta.text
+    return resposta.json()["id"]
+
+
+def _estado(client, token, licenca_id):
+    d = _obter(client, token, licenca_id)
+    return d["quantidade_contratada"], d["quantidade_em_uso"], d["saldo"], d["data_expiracao"]
+
+
+def test_ac063_baixa_do_software_encerra_os_vinculos_da_licenca_perpetua(
+    client, db, token_admin, fornecedor, licenca_id, perpetua_id, software_id, maquinas
+):
+    v1 = _vincular(client, token_admin, perpetua_id, maquinas[0]).json()["id"]
+    v2 = _vincular(client, token_admin, perpetua_id, maquinas[1]).json()["id"]
+    outro = _vincular(client, token_admin, licenca_id, maquinas[0]).json()["id"]  # subscrição
+    assert _estado(client, token_admin, perpetua_id)[:3] == (3, 2, 1)
+    antes_licenca = db.scalars(select(Licenca).where(Licenca.id == perpetua_id)).one()
+    campos = {
+        c: getattr(antes_licenca, c) for c in ("quantidade_contratada", "chave_licenca", "ativo_id")
+    }
+    auditoria_antes = {a.id for a in db.scalars(select(AuditLog))}
+
+    resposta = _baixar(client, token_admin, software_id)
+
+    assert resposta.status_code == 201, resposta.text
+    db.expire_all()
+    vinculos = {v.id: v for v in db.scalars(select(LicencaVinculo))}
+    assert [vinculos[v].ativo_vinculo for v in (v1, v2)] == [False, False]  # lógico, sem apagar
+    assert vinculos[outro].ativo_vinculo is True  # licença de subscrição não muda
+    assert _estado(client, token_admin, perpetua_id)[:3] == (3, 0, 3)  # assentos de volta
+    licenca = db.scalars(select(Licenca).where(Licenca.id == perpetua_id)).one()  # não apagada
+    assert {c: getattr(licenca, c) for c in campos} == campos  # nem alterada
+    novos = [a for a in db.scalars(select(AuditLog)) if a.id not in auditoria_antes]
+    encerramentos = [a for a in novos if a.entidade == "licenca_vinculo"]
+    assert sorted(a.entidade_id for a in encerramentos) == sorted([v1, v2])
+    assert sorted(
+        (
+            a.operacao,
+            a.resultado,
+            a.detalhe["origem"],
+            a.detalhe["licenca_id"],
+            a.detalhe["ativo_id"],
+        )
+        for a in encerramentos
+    ) == [
+        ("EXCLUIR", "SUCESSO", "baixa", perpetua_id, maquinas[0]),
+        ("EXCLUIR", "SUCESSO", "baixa", perpetua_id, maquinas[1]),
+    ]
+
+
+def test_ac064_licenca_de_software_baixado_recusa_vinculos_novos(
+    client, db, token_admin, licenca_id, perpetua_id, software_id, maquinas
+):
+    assert _baixar(client, token_admin, software_id).status_code == 201
+
+    resposta = _vincular(client, token_admin, perpetua_id, maquinas[0])
+
+    assert resposta.status_code == 409
+    assert resposta.json()["regra"] == "BR-037"
+    assert _total(db, LicencaVinculo) == 0
+    assert _estado(client, token_admin, perpetua_id)[:3] == (3, 0, 3)
+    assert _recusas(db) == [("licenca_vinculo", "CRIAR", "BR-037")]
+    # Subscrição e OEM não mudam: continuam aceitando a mesma máquina.
+    assert _vincular(client, token_admin, licenca_id, maquinas[0]).status_code == 201
+
+
+def test_br037_vem_depois_de_br032_e_antes_de_br020(
+    client, db, token_admin, fornecedor, perpetua_id, software_id, maquinas
+):
+    assert _baixar(client, token_admin, software_id).status_code == 201
+    assert _baixar(client, token_admin, maquinas[0]).status_code == 201
+
+    resposta = _vincular(client, token_admin, perpetua_id, maquinas[0])
+    assert resposta.json()["regra"] == "BR-032"  # máquina baixada vence
+
+    vencida = _criar(client, token_admin, fornecedor, data_expiracao="2025-06-01").json()["id"]
+    assert _vincular(client, token_admin, vencida, maquinas[1]).json()["regra"] == "BR-020"
+
+
+def test_baixa_de_software_sem_licenca_continua_como_antes(
+    client, db, token_admin, software_id, licenca_id, maquinas
+):
+    _vincular(client, token_admin, licenca_id, maquinas[0])
+    auditoria_antes = {a.id for a in db.scalars(select(AuditLog))}
+
+    assert _baixar(client, token_admin, software_id).status_code == 201
+
+    db.expire_all()
+    assert db.scalars(select(LicencaVinculo)).one().ativo_vinculo is True
+    novos = [a for a in db.scalars(select(AuditLog)) if a.id not in auditoria_antes]
+    assert [a for a in novos if a.entidade == "licenca_vinculo"] == []
+
+
+def test_ac066_perpetua_apontando_para_software_baixado_e_recusada(
+    client, db, token_admin, fornecedor, software_id
+):
+    assert _baixar(client, token_admin, software_id).status_code == 201
+
+    resposta = _criar(
+        client,
+        token_admin,
+        fornecedor,
+        tipo_licenciamento="PERPETUA",
+        ativo_id=software_id,
+        software=...,
+        valor_total=...,
+    )
+
+    assert resposta.status_code == 409
+    assert resposta.json()["regra"] == "BR-037"
+    assert _total(db, Licenca) == 0
+    assert _recusas(db) == [("licenca", "CRIAR", "BR-037")]
