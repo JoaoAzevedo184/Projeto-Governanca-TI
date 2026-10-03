@@ -81,19 +81,19 @@ graph TB
 ```mermaid
 graph TB
     subgraph rt["api/v1/routers"]
-        R1["existem: auth · categorias · fornecedores<br/>setores · responsaveis · ativos (inclui a baixa)<br/>importacoes · licencas<br/>planejados: relatorios · compliance<br/>indicadores · riscos · recomendacoes"]
+        R1["existem: auth · categorias · fornecedores<br/>setores · responsaveis · ativos (inclui a baixa)<br/>importacoes · licencas · relatorios<br/>compliance · indicadores · tecnico (/health, /metrics)<br/>planejados: riscos · recomendacoes"]
     end
     subgraph sv["services — regras de negócio"]
-        S1["existem: ativo · responsavel · depreciacao<br/>importacao · categoria · fornecedor · setor<br/>baixa · licenca<br/>planejados: compliance<br/>indicador · cenario · scorecard · risco<br/>recomendacao · relatorio"]
+        S1["existem: ativo · responsavel · depreciacao<br/>importacao · categoria · fornecedor · setor<br/>baixa · licenca · compliance · indicador<br/>relatorio · observabilidade<br/>planejados: cenario · scorecard · risco<br/>recomendacao"]
     end
     subgraph md["models — SQLAlchemy"]
         M1["mapeamento, constraints, índices"]
     end
     subgraph cr["core — transversal"]
-        C1["existem: config · database · security<br/>exceptions · audit<br/>planejados: metrics · logging"]
+        C1["existem: config · database · security<br/>exceptions · audit · metrics · logging"]
     end
     subgraph ut["utils — funções puras"]
-        U1["existem: depreciacao · datas · mascaramento<br/>planejado: exportacao"]
+        U1["existem: depreciacao · datas · mascaramento<br/>conformidade · indicadores · exportacao"]
     end
 
     rt --> sv
@@ -104,7 +104,7 @@ graph TB
     cr -.-> sv
 ```
 
-"Planejados" são módulos que existem como arquivo vazio (placeholder) e entram nas Sprints 3 a 5; ver [`ROADMAP.md`](ROADMAP.md). Não há camada de repositório: `app/repositories/` existe só com `.gitkeep`. Os serviços usam a `Session` do SQLAlchemy direto sobre os modelos. A seta tracejada `rt → md` são as leituras que não passam por serviço, porque não aplicam regra de negócio:
+"Planejados" são módulos que existem como arquivo vazio (placeholder) e entram na Sprint 5; ver [`ROADMAP.md`](ROADMAP.md). Não há camada de repositório: `app/repositories/` existe só com `.gitkeep`. Os serviços usam a `Session` do SQLAlchemy direto sobre os modelos. A seta tracejada `rt → md` são as leituras que não passam por serviço, porque não aplicam regra de negócio:
 
 | Onde | Consulta direta ao modelo |
 |---|---|
@@ -206,7 +206,7 @@ docker-compose.yml
                     volume: itam_grafanadata
 ```
 
-**Ordem de inicialização garantida por health check**, não por `sleep`. A API só inicia depois que o Postgres responde a `pg_isready`, e o Prometheus só coleta depois que `/health` retorna 200.
+**Ordem de inicialização garantida por health check**, não por `sleep`. A API só inicia depois que o Postgres responde a `pg_isready`, e o Prometheus só inicia depois que o `healthcheck` da API (`/health` retorna 200, com o banco respondendo) passa.
 
 **Migrações** rodam no start da API via entrypoint (`alembic upgrade head`), nunca `create_all()`. A carga de demonstração é separada, em `scripts/seed.sh`, para que o ambiente possa subir vazio.
 
