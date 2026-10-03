@@ -3,6 +3,19 @@ info:
   title: ITAM API
   version: 0.1.0
 paths:
+  /health:
+    get:
+      tags:
+      - tecnico
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaudeResponse'
   /api/v1/auth/login:
     post:
       tags:
@@ -927,18 +940,356 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /health:
+  /api/v1/relatorios/inventario:
     get:
-      summary: Health
-      operationId: health_health_get
+      tags:
+      - relatorios
+      summary: Inventario
+      operationId: inventario_api_v1_relatorios_inventario_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: formato
+        in: query
+        required: false
+        schema:
+          enum:
+          - json
+          - csv
+          - xlsx
+          type: string
+          default: json
+          title: Formato
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              $ref: '#/components/schemas/StatusAtivo'
+          - type: 'null'
+          title: Status
+      - name: tipo
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              $ref: '#/components/schemas/TipoAtivo'
+          - type: 'null'
+          title: Tipo
+      - name: categoria_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              type: integer
+          - type: 'null'
+          title: Categoria Id
+      - name: fornecedor_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              type: integer
+          - type: 'null'
+          title: Fornecedor Id
+      - name: responsavel_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Responsavel Id
+      - name: valor_depreciado_min
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Valor Depreciado Min
+      - name: valor_depreciado_max
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Valor Depreciado Max
+      - name: percentual_depreciado_min
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Percentual Depreciado Min
+      - name: percentual_depreciado_max
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Percentual Depreciado Max
+      - name: aquisicao_de
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Aquisicao De
+      - name: aquisicao_ate
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Aquisicao Ate
+      - name: fim_vida_util
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Fim Vida Util
+      - name: pagina
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Pagina
+      - name: tamanho
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Tamanho
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/InventarioResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relatorios/conformidade:
+    get:
+      tags:
+      - relatorios
+      summary: Conformidade
+      operationId: conformidade_api_v1_relatorios_conformidade_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: formato
+        in: query
+        required: false
+        schema:
+          enum:
+          - json
+          - csv
+          - xlsx
+          type: string
+          default: json
+          title: Formato
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertasResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/compliance/alertas:
+    get:
+      tags:
+      - compliance
+      summary: Alertas
+      operationId: alertas_api_v1_compliance_alertas_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertasResponse'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/indicadores:
+    get:
+      tags:
+      - indicadores
+      summary: Indicadores
+      operationId: indicadores_api_v1_indicadores_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: categoria_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Categoria Id
+      - name: setor_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Setor Id
+      - name: fornecedor_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Fornecedor Id
+      - name: data_inicio
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data Inicio
+      - name: data_fim
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data Fim
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndicadoresResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    AlertaResponse:
+      properties:
+        codigo:
+          type: string
+          title: Codigo
+          description: CP-01 a CP-04.
+        severidade:
+          type: string
+          title: Severidade
+          description: CRITICO, ALTO, MEDIO ou BAIXO.
+        regra:
+          type: string
+          title: Regra
+          description: A regra aplicada, legível (AC-042).
+        mensagem:
+          type: string
+          title: Mensagem
+        entidade:
+          type: string
+          title: Entidade
+          description: '`licenca` ou `ativo`: o registro de origem (AC-041).'
+        entidade_id:
+          type: integer
+          title: Entidade Id
+        recurso:
+          type: string
+          title: Recurso
+          description: Nome do software ou do ativo.
+        link:
+          type: string
+          title: Link
+          description: Rota do registro de origem.
+      type: object
+      required:
+      - codigo
+      - severidade
+      - regra
+      - mensagem
+      - entidade
+      - entidade_id
+      - recurso
+      - link
+      title: AlertaResponse
+      description: Alerta derivado do estado atual, nunca persistido (FR-007).
+    AlertasResponse:
+      properties:
+        data_referencia:
+          type: string
+          format: date
+          title: Data Referencia
+        total:
+          type: integer
+          title: Total
+        por_severidade:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Por Severidade
+        grupos:
+          items:
+            $ref: '#/components/schemas/GrupoAlertas'
+          type: array
+          title: Grupos
+          description: Só as severidades com alerta, da mais crítica para a menos
+            (AC-040).
+      type: object
+      required:
+      - data_referencia
+      - total
+      - por_severidade
+      - grupos
+      title: AlertasResponse
     AtivoCreate:
       properties:
         nome:
@@ -1158,7 +1509,13 @@ components:
 
         recusada pelo serviço com 409 e `regra` (BR-026, BR-023), registrada na auditoria
 
-        (NFR-AUD-05). O mesmo vale para a data (BR-022).'
+        (NFR-AUD-05). O mesmo vale para a data (BR-022).
+
+
+        A baixa também encerra, na mesma transação, os vínculos de licença ativos
+        da máquina (BR-031)
+
+        e, no ativo SOFTWARE de uma licença perpétua, os vínculos dessa licença (BR-036).'
     BaixaResponse:
       properties:
         id:
@@ -1207,6 +1564,19 @@ components:
       - data_source
       - criado_em
       title: BaixaResponse
+    BancoSaude:
+      properties:
+        status:
+          type: string
+          title: Status
+        dialect:
+          type: string
+          title: Dialect
+      type: object
+      required:
+      - status
+      - dialect
+      title: BancoSaude
     Body_importar_api_v1_importacoes_post:
       properties:
         arquivo:
@@ -1513,6 +1883,25 @@ components:
       - razao_social
       - id
       title: FornecedorResponse
+    GrupoAlertas:
+      properties:
+        severidade:
+          type: string
+          title: Severidade
+        total:
+          type: integer
+          title: Total
+        alertas:
+          items:
+            $ref: '#/components/schemas/AlertaResponse'
+          type: array
+          title: Alertas
+      type: object
+      required:
+      - severidade
+      - total
+      - alertas
+      title: GrupoAlertas
     HTTPValidationError:
       properties:
         detail:
@@ -1551,6 +1940,123 @@ components:
       - total_rejeitado
       - erros_url
       title: ImportacaoResumo
+    IndicadorResponse:
+      properties:
+        codigo:
+          type: string
+          title: Codigo
+        nome:
+          type: string
+          title: Nome
+        valor:
+          anyOf:
+          - type: integer
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Valor
+          description: Valor monetário como string decimal; percentual e contagem
+            como número. Nulo quando a amostra é vazia.
+        unidade:
+          type: string
+          title: Unidade
+        formula:
+          type: string
+          title: Formula
+          description: A fórmula aplicada (AC-047).
+        amostra:
+          type: integer
+          title: Amostra
+          description: Tamanho da amostra usada (AC-047).
+        meta:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Meta
+        sentido_meta:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sentido Meta
+          description: '`>=` ou `<=`.'
+        atende_meta:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Atende Meta
+        detalhe:
+          anyOf:
+          - additionalProperties:
+              type: integer
+            type: object
+          - type: 'null'
+          title: Detalhe
+          description: Desdobramento, nos indicadores de distribuição.
+      type: object
+      required:
+      - codigo
+      - nome
+      - valor
+      - unidade
+      - formula
+      - amostra
+      title: IndicadorResponse
+    IndicadoresResponse:
+      properties:
+        data_referencia:
+          type: string
+          format: date
+          title: Data Referencia
+        filtros_aplicados:
+          additionalProperties:
+            anyOf:
+            - type: integer
+            - type: string
+              format: date
+            - type: 'null'
+          type: object
+          title: Filtros Aplicados
+        indicadores:
+          items:
+            $ref: '#/components/schemas/IndicadorResponse'
+          type: array
+          title: Indicadores
+      type: object
+      required:
+      - data_referencia
+      - filtros_aplicados
+      - indicadores
+      title: IndicadoresResponse
+    InventarioResponse:
+      properties:
+        itens:
+          items:
+            $ref: '#/components/schemas/LinhaInventario'
+          type: array
+          title: Itens
+        pagina:
+          type: integer
+          title: Pagina
+        tamanho:
+          type: integer
+          title: Tamanho
+        total:
+          type: integer
+          title: Total
+        total_paginas:
+          type: integer
+          title: Total Paginas
+        totais:
+          $ref: '#/components/schemas/TotaisInventario'
+      type: object
+      required:
+      - itens
+      - pagina
+      - tamanho
+      - total
+      - total_paginas
+      - totais
+      title: InventarioResponse
     LicencaCreate:
       properties:
         tipo_licenciamento:
@@ -1613,8 +2119,10 @@ components:
         OEM guardam o nome do software, e só a subscrição tem `valor_total`. A ordem
         das datas
 
-        (BR-019) é recusada pelo serviço com 409 e `regra`, registrada na auditoria
-        (NFR-AUD-05).'
+        (BR-019) e o ativo que não é SOFTWARE em PERPETUA (BR-035) são recusados pelo
+        serviço com 409 e
+
+        `regra`, registrada na auditoria (NFR-AUD-05).'
     LicencaResponse:
       properties:
         id:
@@ -1670,6 +2178,16 @@ components:
         data_source:
           type: string
           title: Data Source
+        status_conformidade:
+          type: string
+          title: Status Conformidade
+          description: CONFORME, ALERTA (só CP-03) ou NAO_CONFORME.
+        alertas:
+          items:
+            type: string
+          type: array
+          title: Alertas
+          description: Códigos CP-01 a CP-03 disparados na data de hoje.
       type: object
       required:
       - id
@@ -1686,14 +2204,16 @@ components:
       - dias_para_expiracao
       - valor_total
       - data_source
+      - status_conformidade
+      - alertas
       title: LicencaResponse
-      description: 'Licença com o bloco derivado do contrato §6.4. `status_conformidade`
-        e `alertas` chegam
+      description: 'Licença com o bloco derivado do contrato §6.4, calculado na hora
+        (nada é armazenado):
 
-        com o painel de compliance (FR-007, Sprint 4). A chave sai mascarada, salvo
-        no detalhe para
+        `alertas` são os códigos CP-01 a CP-03 disparados hoje e `status_conformidade`
+        resume-os.
 
-        ADMIN (RI-08).'
+        A chave sai mascarada, salvo no detalhe para ADMIN (RI-08).'
     LicencaUpdate:
       properties:
         fornecedor_id:
@@ -1732,6 +2252,76 @@ components:
         Tipo, ativo, nome do
 
         software e valor não mudam (alterariam `ck_licenca_tipo`).'
+    LinhaInventario:
+      properties:
+        id:
+          type: integer
+          title: Id
+        nome:
+          type: string
+          title: Nome
+        tipo:
+          $ref: '#/components/schemas/TipoAtivo'
+        categoria:
+          type: string
+          title: Categoria
+        identificador:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Identificador
+        responsavel:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Responsavel
+        setor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Setor
+        status:
+          $ref: '#/components/schemas/StatusAtivo'
+        data_aquisicao:
+          type: string
+          format: date
+          title: Data Aquisicao
+        valor_compra:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Valor Compra
+        depreciacao_acumulada:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Depreciacao Acumulada
+        percentual_depreciado:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Percentual Depreciado
+        valor_residual:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Valor Residual
+        fornecedor:
+          type: string
+          title: Fornecedor
+      type: object
+      required:
+      - id
+      - nome
+      - tipo
+      - categoria
+      - identificador
+      - responsavel
+      - setor
+      - status
+      - data_aquisicao
+      - valor_compra
+      - depreciacao_acumulada
+      - percentual_depreciado
+      - valor_residual
+      - fornecedor
+      title: LinhaInventario
     ListaAtivosResponse:
       properties:
         itens:
@@ -1946,6 +2536,28 @@ components:
       - id
       - data_source
       title: ResponsavelResponse
+    SaudeResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        environment:
+          type: string
+          title: Environment
+        database:
+          $ref: '#/components/schemas/BancoSaude'
+        version:
+          type: string
+          title: Version
+      type: object
+      required:
+      - status
+      - environment
+      - database
+      - version
+      title: SaudeResponse
+      description: Estado da aplicação e do banco (FR-014, NFR-DIS-03, NFR-OBS-04,
+        AC-053).
     SetorCreate:
       properties:
         nome:
@@ -2025,6 +2637,27 @@ components:
       required:
       - access_token
       title: TokenResponse
+    TotaisInventario:
+      properties:
+        quantidade:
+          type: integer
+          title: Quantidade
+        valor_compra:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Valor Compra
+        valor_residual:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Valor Residual
+      type: object
+      required:
+      - quantidade
+      - valor_compra
+      - valor_residual
+      title: TotaisInventario
+      description: Totalizadores sobre todo o resultado filtrado, não só a página
+        (FR-006).
     UsuarioResponse:
       properties:
         id:
@@ -2113,7 +2746,16 @@ components:
       - ativo_id
       title: VinculoLicencaCreate
       description: 'Corpo de `POST /licencas/{id}/vinculos`: `ativo_id` é a máquina
-        hospedeira.'
+        hospedeira.
+
+
+        Recusas com 409 e `regra`: BR-018, BR-020, BR-032 (máquina baixada), BR-037
+        (ativo SOFTWARE
+
+        da licença baixado), BR-033 (máquina que não é HARDWARE) e BR-034 (licença
+        já vinculada à
+
+        máquina).'
     VinculoLicencaResponse:
       properties:
         id:
