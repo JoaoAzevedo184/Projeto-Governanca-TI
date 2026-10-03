@@ -85,3 +85,14 @@ Parte de [PRD — ITAM](README.md).
 - [ ] **AC-056** — Dada uma requisição sem token JWT válido a endpoint protegido, quando executada, então recebe HTTP 401.
 - [ ] **AC-057** — Dada qualquer operação de escrita, quando concluída, então a trilha de auditoria registra usuário, operação, entidade afetada e carimbo de tempo.
 
+### FR-004 e FR-005 — Vínculo de licença e baixa (BR-031 a BR-038)
+
+- [ ] **AC-058** — Dada uma máquina com vínculos ativos de duas licenças, quando a baixa é registrada, então os dois vínculos são encerrados na mesma transação, cada encerramento é registrado na auditoria, e a quantidade em uso e o saldo de cada licença refletem a liberação dos assentos.
+- [ ] **AC-059** — Dada uma máquina com status `BAIXADO`, quando se tenta vincular uma licença a ela, então o sistema recusa a operação com `regra = BR-032` e registra a recusa na auditoria.
+- [ ] **AC-060** — Dado um ativo que não é `HARDWARE`, quando se tenta vinculá-lo a uma licença como máquina hospedeira, então o sistema recusa a operação com `regra = BR-033` e registra a recusa na auditoria.
+- [ ] **AC-061** — Dada uma máquina que já tem vínculo ativo de uma licença, quando se tenta vinculá-la de novo à mesma licença, então o sistema recusa a operação com `regra = BR-034` e registra a recusa na auditoria.
+- [ ] **AC-062** — Dada uma licença `PERPETUA` que aponta para um ativo que não é `SOFTWARE`, quando se tenta criá-la, então o sistema recusa a operação com `regra = BR-035` e registra a recusa na auditoria.
+- [ ] **AC-063** — Dado o ativo `SOFTWARE` de uma licença perpétua com vínculos ativos em duas máquinas, quando a baixa do software é registrada, então os dois vínculos são encerrados na mesma transação, cada encerramento é registrado na auditoria, a quantidade em uso e o saldo da licença refletem a liberação dos assentos e a licença permanece inalterada.
+- [ ] **AC-064** — Dada uma licença cujo ativo `SOFTWARE` está `BAIXADO`, quando se tenta vincular uma máquina a ela, então o sistema recusa a operação com `regra = BR-037` e registra a recusa na auditoria.
+- [ ] **AC-065** — Dado um responsável ou um setor inativo, quando se tenta atribuí-lo a um ativo, então o sistema recusa a operação com `regra = BR-038` e registra a recusa na auditoria.
+- [ ] **AC-066** — Dado um ativo `SOFTWARE` com status `BAIXADO`, quando se tenta criar uma licença `PERPETUA` apontando para ele, então o sistema recusa a operação com `regra = BR-037` e registra a recusa na auditoria.

@@ -123,12 +123,14 @@ Data válida (não futura, ≥ aquisição)? ──Não──► [Erro: BR-022]
 │  Calcular valor residual na data    │
 │  Persistir BaixaAtivo               │
 │  Encerrar vínculo de responsável    │
+│  Encerrar vínculos de licença       │
 │  Alterar status para BAIXADO        │
 │  Registrar auditoria                │
 └─── FIM DA TRANSAÇÃO ────────────────┘
    │
    ▼
 Ativo sai do inventário ativo, histórico preservado
+(BR-031 e BR-036: os assentos de licença da máquina, ou da licença do software baixado, voltam ao saldo, cada encerramento auditado)
    │
    ▼
 [Fim]

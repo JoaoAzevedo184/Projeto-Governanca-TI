@@ -167,6 +167,9 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 - A vinculação que faria `quantidade_em_uso` exceder o contratado é **bloqueada** e registrada na auditoria.
 - A janela de alerta antecipado (30 dias) é parâmetro configurável.
 - Licenças vencidas permanecem no sistema, sinalizadas, até renovação ou baixa.
+- O vínculo de licença aponta para a máquina hospedeira (BR-033: ativo `HARDWARE`). Máquina `BAIXADO` não recebe vínculo (BR-032) e a mesma máquina não tem dois vínculos ativos da mesma licença (BR-034). Todas as recusas são registradas na auditoria.
+- A licença `PERPETUA` aponta para um ativo `SOFTWARE` (BR-035). Se esse ativo é baixado, a licença continua no sistema, sem alteração, mas seus vínculos ativos são encerrados (BR-036) e ela não recebe vínculos novos (BR-037). Subscrição e OEM não têm ativo `SOFTWARE` e não são afetadas.
+- O desvínculo é lógico: a quantidade em uso, derivada dos vínculos ativos (BR-021), cai sozinha. A baixa da máquina encerra os vínculos dela (FR-005, BR-031).
 
 ---
 
@@ -187,7 +190,7 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 | `registrado_por` | Referência | Sim | Preenchido pelo sistema |
 
 **Comportamentos:**
-- Ao registrar a baixa: status → `BAIXADO`, vínculo de responsável aberto é encerrado, depreciação é congelada e persistida.
+- Ao registrar a baixa: status → `BAIXADO`, vínculo de responsável aberto é encerrado, vínculos de licença ativos da máquina são encerrados (BR-031) e, se o ativo é o `SOFTWARE` de uma licença perpétua, os vínculos dessa licença também (BR-036), cada um auditado e com os assentos de volta ao saldo, depreciação é congelada e persistida.
 - O ativo desaparece do inventário ativo, mas permanece acessível por filtro explícito e pelo histórico.
 - A baixa é irreversível no MVP; estorno exige nova versão do produto.
 - O campo `destinacao` sustenta a evidência de TI Verde e o relatório de descarte.
@@ -216,6 +219,7 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 
 **Comportamentos:**
 - Filtros combináveis por conjunção (AND).
+- Sem filtro de status, o relatório é o **inventário ativo**: ativos `BAIXADO` não aparecem (AC-031); o filtro `Baixado` os inclui.
 - Exportação em CSV e XLSX, com cabeçalho contendo data/hora de geração e usuário solicitante.
 - Totalizadores no rodapé: contagem de ativos, soma de valor de compra, soma de valor residual.
 - Paginação obrigatória na visualização; exportação sem limite de linhas.
@@ -246,6 +250,8 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 - O painel agrupa por severidade e permite navegar do alerta para o registro de origem.
 - Cada alerta exibe a regra aplicada, tornando a sinalização explicável.
 - O conjunto de alertas é exportável como relatório de conformidade datado.
+- Implementados na Sprint 4: CP-01 a CP-04. CP-05, CP-06 e CP-08 são deriváveis mas não têm AC; CP-07 e CP-09 não disparam hoje (`destinacao` é obrigatória e `valor_compra > 0` é `CHECK`); CP-06 também exigiria a data de entrada em manutenção, que o modelo não guarda.
+- O status de conformidade da licença é `NAO_CONFORME` com CP-01 ou CP-02, `ALERTA` só com CP-03 e `CONFORME` sem alertas; só `NAO_CONFORME` conta como não conforme no KPI-03. Os alertas de saturação (médio) e subutilização (baixo) do FR-004 não têm código CP e ficam fora do painel.
 - Alertas não são persistidos como registros próprios: são derivados do estado atual, o que garante que nunca fiquem obsoletos.
 
 ---
@@ -286,6 +292,7 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 **Comportamentos:**
 - Todos os indicadores são filtráveis por categoria, setor, fornecedor e período.
 - A resposta expõe a fórmula aplicada e o tamanho da amostra, permitindo verificação.
+- Decisões da implementação (Sprint 4): "ativos" nos indicadores de patrimônio, custo médio, idade e ociosidade são os **não baixados**; "total de ativos" no custo médio é o de não baixados, por coerência com o valor bruto; distribuições por status e por tipo contam todos os ativos. O filtro de setor usa o setor do vínculo de responsável aberto. O período (`data_inicio`, `data_fim`) só afeta a taxa de baixas e tem padrão de 365 dias até hoje; os ativos "no início do período" são os adquiridos até o início e não baixados antes dele. Ativo ocioso é o que não tem aquisição nem início ou fim de vínculo nos últimos `MESES_SEM_MOVIMENTACAO_ALERTA` (12) meses. O filtro de fornecedor também recorta as licenças; categoria e setor não se aplicam a licença.
 
 ---
 

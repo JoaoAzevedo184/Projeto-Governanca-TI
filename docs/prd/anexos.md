@@ -33,10 +33,10 @@ Parte de [PRD — ITAM](README.md).
 | Requisito | Histórias | Regras de negócio | Critérios de aceite | Indicador associado |
 |---|---|---|---|---|
 | FR-001 | US-001 a US-006 | BR-001 a BR-006 | AC-001 a AC-008 | KPI-01 |
-| FR-002 | US-007 a US-011 | BR-007 a BR-012 | AC-009 a AC-014 | KPI-02 |
+| FR-002 | US-007 a US-011 | BR-007 a BR-012, BR-038 | AC-009 a AC-014, AC-065 | KPI-02 |
 | FR-003 | US-012 a US-016 | BR-013 a BR-017 | AC-015 a AC-020 | KPI-05 |
-| FR-004 | US-017 a US-021 | BR-018 a BR-021 | AC-021 a AC-026 | KPI-03 |
-| FR-005 | US-022 a US-025 | BR-022 a BR-026 | AC-027 a AC-033 | KPI-08 |
+| FR-004 | US-017 a US-021 | BR-018 a BR-021, BR-032 a BR-035, BR-037 | AC-021 a AC-026, AC-059 a AC-062, AC-064, AC-066 | KPI-03 |
+| FR-005 | US-022 a US-025 | BR-022 a BR-026, BR-031, BR-036 | AC-027 a AC-033, AC-058, AC-063 | KPI-08 |
 | FR-006 | US-026, US-027 | BR-014 | AC-034 a AC-038 | — |
 | FR-007 | US-028 a US-030 | BR-007, BR-018, BR-026 | AC-039 a AC-043 | KPI-02, KPI-03 |
 | FR-008 | US-031, US-032 | BR-001, BR-002, BR-003 | AC-044 a AC-046 | KPI-01 |

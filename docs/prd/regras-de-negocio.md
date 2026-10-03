@@ -64,3 +64,16 @@ Parte de [PRD — ITAM](README.md).
 | BR-029 | Os pesos do scorecard de fornecedores devem totalizar exatamente 100%. |
 | BR-030 | Toda operação de escrita registra o usuário autor e o carimbo de tempo na trilha de auditoria. |
 
+### Licenças e baixa — vínculos de máquina e de software
+
+| ID | Regra |
+|---|---|
+| BR-031 | O registro de baixa encerra, na mesma transação, todos os vínculos de licença ativos da máquina baixada; cada encerramento é auditado e os assentos voltam ao saldo da licença. |
+| BR-032 | Máquina com status `BAIXADO` não pode receber vínculo de licença. |
+| BR-033 | O vínculo de licença aponta para a máquina hospedeira, que deve ser um ativo do tipo `HARDWARE`. |
+| BR-034 | A mesma máquina não pode ter dois vínculos ativos da mesma licença. |
+| BR-035 | A licença `PERPETUA` aponta para um ativo do tipo `SOFTWARE`; apontar para ativo de outro tipo é recusado na criação. |
+| BR-036 | O registro de baixa do ativo `SOFTWARE` de uma licença perpétua encerra, na mesma transação, todos os vínculos ativos dessa licença; cada encerramento é auditado e os assentos voltam ao saldo. A licença não é apagada nem alterada. |
+| BR-037 | Licença cujo ativo `SOFTWARE` está `BAIXADO` não pode receber novos vínculos, e uma licença `PERPETUA` não pode ser criada apontando para ativo `SOFTWARE` já `BAIXADO`. |
+| BR-038 | Atribuição de responsável exige responsável e setor ativos; responsável ou setor inativo é recusado. |
+
