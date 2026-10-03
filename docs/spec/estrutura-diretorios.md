@@ -85,6 +85,7 @@ itam-api/
 │   │   └── fixtures/                    # respostas gravadas das APIs, para testes de collectors/
 │   ├── api/openapi.yaml                 # contrato congelado, usado nos testes
 │   ├── Dockerfile
+│   ├── entrypoint.sh                    # contêiner da API: alembic upgrade head e depois uvicorn
 │   ├── requirements.txt
 │   ├── requirements-dev.txt
 │   ├── pytest.ini

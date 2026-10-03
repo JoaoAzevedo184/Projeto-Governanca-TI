@@ -50,7 +50,7 @@ def calcular(valor_compra: Decimal, data_aquisicao: date,
 - **Arredondamento só no resultado final** (FR-003 do PRD, que prevalece pela [ADR-013](../adr/0013-precedencia-prd-spec.md)): `acumulada = valor_compra × meses_efetivos ÷ vida_util_meses`, com `ROUND_HALF_UP` em 2 casas. Ex.: R$ 6.000,00 em 36 meses, após 12 meses → 6.000,00 × 12 ÷ 36 = **R$ 2.000,00** (arredondar a mensal antes daria 166,67 × 12 = 2.000,04). Como `meses_efetivos ≤ vida_util_meses`, ao fim da vida útil a acumulada fecha exatamente no valor de compra (BR-014), sem caso especial.
 - `depreciacao_mensal` é **informativa e arredondada**; não se garante que `mensal × meses` seja igual à acumulada.
 
-- `Decimal` em todo cálculo monetário. `float` introduz erro de representação e quebra a conciliação contábil (KPI-05). Colunas mapeadas como `Numeric(12, 2)`, nunca `Float`.
+- `Decimal` em todo cálculo monetário. `float` introduz erro de representação e quebra a conciliação contábil (KPI-05, **fora do MVP**: o sistema não recebe o valor residual contábil para comparar). Colunas mapeadas como `Numeric(12, 2)`, nunca `Float`.
 - Função pura, sem sessão de banco e sem acesso a `date.today()` internamente — a `data_referencia` é sempre injetada, o que torna os casos AC-015 a AC-020 testáveis sem manipular o relógio.
 - `data_referencia` = `date.today()` para ativos em operação; `baixa.data_baixa` para ativos baixados (BR-015, AC-019).
 
@@ -68,6 +68,8 @@ CP-03 ALTO     se  0 <= dias_expiracao <= JANELA_ALERTA_DIAS
 ```
 
 `JANELA_ALERTA_DIAS` é configurável (padrão 30, QA-07 em aberto).
+
+> **Fora do MVP.** Das regras acima, só **CP-01, CP-02 e CP-03** estão implementadas (`app/utils/conformidade.py`), mais o **CP-04** do ativo sem responsável. Ficam de fora: a severidade `MEDIO` (saldo zero) e `BAIXO` (subutilização com mais de 6 meses), que não têm código CP nem AC, e **CP-05 a CP-09** do FR-007 (motivos na tabela do FR-007 em [`requisitos-funcionais.md`](../prd/requisitos-funcionais.md)). A condição de CP-03 é `0 ≤ dias ≤ janela`, e a licença vencida dispara só o CP-01.
 
 ### 7.3 Score de risco (FR-012)
 

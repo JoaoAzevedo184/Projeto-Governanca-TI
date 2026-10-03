@@ -37,11 +37,12 @@ IMPORTACAO_LINHAS_MAX=5000
 
 *SQLite revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):* `DATABASE_URL` em SQLite serve só para executar a aplicação sem Docker. A suíte de testes ignora `DATABASE_URL` e usa `TEST_DATABASE_URL`, que precisa apontar para um banco PostgreSQL `*_test` (`tests/conftest.py`).
 
-Nenhum valor padrão de `SECRET_KEY` é aceito quando `ENVIRONMENT != local`: a aplicação deve **recusar a inicialização**, não apenas emitir aviso.
+Nenhum valor padrão de `SECRET_KEY` é aceito quando `ENVIRONMENT != local`: a aplicação deve **recusar a inicialização**, não apenas emitir aviso. Implementado em `core/config.py` (`validar_configuracao`, chamada por `get_settings`): vale para a chave vazia, `troque-esta-chave` e `troque-esta-chave-em-qualquer-ambiente-real`, compara `ENVIRONMENT` sem diferenciar maiúsculas, e a mensagem diz o que fazer (gerar uma chave e pôr no `.env`) sem nunca mostrar a chave. A exceção é uma `ConfiguracaoInvalidaError` própria, não um erro de validação do Pydantic, porque este traz os valores de entrada na mensagem. No Compose a chave vem do `.env` (`SECRET_KEY: ${SECRET_KEY:-}`), sem valor fixo no `docker-compose.yml`.
 
 ### 13.2 Migrações e carga inicial
 
 - Alembic com uma migração por alteração de esquema, nunca `create_all()` em ambiente não local;
+- No Docker, o contêiner da API aplica `alembic upgrade head` ao iniciar (`python/entrypoint.sh`), antes do `uvicorn`; o banco sobe migrado e vazio.
 - `scripts/seed.sh` aplica as migrações e roda `python -m app.seed` (`app/seed.py`): popula as categorias com a vida útil padrão da tabela do FR-003 e os quatro usuários de demonstração, com senhas de `SEED_<PERFIL>_PASSWORD`. É idempotente e recusa `ENVIRONMENT=producao`. A carga dos datasets de demonstração (`dataset/processed/`, `dataset/synthetic/`) ainda não está integrada (D.9);
 - `scripts/reset.sh` derruba volumes e recria do zero — **somente em laboratório**.
 

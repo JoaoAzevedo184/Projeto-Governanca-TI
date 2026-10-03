@@ -150,17 +150,17 @@ A resposta de licença sempre inclui o bloco derivado:
 
 ### 6.5 Relatórios, compliance e indicadores
 
-| Método | Rota | Perfis | FR |
-|---|---|---|---|
-| GET | `/relatorios/inventario` | todos | FR-006 |
-| GET | `/relatorios/depreciacao` | todos | FR-003, FR-006 |
-| GET | `/relatorios/conformidade` | todos | FR-007 |
-| GET | `/relatorios/baixas` | todos | FR-005 |
-| GET | `/relatorios/historico-responsaveis` | todos | FR-002 |
-| GET | `/compliance/alertas` | todos | FR-007 |
-| GET | `/indicadores` | todos | FR-009 |
+| Método | Rota | Perfis | FR | Situação no MVP |
+|---|---|---|---|---|
+| GET | `/relatorios/inventario` | todos | FR-006 | Implementado |
+| GET | `/relatorios/depreciacao` | todos | FR-003, FR-006 | **Fora do MVP:** sem AC próprio; a depreciação já sai por ativo em `GET /ativos/{id}/depreciacao` e, no conjunto, em `/relatorios/inventario` (colunas de depreciação e residual) |
+| GET | `/relatorios/conformidade` | todos | FR-007 | Implementado |
+| GET | `/relatorios/baixas` | todos | FR-005 | **Fora do MVP:** sem AC próprio; a baixa de cada ativo sai em `POST /ativos/{id}/baixa` e o inventário lista os baixados com `status=BAIXADO`, mas não há listagem por período e destinação |
+| GET | `/relatorios/historico-responsaveis` | todos | FR-002 | **Fora do MVP:** sem AC próprio; o histórico de um ativo sai em `GET /ativos/{id}/historico` (AC-012), sem o relatório consolidado |
+| GET | `/compliance/alertas` | todos | FR-007 | Implementado |
+| GET | `/indicadores` | todos | FR-009 | Implementado |
 
-**Implementados na Sprint 4:** `/relatorios/inventario`, `/relatorios/conformidade`, `/compliance/alertas` e `/indicadores`. `/relatorios/depreciacao`, `/relatorios/baixas` e `/relatorios/historico-responsaveis` seguem previstos, sem AC próprio, e não foram implementados.
+**No MVP:** `/relatorios/inventario`, `/relatorios/conformidade`, `/compliance/alertas` e `/indicadores`. `/relatorios/depreciacao`, `/relatorios/baixas` e `/relatorios/historico-responsaveis` estão **fora do MVP** (motivo na tabela) e **não constam no `openapi.yaml`**, que só descreve rotas que existem (`tests/contract/test_openapi_sincronizado.py` confere). A regra do `formato=json|csv|xlsx` vale para os relatórios implementados.
 
 **`GET /relatorios/inventario`** — filtros `status` (repetível), `tipo` (repetível), `categoria_id` (repetível), `fornecedor_id` (repetível), `responsavel_id`, `valor_depreciado_min|max`, `percentual_depreciado_min|max`, `aquisicao_de|ate` e `fim_vida_util` (≥ 80% da vida útil, `LIMIAR_FIM_VIDA_UTIL_PERCENTUAL`), todos em conjunção. **Sem `status`, o ativo `BAIXADO` não aparece** (inventário ativo, AC-031); `status=BAIXADO` o traz de volta. A resposta é o envelope de listagem mais `totais` (`quantidade`, `valor_compra`, `valor_residual`) sobre todo o resultado filtrado, não só a página. A chave de licença do ativo `SOFTWARE` sai sempre mascarada (RI-08). O baixado usa a data da baixa e o residual congelado (AC-019).
 
