@@ -234,23 +234,23 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 
 **Regras de sinalização:**
 
-| ID | Condição | Severidade | Origem |
-|---|---|---|---|
-| CP-01 | Licença com `data_expiracao < hoje` | Crítico | FR-004 |
-| CP-02 | Licença com `quantidade_em_uso > quantidade_contratada` | Crítico | FR-004 |
-| CP-03 | Licença expirando em ≤ 30 dias | Alto | FR-004 |
-| CP-04 | Ativo `ATIVO` sem vínculo de responsável aberto | Alto | FR-002 |
-| CP-05 | Ativo totalmente depreciado ainda em operação | Médio | FR-003 |
-| CP-06 | Ativo `EM_MANUTENCAO` há mais de 90 dias | Médio | FR-001 |
-| CP-07 | Ativo baixado sem destinação registrada | Médio | FR-005 |
-| CP-08 | Ativo sem movimentação registrada há mais de 12 meses | Baixo | FR-002 |
-| CP-09 | Ativo com valor de compra ausente ou zerado | Baixo | FR-001 |
+| ID | Condição | Severidade | Origem | Situação no MVP |
+|---|---|---|---|---|
+| CP-01 | Licença com `data_expiracao < hoje` | Crítico | FR-004 | Implementado |
+| CP-02 | Licença com `quantidade_em_uso > quantidade_contratada` | Crítico | FR-004 | Implementado |
+| CP-03 | Licença expirando em ≤ 30 dias | Alto | FR-004 | Implementado |
+| CP-04 | Ativo `ATIVO` sem vínculo de responsável aberto | Alto | FR-002 | Implementado |
+| CP-05 | Ativo totalmente depreciado ainda em operação | Médio | FR-003 | **Fora do MVP:** derivável, mas nenhum AC a cobre e a Sprint 4 ficou nas regras com AC |
+| CP-06 | Ativo `EM_MANUTENCAO` há mais de 90 dias | Médio | FR-001 | **Fora do MVP:** o modelo não guarda a data de entrada em manutenção (`atualizado_em` muda a cada edição e não serve) |
+| CP-07 | Ativo baixado sem destinação registrada | Médio | FR-005 | **Fora do MVP:** nunca dispara, porque `destinacao` é obrigatória na baixa (BR-026) e `NOT NULL` |
+| CP-08 | Ativo sem movimentação registrada há mais de 12 meses | Baixo | FR-002 | **Fora do MVP:** derivável, mas nenhum AC a cobre (o KPI-06 já usa o mesmo cálculo de ociosidade) |
+| CP-09 | Ativo com valor de compra ausente ou zerado | Baixo | FR-001 | **Fora do MVP:** nunca dispara, porque `valor_compra > 0` é regra (BR-004) e `CHECK` |
 
 **Comportamentos:**
 - O painel agrupa por severidade e permite navegar do alerta para o registro de origem.
 - Cada alerta exibe a regra aplicada, tornando a sinalização explicável.
 - O conjunto de alertas é exportável como relatório de conformidade datado.
-- Implementados na Sprint 4: CP-01 a CP-04. CP-05, CP-06 e CP-08 são deriváveis mas não têm AC; CP-07 e CP-09 não disparam hoje (`destinacao` é obrigatória e `valor_compra > 0` é `CHECK`); CP-06 também exigiria a data de entrada em manutenção, que o modelo não guarda.
+- **No MVP: CP-01 a CP-04.** CP-05 a CP-09 estão **fora do MVP**, com o motivo de cada um na tabela acima; os identificadores e as condições ficam como especificação para uma versão futura. A configuração `DIAS_MANUTENCAO_ALERTA` (CP-06) existe no `.env` de referência mas não é lida.
 - O status de conformidade da licença é `NAO_CONFORME` com CP-01 ou CP-02, `ALERTA` só com CP-03 e `CONFORME` sem alertas; só `NAO_CONFORME` conta como não conforme no KPI-03. Os alertas de saturação (médio) e subutilização (baixo) do FR-004 não têm código CP e ficam fora do painel.
 - Alertas não são persistidos como registros próprios: são derivados do estado atual, o que garante que nunca fiquem obsoletos.
 

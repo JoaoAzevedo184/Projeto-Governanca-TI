@@ -116,14 +116,16 @@ Equipamentos baixados saem do controle sem registro de destinação. Não há ev
 
 ### 4.3 Métricas de Sucesso
 
-| ID | Métrica | Fórmula | Meta do MVP |
-|---|---|---|---|
-| KPI-01 | Cobertura de inventário | ativos cadastrados / ativos estimados no parque | ≥ 95% |
-| KPI-02 | Ativos com responsável definido | ativos ativos com responsável / total de ativos ativos | ≥ 98% |
-| KPI-03 | Conformidade de licenças | licenças com uso ≤ contratado e não vencidas / total de licenças | 100% |
-| KPI-04 | Tempo médio para localizar um ativo | tempo entre a consulta e a identificação do responsável | ≤ 30 segundos |
-| KPI-05 | Acurácia da depreciação | divergência entre valor residual do sistema e o contábil | ≤ 1% |
-| KPI-06 | Ativos sem movimentação registrada | ativos sem evento nos últimos 12 meses / total | ≤ 10% |
-| KPI-07 | Idade média do parque | média da diferença entre hoje e a data de aquisição | monitorada, sem meta no MVP |
-| KPI-08 | Taxa de baixas com destinação registrada | baixas com destinação / total de baixas | 100% |
+| ID | Métrica | Fórmula | Meta do MVP | Situação no MVP |
+|---|---|---|---|---|
+| KPI-01 | Cobertura de inventário | ativos cadastrados / ativos estimados no parque | ≥ 95% | **Fora do MVP:** o denominador (ativos estimados no parque) é um dado externo que o sistema não cadastra |
+| KPI-02 | Ativos com responsável definido | ativos ativos com responsável / total de ativos ativos | ≥ 98% | Calculado em `GET /indicadores` |
+| KPI-03 | Conformidade de licenças | licenças com uso ≤ contratado e não vencidas / total de licenças | 100% | Calculado em `GET /indicadores` |
+| KPI-04 | Tempo médio para localizar um ativo | tempo entre a consulta e a identificação do responsável | ≤ 30 segundos | **Fora do MVP:** mede o tempo de uso por uma pessoa, e o sistema não instrumenta nem armazena essa medição |
+| KPI-05 | Acurácia da depreciação | divergência entre valor residual do sistema e o contábil | ≤ 1% | **Fora do MVP:** exige o valor residual contábil, que vem de fonte externa e não existe no sistema |
+| KPI-06 | Ativos sem movimentação registrada | ativos sem evento nos últimos 12 meses / total | ≤ 10% | Calculado em `GET /indicadores` |
+| KPI-07 | Idade média do parque | média da diferença entre hoje e a data de aquisição | monitorada, sem meta no MVP | Calculado em `GET /indicadores` |
+| KPI-08 | Taxa de baixas com destinação registrada | baixas com destinação / total de baixas | 100% | Calculado em `GET /indicadores` |
+
+> **KPI-01, KPI-04 e KPI-05 estão fora do MVP**: continuam definidos aqui como métricas de sucesso do projeto, mas não são calculados pelo sistema, pelos motivos da última coluna. `GET /indicadores` não os devolve. Os identificadores permanecem.
 
