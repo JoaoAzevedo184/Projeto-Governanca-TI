@@ -78,6 +78,15 @@ def _payload(
 def registrar_handlers_erro(app: FastAPI) -> None:
     @app.exception_handler(ErroDominio)
     async def _erro_dominio(request: Request, exc: ErroDominio) -> JSONResponse:
+        if exc.regra:
+            logger.info(
+                "Operação recusada por regra de negócio",
+                extra={
+                    "regra": exc.regra,
+                    "status": exc.status_code,
+                    "usuario_id": getattr(request.state, "usuario_id", None),
+                },
+            )
         return JSONResponse(
             status_code=exc.status_code,
             content=_payload(
