@@ -8,7 +8,7 @@ Parte do [Guia — ITAM](README.md). Ver também o [README da raiz](../../README
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 
-cp .env.example .env               # DATABASE_URL já aponta para SQLite
+cp .env.example .env               # DATABASE_URL já aponta para SQLite; ENVIRONMENT=local aceita a SECRET_KEY de exemplo
 
 pip install -r python/requirements.txt
 ./scripts/seed.sh                  # migra o banco e carrega usuários de demonstração e categorias
@@ -18,6 +18,8 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 **Carga inicial.** `./scripts/seed.sh` roda `alembic upgrade head` e depois `python -m app.seed` (em `python/app/seed.py`), com o venv ativo. Ele cria os quatro usuários de demonstração (`admin`, `operador`, `gestor`, `auditor`, um por perfil) e as 11 categorias de [`dados-semente.md`](../modelo-de-dados/dados-semente.md). As senhas vêm das variáveis `SEED_*_PASSWORD` do `.env` (o `.env.example` traz valores didáticos); o script lê o `.env` da raiz, sem sobrepor variáveis já exportadas no shell. É idempotente e recusa rodar com `ENVIRONMENT=producao`. **Não carrega** os dados do pipeline (`dataset/processed/` e `dataset/synthetic/`): isso é a pendência D.9 do [`ROADMAP.md`](../ROADMAP.md). Sem eles, o banco local começa só com usuários e categorias; os ativos entram pela API ou pela importação de CSV (ver [`importacao.md`](importacao.md)).
+
+Fora de `ENVIRONMENT=local` a aplicação se recusa a iniciar com a `SECRET_KEY` padrão (ver [`configuracao.md`](../spec/configuracao.md) §13.1); no Docker isso é sempre o caso, e a chave vem do `.env`.
 
 O perfil local usa **SQLite**, sem necessidade de banco externo. O perfil Docker usa **PostgreSQL**. A seleção é feita pela variável `DATABASE_URL`.
 
