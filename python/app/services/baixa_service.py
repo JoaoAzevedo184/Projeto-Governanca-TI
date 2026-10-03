@@ -10,6 +10,7 @@ from app.models.enums import MotivoBaixa, StatusAtivo
 from app.models.historico import HistoricoTransferencia
 from app.models.usuario import Usuario
 from app.schemas.baixa import BaixaCreate
+from app.services.licenca_service import encerrar_vinculos_do_ativo
 from app.utils.datas import hoje
 from app.utils.depreciacao import calcular
 
@@ -18,7 +19,8 @@ JUSTIFICATIVA_MINIMA = 10
 
 def registrar_baixa(db: Session, ativo_id: int, dados: BaixaCreate, usuario: Usuario) -> BaixaAtivo:
     """Baixa do ativo em transação única (FR-005, AC-027): status BAIXADO, vínculo de
-    responsável aberto encerrado (BR-012) e valor residual congelado (BR-015)."""
+    responsável aberto encerrado (BR-012), vínculos de licença do ativo encerrados (BR-031,
+    BR-036) e valor residual congelado (BR-015)."""
 
     def recusar(regra: str, mensagem: str) -> None:
         recusar_operacao(
@@ -92,6 +94,8 @@ def registrar_baixa(db: Session, ativo_id: int, dados: BaixaCreate, usuario: Usu
                     entidade_id=aberto.id,
                     detalhe={"data_fim": dados.data_baixa.isoformat(), "origem": "baixa"},
                 )
+            # Libera os assentos na mesma transação; cada vínculo é auditado (BR-031, BR-036).
+            encerrar_vinculos_do_ativo(db, ativo_id, usuario)
             db.add(baixa)
             ativo.status = StatusAtivo.BAIXADO
             db.flush()

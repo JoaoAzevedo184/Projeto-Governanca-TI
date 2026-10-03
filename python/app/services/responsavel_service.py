@@ -72,7 +72,7 @@ def atribuir_responsavel(
     if ativo.status == StatusAtivo.BAIXADO:
         _recusar(db, usuario, ativo_id, "BR-009", "Ativo baixado não pode receber responsável.")
     if not responsavel.ativo or not setor.ativo:
-        _recusar(db, usuario, ativo_id, "FR-002", "Responsável e setor devem estar ativos.")
+        _recusar(db, usuario, ativo_id, "BR-038", "Responsável e setor devem estar ativos.")
     if dados.data_inicio < ativo.data_aquisicao:
         _recusar(
             db,

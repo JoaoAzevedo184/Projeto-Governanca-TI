@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import ErroValidacaoArquivo
+from app.core.metrics import IMPORTACOES_TOTAL
 from app.models.ativo import Ativo
 from app.models.categoria import Categoria
 from app.models.fornecedor import Fornecedor
@@ -137,6 +138,21 @@ def _validar_linha(
 def processar_importacao(
     db: Session, nome_arquivo: str, conteudo: bytes, usuario: Usuario
 ) -> LoteImportacao:
+    """Importa o arquivo e conta o resultado em `itam_importacoes_total`."""
+    try:
+        lote = _processar(db, nome_arquivo, conteudo, usuario)
+    except ErroValidacaoArquivo:
+        IMPORTACOES_TOTAL.labels(resultado="arquivo_invalido").inc()
+        raise
+    if lote.total_rejeitado == 0:
+        resultado = "sucesso"
+    else:
+        resultado = "parcial" if lote.total_aceito else "rejeitada"
+    IMPORTACOES_TOTAL.labels(resultado=resultado).inc()
+    return lote
+
+
+def _processar(db: Session, nome_arquivo: str, conteudo: bytes, usuario: Usuario) -> LoteImportacao:
     if len(conteudo) > TAMANHO_MAXIMO_BYTES:
         raise ErroValidacaoArquivo("Arquivo excede o limite de 5 MB.")
 
