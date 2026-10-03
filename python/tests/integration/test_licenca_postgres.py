@@ -308,7 +308,7 @@ def test_ux_licenca_ativo_conflito_real_grava_recusa_na_auditoria(client, db, ce
 
     resposta = resultado["resposta"]
     assert resposta.status_code == 409
-    assert resposta.json()["regra"] == "FR-004"
+    assert resposta.json()["regra"] == "BR-034"
     with engine.connect() as conn:
         auditoria = conn.execute(
             text(
@@ -317,5 +317,207 @@ def test_ux_licenca_ativo_conflito_real_grava_recusa_na_auditoria(client, db, ce
             )
         ).all()
         vinculos = conn.scalar(text("SELECT count(*) FROM licenca_vinculo"))
-    assert auditoria == [("CRIAR", "RECUSADO", "FR-004")]
+    assert auditoria == [("CRIAR", "RECUSADO", "BR-034")]
     assert vinculos == 1  # só o do escritor externo
+
+
+@pytest.mark.parametrize("ordem", [("vincular", "baixar"), ("baixar", "vincular")])
+def test_br031_br032_baixa_e_vinculacao_disputam_a_maquina_sem_deixar_vinculo_ativo_em_baixada(
+    client, db, cenario, ordem
+):
+    """Uma baixa e uma vinculação disputam a mesma máquina, nas duas ordens. Uma conexão externa
+    segura o lock do ativo; as requisições bloqueiam nele, uma de cada vez, e entram na ordem em
+    que bloquearam. Sem mock: conexões e transações reais."""
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    app.dependency_overrides.clear()  # cada requisição usa a própria sessão e conexão
+    licenca, maquina = cenario["licenca"], cenario["maquinas"][0]
+    chamadas = {
+        "vincular": lambda c: c.post(
+            f"/api/v1/licencas/{licenca}/vinculos",
+            headers=cenario["cabecalho"],
+            json={"ativo_id": maquina},
+        ),
+        "baixar": lambda c: c.post(
+            f"/api/v1/ativos/{maquina}/baixa",
+            headers=cenario["cabecalho"],
+            json={"motivo": "DEFEITO", "data_baixa": "2025-07-10", "destinacao": "DESCARTE"},
+        ),
+    }
+    respostas = {}
+
+    def executar(nome):
+        with TestClient(app) as cliente:
+            respostas[nome] = chamadas[nome](cliente)
+
+    segurando = engine.connect()
+    transacao = segurando.begin()
+    segurando.execute(text("SELECT id FROM ativo WHERE id = :i FOR UPDATE"), {"i": maquina})
+    threads = []
+    try:
+        with _monitor() as monitor:
+            consulta = text(
+                "SELECT count(*) FROM pg_stat_activity WHERE cardinality(pg_blocking_pids(pid)) > 0"
+            )
+            for posicao, nome in enumerate(ordem, start=1):
+                thread = threading.Thread(target=executar, args=(nome,))
+                threads.append(thread)
+                thread.start()
+                limite = time.monotonic() + 10
+                while monitor.scalar(consulta) < posicao:  # polling da condição, não por tempo
+                    assert time.monotonic() < limite, f"{nome} não bloqueou no lock do ativo"
+                    time.sleep(0.02)
+        transacao.commit()
+    finally:
+        segurando.close()
+        for thread in threads:
+            thread.join(timeout=10)
+    assert not any(thread.is_alive() for thread in threads)
+
+    with engine.connect() as conn:
+        em_baixada = conn.scalar(
+            text(
+                "SELECT count(*) FROM licenca_vinculo v JOIN ativo a ON a.id = v.ativo_id"
+                " WHERE v.ativo_vinculo AND a.status = 'BAIXADO'"
+            )
+        )
+        vinculos = conn.execute(text("SELECT ativo_vinculo FROM licenca_vinculo")).all()
+        encerramentos = conn.execute(
+            text(
+                "SELECT detalhe->>'origem' FROM audit_log"
+                " WHERE entidade = 'licenca_vinculo' AND operacao = 'EXCLUIR'"
+            )
+        ).all()
+        recusas = conn.execute(
+            text("SELECT regra_violada FROM audit_log WHERE resultado = 'RECUSADO'")
+        ).all()
+    assert em_baixada == 0  # a invariante, em qualquer ordem
+    assert respostas["baixar"].status_code == 201
+    if ordem[0] == "vincular":
+        # A baixa vê o vínculo recém-criado e o encerra: o assento volta.
+        assert respostas["vincular"].status_code == 201
+        assert vinculos == [(False,)]
+        assert encerramentos == [("baixa",)]
+        assert recusas == []
+    else:
+        assert respostas["vincular"].status_code == 409
+        assert respostas["vincular"].json()["regra"] == "BR-032"
+        assert vinculos == []
+        assert encerramentos == []
+        assert recusas == [("BR-032",)]
+
+
+@pytest.mark.parametrize("ordem", [("vincular", "baixar"), ("baixar", "vincular")])
+def test_br036_br037_baixa_do_software_e_vinculacao_disputam_a_licenca_sem_vinculo_ativo_em_baixado(
+    client, db, cenario, categoria, fornecedor, ordem
+):
+    """Baixa do ativo SOFTWARE e vinculação à licença perpétua dele ao mesmo tempo, nas duas
+    ordens. Uma conexão externa segura o lock do software; as requisições bloqueiam nele, uma de
+    cada vez, e entram na ordem em que bloquearam. Sem mock: conexões e transações reais."""
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    cabecalho = cenario["cabecalho"]
+    software = client.post(
+        "/api/v1/ativos",
+        headers=cabecalho,
+        json={
+            "nome": "Software Conc",
+            "tipo": "SOFTWARE",
+            "categoria_id": categoria.id,
+            "fornecedor_id": fornecedor.id,
+            "chave_licenca": "K-SW-CONC",
+            "data_aquisicao": "2025-01-10",
+            "valor_compra": "500.00",
+        },
+    ).json()["id"]
+    perpetua = client.post(
+        "/api/v1/licencas",
+        headers=cabecalho,
+        json={
+            "tipo_licenciamento": "PERPETUA",
+            "ativo_id": software,
+            "fornecedor_id": fornecedor.id,
+            "chave_licenca": "PERP-1234-5678",
+            "quantidade_contratada": 2,
+            "data_inicio_vigencia": "2025-01-01",
+            "data_expiracao": "2099-12-31",
+        },
+    ).json()["id"]
+    maquina = cenario["maquinas"][0]
+
+    app.dependency_overrides.clear()  # cada requisição usa a própria sessão e conexão
+    chamadas = {
+        "vincular": lambda c: c.post(
+            f"/api/v1/licencas/{perpetua}/vinculos", headers=cabecalho, json={"ativo_id": maquina}
+        ),
+        "baixar": lambda c: c.post(
+            f"/api/v1/ativos/{software}/baixa",
+            headers=cabecalho,
+            json={"motivo": "FIM_VIDA_UTIL", "data_baixa": "2025-07-10", "destinacao": "DESCARTE"},
+        ),
+    }
+    respostas = {}
+
+    def executar(nome):
+        with TestClient(app) as cliente:
+            respostas[nome] = chamadas[nome](cliente)
+
+    segurando = engine.connect()
+    transacao = segurando.begin()
+    segurando.execute(text("SELECT id FROM ativo WHERE id = :i FOR UPDATE"), {"i": software})
+    threads = []
+    try:
+        with _monitor() as monitor:
+            consulta = text(
+                "SELECT count(*) FROM pg_stat_activity WHERE cardinality(pg_blocking_pids(pid)) > 0"
+            )
+            for posicao, nome in enumerate(ordem, start=1):
+                thread = threading.Thread(target=executar, args=(nome,))
+                threads.append(thread)
+                thread.start()
+                limite = time.monotonic() + 10
+                while monitor.scalar(consulta) < posicao:  # polling da condição, não por tempo
+                    assert time.monotonic() < limite, f"{nome} não bloqueou no lock do software"
+                    time.sleep(0.02)
+        transacao.commit()
+    finally:
+        segurando.close()
+        for thread in threads:
+            thread.join(timeout=10)
+    assert not any(thread.is_alive() for thread in threads)
+
+    with engine.connect() as conn:
+        em_baixado = conn.scalar(
+            text(
+                "SELECT count(*) FROM licenca_vinculo v JOIN licenca l ON l.id = v.licenca_id"
+                " JOIN ativo a ON a.id = l.ativo_id WHERE v.ativo_vinculo AND a.status = 'BAIXADO'"
+            )
+        )
+        vinculos = conn.execute(text("SELECT ativo_vinculo FROM licenca_vinculo")).all()
+        encerramentos = conn.execute(
+            text(
+                "SELECT detalhe->>'origem' FROM audit_log"
+                " WHERE entidade = 'licenca_vinculo' AND operacao = 'EXCLUIR'"
+            )
+        ).all()
+        recusas = conn.execute(
+            text("SELECT regra_violada FROM audit_log WHERE resultado = 'RECUSADO'")
+        ).all()
+    assert em_baixado == 0  # a invariante, em qualquer ordem
+    assert respostas["baixar"].status_code == 201
+    if ordem[0] == "vincular":
+        # A baixa espera a vinculação terminar, vê o vínculo novo e o encerra.
+        assert respostas["vincular"].status_code == 201
+        assert vinculos == [(False,)]
+        assert encerramentos == [("baixa",)]
+        assert recusas == []
+    else:
+        assert respostas["vincular"].status_code == 409
+        assert respostas["vincular"].json()["regra"] == "BR-037"
+        assert vinculos == []
+        assert encerramentos == []
+        assert recusas == [("BR-037",)]
