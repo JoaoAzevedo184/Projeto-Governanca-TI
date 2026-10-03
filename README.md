@@ -91,13 +91,19 @@ Detalhamento fonte a fonte, regras de uso e conformidade com a LGPD em [`docs/FO
 git clone <url-do-repositorio> itam-api
 cd itam-api
 cp .env.example .env
-docker compose up -d
+python3 -c "import secrets; print(secrets.token_urlsafe(64))"   # copie a saída para SECRET_KEY no .env
+./scripts/start.sh                                              # confere a chave e roda docker compose up -d
 ```
 
-Aguarde os health checks ficarem saudáveis e carregue o seed mínimo (migrações, os quatro usuários de demonstração e as 11 categorias). Com a API no ar, o script roda dentro do contêiner `api`; as senhas vêm das variáveis `SEED_*_PASSWORD` do `.env`:
+**A `SECRET_KEY` é obrigatória no Docker.** O Compose roda a API com `ENVIRONMENT=docker`, e fora de `ENVIRONMENT=local` a aplicação se recusa a iniciar com a chave padrão (`troque-esta-chave`) ou vazia, sem mostrar a chave na mensagem. A chave vem só do `.env`, nunca do `docker-compose.yml`. `./scripts/start.sh` confere antes e explica o que fazer; um `docker compose up` direto com a chave faltando faz o contêiner `api` sair com a mensagem no log (`docker compose logs api`).
+
+**O que o `docker compose up` entrega:** ao iniciar, o contêiner da API aplica as migrações (`alembic upgrade head`, idempotente) e só então sobe o servidor, então o `healthcheck` da API só passa com o banco migrado. Depois de alguns segundos, `/health` responde 200 e o banco está com o esquema pronto, **mas vazio**: sem usuários, sem categorias, sem login possível.
+
+**Quando rodar o seed:** uma vez, depois que a API ficar saudável (`docker compose ps`), para criar os quatro usuários de demonstração e as 11 categorias. O script roda dentro do contêiner `api`, e as senhas vêm das variáveis `SEED_*_PASSWORD` do `.env`. Ele é separado do start de propósito, para o ambiente poder subir vazio, e é idempotente:
 
 ```bash
 ./scripts/seed.sh
+./scripts/smoke_test.sh      # confere API, banco, métricas, Prometheus e Grafana
 ```
 
 ### Endereços do ambiente
@@ -115,7 +121,7 @@ Aguarde os health checks ficarem saudáveis e carregue o seed mínimo (migraçõ
 
 **Credenciais didáticas do Grafana:** definidas em `.env` (`GRAFANA_USER` / `GRAFANA_PASSWORD`). Altere-as em qualquer ambiente que não seja exclusivamente laboratorial.
 
-**Usuários de demonstração** criados pelo seed — senhas nas variáveis `SEED_ADMIN_PASSWORD`, `SEED_OPERADOR_PASSWORD`, `SEED_GESTOR_PASSWORD` e `SEED_AUDITOR_PASSWORD` do `.env`, para uso apenas em laboratório. O seed é idempotente (rodar de novo não duplica nem altera o que já existe) e recusa rodar com `ENVIRONMENT=producao`:
+**Usuários de demonstração** criados pelo seed — senhas nas variáveis `SEED_ADMIN_PASSWORD`, `SEED_OPERADOR_PASSWORD`, `SEED_GESTOR_PASSWORD` e `SEED_AUDITOR_PASSWORD` do `.env`, para uso apenas em laboratório. O seed é idempotente e roda sobre um banco já migrado (rodar de novo não duplica nem altera o que já existe) e recusa rodar com `ENVIRONMENT=producao`:
 
 | Login | Perfil | Pode |
 |---|---|---|
