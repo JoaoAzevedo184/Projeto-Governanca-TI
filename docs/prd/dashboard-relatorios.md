@@ -32,17 +32,17 @@ Parte de [PRD — ITAM](README.md).
 
 ### 16.3 Relatórios disponíveis
 
-| Relatório | Público-alvo | Formatos |
-|---|---|---|
-| Inventário completo com filtros | Administrador, Patrimônio | Tela, CSV, XLSX |
-| Depreciação e valor residual por ativo | Patrimônio, Contabilidade | CSV, XLSX |
-| Conformidade de licenças | Auditoria, Compliance | Tela, CSV |
-| Histórico de responsáveis por ativo | Auditoria | Tela, CSV |
-| Termo de responsabilidade por colaborador | Administrador, RH | Tela, CSV |
-| Baixas por período e destinação | Patrimônio, Sustentabilidade | CSV |
-| Não conformidades abertas | Auditoria | Tela, CSV |
-| Ativos próximos do fim da vida útil | Administrador, Direção | Tela, CSV |
-| Erros de importação por lote | Administrador | CSV |
+| Relatório | Público-alvo | Formatos | Situação no MVP |
+|---|---|---|---|
+| Inventário completo com filtros | Administrador, Patrimônio | Tela, CSV, XLSX | Implementado (`/relatorios/inventario`) |
+| Depreciação e valor residual por ativo | Patrimônio, Contabilidade | CSV, XLSX | **Fora do MVP:** sem AC próprio; as colunas de depreciação e residual já saem no inventário |
+| Conformidade de licenças | Auditoria, Compliance | Tela, CSV | Implementado (`/relatorios/conformidade`, que traz todos os alertas) |
+| Histórico de responsáveis por ativo | Auditoria | Tela, CSV | **Fora do MVP:** sem AC próprio; o histórico por ativo sai em `GET /ativos/{id}/historico` |
+| Termo de responsabilidade por colaborador | Administrador, RH | Tela, CSV | **Fora do MVP:** sem endpoint no contrato nem AC; o PRD o prevê em PDF com assinatura digital, adiado (planejamento) |
+| Baixas por período e destinação | Patrimônio, Sustentabilidade | CSV | **Fora do MVP:** sem AC próprio; não há listagem de baixas por período e destinação |
+| Não conformidades abertas | Auditoria | Tela, CSV | Implementado (`/compliance/alertas` e `/relatorios/conformidade`) |
+| Ativos próximos do fim da vida útil | Administrador, Direção | Tela, CSV | Implementado (filtro `fim_vida_util` do inventário) |
+| Erros de importação por lote | Administrador | CSV | Parcial: `GET /importacoes/{id}/erros` devolve JSON; sem exportação em CSV |
 
 ### 16.4 Dashboard técnico (Grafana)
 

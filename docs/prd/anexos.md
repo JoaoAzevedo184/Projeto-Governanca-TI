@@ -48,6 +48,8 @@ Parte de [PRD — ITAM](README.md).
 | FR-014 | US-037 | — | AC-053, AC-054 | KPI-04 |
 | FR-015 | US-038 a US-040 | BR-030 | AC-055 a AC-057 | — |
 
+> **Fora do MVP:** KPI-01, KPI-04 e KPI-05 aparecem na matriz como indicador associado, mas o sistema não os calcula (ver `visao-geral.md` §4.3).
+
 ---
 
 ## Anexo C — Glossário

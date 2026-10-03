@@ -184,7 +184,7 @@ Para cada licença:
    └── expira em ≤ 30 dias?      ──► CP-03 Alto
    │
    ▼
-Para cada ativo com status ATIVO:
+Para cada ativo com status ATIVO (MVP: só CP-04; CP-05, CP-06, CP-08 e CP-09 estão fora do MVP, ver FR-007):
    ├── sem vínculo aberto?       ──► CP-04 Alto
    ├── 100% depreciado?          ──► CP-05 Médio
    ├── EM_MANUTENCAO > 90 dias?  ──► CP-06 Médio
@@ -192,7 +192,7 @@ Para cada ativo com status ATIVO:
    └── valor de compra ausente?  ──► CP-09 Baixo
    │
    ▼
-Para cada ativo baixado:
+Para cada ativo baixado (CP-07 fora do MVP: nunca dispara, a destinação é obrigatória):
    └── sem destinação?           ──► CP-07 Médio
    │
    ▼
