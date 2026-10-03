@@ -37,6 +37,8 @@ O dataset só demonstra governança se contiver desconformidade. Ao gerá-lo, pl
 | Ativo sem movimentação há mais de 12 meses | 25 | CP-08 |
 | Licença subutilizada (uso ≤ 50%) | 3 | Alerta Baixo |
 
+As linhas CP-05 a CP-09 e "Alerta Baixo" desta tabela não geram alerta no MVP (regras fora do MVP, ver FR-007); só CP-01 a CP-04 aparecem no painel.
+
 Sem esses desvios o painel de compliance aparece vazio na defesa, e um painel vazio não prova que a regra funciona — prova apenas que ninguém a testou.
 
 ### Coerência exigida do dataset
