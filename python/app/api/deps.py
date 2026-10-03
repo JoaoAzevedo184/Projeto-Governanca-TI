@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from fastapi import Depends
+from fastapi import Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
@@ -16,6 +16,7 @@ __all__ = ["get_db", "get_current_user", "require_perfil"]
 
 
 def get_current_user(
+    request: Request,
     token: str = Depends(_oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> Usuario:
@@ -23,6 +24,7 @@ def get_current_user(
     usuario = db.get(Usuario, int(payload["sub"]))
     if usuario is None or not usuario.ativo:
         raise NaoAutenticadoError("Usuário do token não existe mais ou está inativo.")
+    request.state.usuario_id = usuario.id  # para o log de acesso e o de recusa
     return usuario
 
 
