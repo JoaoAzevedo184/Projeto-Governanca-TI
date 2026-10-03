@@ -12,6 +12,9 @@ class BaixaCreate(BaseModel):
     `destinacao` e a justificativa de `OUTRO` são opcionais no schema de propósito: a ausência é
     recusada pelo serviço com 409 e `regra` (BR-026, BR-023), registrada na auditoria
     (NFR-AUD-05). O mesmo vale para a data (BR-022).
+
+    A baixa também encerra, na mesma transação, os vínculos de licença ativos da máquina (BR-031)
+    e, no ativo SOFTWARE de uma licença perpétua, os vínculos dessa licença (BR-036).
     """
 
     motivo: MotivoBaixa

@@ -17,7 +17,8 @@ class LicencaCreate(BaseModel):
 
     A forma por tipo segue `ck_licenca_tipo`: PERPETUA aponta para o ativo SOFTWARE; SUBSCRICAO e
     OEM guardam o nome do software, e só a subscrição tem `valor_total`. A ordem das datas
-    (BR-019) é recusada pelo serviço com 409 e `regra`, registrada na auditoria (NFR-AUD-05).
+    (BR-019) e o ativo que não é SOFTWARE em PERPETUA (BR-035) são recusados pelo serviço com 409 e
+    `regra`, registrada na auditoria (NFR-AUD-05).
     """
 
     tipo_licenciamento: TipoLicenciamento
@@ -72,9 +73,9 @@ class LicencaUpdate(BaseModel):
 
 
 class LicencaResponse(BaseModel):
-    """Licença com o bloco derivado do contrato §6.4. `status_conformidade` e `alertas` chegam
-    com o painel de compliance (FR-007, Sprint 4). A chave sai mascarada, salvo no detalhe para
-    ADMIN (RI-08)."""
+    """Licença com o bloco derivado do contrato §6.4, calculado na hora (nada é armazenado):
+    `alertas` são os códigos CP-01 a CP-03 disparados hoje e `status_conformidade` resume-os.
+    A chave sai mascarada, salvo no detalhe para ADMIN (RI-08)."""
 
     id: int
     tipo_licenciamento: TipoLicenciamento
@@ -90,6 +91,8 @@ class LicencaResponse(BaseModel):
     dias_para_expiracao: int = Field(description="Negativo quando a licença já venceu.")
     valor_total: Decimal | None
     data_source: str
+    status_conformidade: str = Field(description="CONFORME, ALERTA (só CP-03) ou NAO_CONFORME.")
+    alertas: list[str] = Field(description="Códigos CP-01 a CP-03 disparados na data de hoje.")
 
 
 class ListaLicencasResponse(BaseModel):
@@ -101,7 +104,12 @@ class ListaLicencasResponse(BaseModel):
 
 
 class VinculoLicencaCreate(BaseModel):
-    """Corpo de `POST /licencas/{id}/vinculos`: `ativo_id` é a máquina hospedeira."""
+    """Corpo de `POST /licencas/{id}/vinculos`: `ativo_id` é a máquina hospedeira.
+
+    Recusas com 409 e `regra`: BR-018, BR-020, BR-032 (máquina baixada), BR-037 (ativo SOFTWARE
+    da licença baixado), BR-033 (máquina que não é HARDWARE) e BR-034 (licença já vinculada à
+    máquina).
+    """
 
     ativo_id: int
     data_vinculo: date | None = Field(default=None, description="Padrão: hoje.")
