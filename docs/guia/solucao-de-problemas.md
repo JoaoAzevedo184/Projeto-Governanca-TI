@@ -7,7 +7,7 @@ Parte do [Guia — ITAM](README.md). Ver também o [README da raiz](../../README
 | Sintoma | Causa provável | Correção |
 |---|---|---|
 | `docker compose up` falha na porta 8000 | Porta ocupada | Altere `API_PORT` no `.env` |
-| API sobe mas `/health` retorna banco `DOWN` | Postgres ainda inicializando | Aguarde o health check; verifique `docker compose logs db` |
+| API sobe mas `/health` retorna `503` e banco `DOWN` | Postgres ainda inicializando | Aguarde o health check; verifique `docker compose logs db` |
 | `alembic upgrade head` falha | `DATABASE_URL` incorreta | Confira o `.env`; em Docker o host é `db`, não `localhost` |
 | Aplicação recusa iniciar com erro de `SECRET_KEY` | Chave padrão fora do ambiente local | Defina `SECRET_KEY` própria quando `ENVIRONMENT != local` |
 | Importação retorna 422 antes de processar | Cabeçalhos divergentes | Compare com `dataset/demo/inventario_demo.csv` |
