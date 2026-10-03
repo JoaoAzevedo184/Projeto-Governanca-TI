@@ -142,7 +142,7 @@ python/
 │   ├── models/           # mapeamento SQLAlchemy
 │   ├── schemas/          # contratos Pydantic
 │   ├── repositories/     # vazio (.gitkeep): não há camada de repositório
-│   ├── services/         # regras de negócio (BR-001 a BR-030)
+│   ├── services/         # regras de negócio (BR-001 a BR-037)
 │   ├── api/v1/routers/   # endpoints
 │   └── utils/            # cálculos puros (depreciação, exportação)
 ├── python/collectors/           # um coletor por fonte pública (compras_gov, endoflife, nvd)
