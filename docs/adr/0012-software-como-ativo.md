@@ -24,7 +24,7 @@ Consequências diretas, sem regra nova:
 
 1. **Identificação** — `chave_licenca` obrigatória para `SOFTWARE`, como já exige BR-002.
 2. **Valor e depreciação** — o valor patrimonial do software é `ativo.valor_compra`, depreciado pelo mesmo método linear do hardware (BR-013), com vida útil herdada da categoria (BR-006) e residual zero ao fim da vida útil (BR-014). `app/utils/depreciacao.py` não tem nenhum ramo por tipo de ativo.
-3. **Responsabilidade, baixa e auditoria** — software participa de `historico_transferencia`, `baixa_ativo` e `audit_log` exatamente como o hardware.
+3. **Responsabilidade, baixa e auditoria** — software participa de `historico_transferencia`, `baixa_ativo` e `audit_log` exatamente como o hardware. Uma consequência da licença perpétua apontar para o ativo `SOFTWARE`: a baixa dele encerra os vínculos ativos da licença (BR-036) e a licença deixa de aceitar vínculos novos (BR-037), pois o direito de uso patrimonial deixou de existir; a licença permanece como registro, sem alteração. Nada disso muda o princípio desta ADR (software é ativo).
 
 ## Alternativas consideradas e rejeitadas
 
