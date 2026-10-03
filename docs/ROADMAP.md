@@ -15,7 +15,7 @@ _Última atualização: 2026-10-02_
 | Gate 0 | Enquadramento | Completo |
 | Gate 1 | Inventário operacional | Aguardando liberação (importar arquivo real de 100 linhas) |
 | Gate 2 | Responsabilidade e valor | Sprint 2 implementado; aguardando liberação (demonstração da linha do tempo com três transferências e conferência manual do residual) |
-| Gate 3 | Conformidade e evento surpresa | Em andamento: baixa e licenças implementadas (Sprint 3); painel de compliance (FR-007) pendente |
+| Gate 3 | Conformidade e evento surpresa | Em andamento: baixa e licenças (Sprint 3) e painel de compliance (Sprint 4) implementados; falta demonstrar |
 | Gate 4 | Decisão e defesa | Não iniciado |
 
 ---
@@ -83,7 +83,7 @@ _Última atualização: 2026-10-02_
 
 ## Sprint 3 — Licenças, baixas e compliance
 
-Baixa (FR-005) e licenças (FR-004) implementadas em 2026-10-02. O painel de compliance (FR-007) continua pendente e fica para a Sprint 4.
+Baixa (FR-005) e licenças (FR-004) implementadas em 2026-10-02. O painel de compliance (FR-007) foi entregue na Sprint 4.
 
 - [x] Modelos `baixa_ativo` (`app/models/baixa.py`) e `licenca`, `licenca_vinculo` (`app/models/licenca.py`) — migrações `ee62f9bcb421` (baixa e trigger `tg_baixa_imutavel`) e `f5f9acc0de7b` (licenças, `ck_licenca_tipo` e índice parcial `ux_licenca_ativo`); `upgrade` → `downgrade` → `upgrade` e `alembic check` testados em PostgreSQL 16, e `upgrade` → `downgrade` → `upgrade` em SQLite
 - [x] Serviços `baixa_service.py` e `licenca_service.py`; routers `POST /ativos/{id}/baixa` e `/licencas` (ver [`contrato-api.md`](spec/contrato-api.md) §6.4)
@@ -92,13 +92,13 @@ Baixa (FR-005) e licenças (FR-004) implementadas em 2026-10-02. O painel de com
 - [x] Licenças: `quantidade_em_uso` derivada por COUNT (BR-021, ADR-008), bloqueio de excedente (BR-018), licença vencida (BR-020), vigência (BR-019), desvínculo lógico (AC-026)
 - [x] Mascaramento de `chave_licenca` (RI-08, `****-****-A3F9`; completa só no detalhe e só para ADMIN) em licenças **e** nas respostas de ativo (`app/utils/mascaramento.py`). Chave com menos de 8 caracteres sai toda mascarada
 - [x] Recusas por regra gravam `RECUSADO` na auditoria com `regra` (NFR-AUD-05); recusa por concorrência provocada de verdade (BR-018 com lock na licença; BR-024 e `ux_licenca_ativo` com escritor externo)
-- [x] ACs cobertos: AC-011, AC-019, AC-021, AC-024 a AC-030, AC-032 e AC-033 (mapa na seção "Decisões da Sprint 3" abaixo)
+- [x] ACs cobertos: AC-011, AC-019, AC-021, AC-024 a AC-030, AC-032, AC-033 e AC-058 a AC-064 (mapa na seção "Decisões da Sprint 3" abaixo)
 - [ ] **AC-022 e AC-023** — dependem do painel de compliance (FR-007, backlog 3.5 e 3.10): a licença traz `dias_para_expiracao`, mas `status_conformidade` e `alertas` (contrato §6.4) ainda não existem
-- [ ] **AC-031** — "relatório de inventário ativo": o relatório é da Sprint 4 (FR-006). Hoje `GET /ativos?status=BAIXADO` já filtra por baixado, mas a listagem sem filtro devolve todos os status
-- [ ] Regras CP-01 a CP-09 e `compliance_service.py` (vazio) — Sprint 4
-- [ ] Contador `itam_regras_violadas_total` (`docs/spec/observabilidade.md`) nas recusas — depende de `core/metrics.py` (Sprint 4); as recusas já gravam `regra` na auditoria
+- [x] **AC-031** — "relatório de inventário ativo": coberto na Sprint 4 por `GET /relatorios/inventario` (sem `status`, o baixado não aparece), teste `test_ac031_*` em `tests/integration/test_relatorios.py`
+- [x] Regras CP-01 a CP-04 e `compliance_service.py` — Sprint 4 (AC-022, AC-023, AC-039 a AC-043). CP-05 a CP-09: ver FR-007 no PRD
+- [x] Contador `itam_regras_violadas_total` (`docs/spec/observabilidade.md`) nas recusas — entregue na Sprint 4
 - [ ] `ativo.produto_software_id` e as tabelas `produto_software`, `ativo_software`, `vulnerabilidade` — fora do escopo desta entrega
-- [ ] Baixa de hardware com licenças vinculadas: os vínculos de licença **não** são desfeitos pela baixa (os docs só pedem encerrar o vínculo de responsável, BR-012). Decisão da equipe pendente, ver "Decisões da Sprint 3"
+- [x] Baixa e vínculos de licença: resolvido depois da Sprint 3, com BR-031 (a baixa encerra os vínculos de licença da máquina), BR-036 e BR-037 (software baixado)
 
 ### Decisões da Sprint 3 (os docs não definiam; revisar com a equipe)
 
@@ -107,19 +107,43 @@ Baixa (FR-005) e licenças (FR-004) implementadas em 2026-10-02. O painel de com
 - **AC-024:** o texto fala em "data de aquisição" da licença, campo que saiu no item 4 da resolução. Vale a BR-019: expiração posterior ao início da vigência, também garantida por `ck_licenca_vigencia`
 - **BR-022, BR-023, BR-026 e BR-019 como 409 com `regra`**, não 422 de schema: `destinacao` é opcional no schema e a justificativa de `OUTRO` é checada no serviço, para a recusa ter `regra` e ir à auditoria
 - **BR-012 na data:** baixa com `data_baixa` anterior ao início do vínculo aberto é recusada com `regra = BR-012` (encerrar o vínculo antes de começar violaria `data_fim >= data_inicio`)
-- **Vínculo de licença:** a máquina hospedeira precisa ser `HARDWARE`; a mesma máquina não pode ter dois vínculos ativos da mesma licença; ambos recusam com `regra = FR-004`. `data_vinculo` é opcional (padrão hoje) e não futura
+- **Vínculo de licença:** a máquina hospedeira precisa ser `HARDWARE`; a mesma máquina não pode ter dois vínculos ativos da mesma licença; as recusas usam `regra = BR-033` (não `HARDWARE`) e `BR-034` (vínculo duplicado); máquina `BAIXADO` recusa com `BR-032`, e a baixa encerra os vínculos de licença da máquina (`BR-031`). Licença cujo ativo `SOFTWARE` está baixado: a baixa do software encerra os vínculos da licença (`BR-036`) e a licença recusa vínculos novos com `BR-037`, derivado do status do ativo (sem migração); `BR-037` vem logo depois de `BR-032` na ordem de checagem. Eram `regra = FR-004` até 2026-10-02; FR é requisito, não regra. `data_vinculo` é opcional (padrão hoje) e não futura
 - **`DELETE /licencas/{id}/vinculos/{ativo_id}`** é desvínculo lógico (`ativo_vinculo = false`), responde 204 e audita como `EXCLUIR`; `GET .../vinculos` devolve ativos e desvinculados
 - **`PATCH /licencas/{id}`** edita fornecedor, chave, quantidade contratada e datas. Reduzir a quantidade abaixo do uso é recusado (BR-018). Tipo, ativo, `software` e `valor_total` não mudam
-- **Mapa AC → teste:** AC-011 `test_responsavel_vinculo.py::test_ac011_*` · AC-019 `test_baixa.py::test_ac019_*` · AC-021 `test_licencas.py::test_ac021_*` · AC-024 `test_ac024_*` · AC-025 `test_ac025_*` · AC-026 `test_ac026_*` · AC-027 a AC-030, AC-032, AC-033 `test_baixa.py::test_ac0NN_*`
+- **Mapa AC → teste:** AC-011 `test_responsavel_vinculo.py::test_ac011_*` · AC-019 `test_baixa.py::test_ac019_*` · AC-021 `test_licencas.py::test_ac021_*` · AC-024 `test_ac024_*` · AC-025 `test_ac025_*` · AC-026 `test_ac026_*` · AC-027 a AC-030, AC-032, AC-033 `test_baixa.py::test_ac0NN_*` · AC-058 a AC-064 `test_licencas.py::test_ac058_*` a `test_ac064_*`
 
 ## Sprint 4 — Indicadores, relatórios e observabilidade
 
-- [ ] Serviços de indicador e relatório — `indicador_service.py`, `relatorio_service.py` vazios
-- [ ] Exportação CSV/XLSX — `app/utils/exportacao.py` vazio
-- [ ] Endpoints `/relatorios`, `/indicadores`, `/compliance/alertas`
-- [ ] `/health`, `/metrics` — `app/core/metrics.py` vazio
-- [ ] Provisionamento Grafana — datasource pronto em `infra/`, falta o dashboard e a rota `/metrics` para ele ler
-- [ ] Log estruturado JSON — `app/core/logging.py` vazio
+Implementada em 2026-10-02. Ambiente completo (API, banco, Prometheus, Grafana) subido com Docker, seed e `scripts/smoke_test.sh` executados com sucesso.
+
+- [x] Compliance (FR-007): `compliance_service.py`, `utils/conformidade.py`, `GET /compliance/alertas`; CP-01 a CP-04 (AC-022, AC-023, AC-039 a AC-043); `status_conformidade` e `alertas` no bloco derivado da licença
+- [x] Relatórios (FR-006): `relatorio_service.py`, `utils/exportacao.py`, `GET /relatorios/inventario` e `/relatorios/conformidade` em JSON, CSV e XLSX (AC-031, AC-034 a AC-038)
+- [x] Indicadores (FR-009): `indicador_service.py`, `utils/indicadores.py`, `GET /indicadores` (AC-047)
+- [x] `/health` com banco e ambiente, `/metrics` no formato Prometheus (AC-053, AC-054); `core/metrics.py` com as métricas `itam_*` e o middleware HTTP
+- [x] Contador `itam_regras_violadas_total` num único ponto, `registrar_auditoria`
+- [x] Log estruturado JSON com `request_id`, sem dado sensível (`core/logging.py`)
+- [x] Grafana provisionado: dashboard `itam-tecnico` na pasta **Governança de TI** (`infra/grafana/dashboards/`)
+- [x] Pendências da sessão anterior: BR-038 (responsável e setor ativos, AC-065) e BR-037 ampliada para a criação de licença perpétua (AC-066)
+- [ ] `/relatorios/depreciacao`, `/relatorios/baixas` e `/relatorios/historico-responsaveis` (contrato §6.5): sem AC próprio, não implementados
+- [ ] CP-05, CP-06 e CP-08 (deriváveis, sem AC); CP-07 e CP-09 não disparam com o modelo atual; alertas MEDIO/BAIXO do FR-004 sem código CP. Ver FR-007 no PRD
+- [ ] Gráficos do painel gerencial (FR-014, PRD §16.2) e a evolução do valor residual no tempo: o contrato não tem endpoint para eles
+- [ ] KPI-01, KPI-04 e KPI-05 do PRD não são calculáveis só com o banco (precisam de estimativa do parque, cronometragem e dado contábil)
+- [ ] `docker compose up` ainda não migra o banco sozinho: `scripts/seed.sh` roda `alembic upgrade head` (a ARQUITETURA §6 fala em migração no start da API via entrypoint, que não existe)
+- [ ] A recusa de inicialização com `SECRET_KEY` padrão fora de `local` (configuracao.md §13.1) não está implementada em `core/config.py`
+
+### Decisões da Sprint 4 (os docs não definiam; revisar com a equipe)
+
+- **Escopo de CP:** só CP-01 a CP-04 (os que têm AC). Sem alerta MEDIO/BAIXO de licença (saturada, subutilizada), que o FR-004 lista sem código CP.
+- **`status_conformidade`:** `NAO_CONFORME` com CP-01 ou CP-02, `ALERTA` só com CP-03, `CONFORME` sem alertas. KPI-03 conta como não conforme só `NAO_CONFORME`.
+- **Códigos dos indicadores:** `KPI-02`, `KPI-03`, `KPI-06`, `KPI-07`, `KPI-08` onde o PRD tem KPI; `IND-01` a `IND-07` nos demais indicadores do FR-009. Campos novos no contrato: `detalhe` (distribuições) e `sentido_meta`.
+- **Indicadores:** patrimônio, custo médio, idade e ociosidade sobre ativos não baixados; custo médio divide pelo total de não baixados; período só afeta a taxa de baixas (padrão: 365 dias até hoje); a taxa de baixas conta no numerador toda baixa do período, mesmo de ativo adquirido depois do início do período, como a fórmula literal do PRD; filtro de setor pelo vínculo de responsável aberto; filtro de fornecedor também recorta licenças.
+- **Inventário:** sem `status`, exclui `BAIXADO` (AC-031); filtros de depreciação e de fim de vida útil aplicados em Python sobre o resultado do SQL; chave de licença sempre mascarada no relatório.
+- **Relatórios não pedidos no AC:** `depreciacao`, `baixas` e `historico-responsaveis` ficaram de fora.
+- **Contador de recusas:** `registrar_auditoria`, quando `RECUSADO` com `regra_violada`. 422 e 403 não contam.
+- **`/health` fora do ar:** `503` com `DOWN`. Métrica extra `itam_database_up`.
+- **`/metrics` fora das métricas e do log**, para o scrape de 15 s não poluir.
+- **`docker-compose.yml`:** `healthcheck` na API e Prometheus esperando a API saudável, como a ARQUITETURA §6 já descrevia.
+- **Alembic:** `env.py` passou a `disable_existing_loggers=False`, para não silenciar o log da aplicação quando a migração roda no mesmo processo (testes).
 
 ## Sprint 5 — Decisão, qualidade e defesa
 
@@ -161,10 +185,11 @@ Hoje `python/collectors/` só tem `config.yaml` (sem código) e `python/etl/` s�
 - **Pendências abertas pela resolução do Sprint 2** (decisões da equipe em 2026-09-30, ver [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](RESOLUCAO_PENDENCIAS_SPRINT2.md)):
   - `produto_software` e `ativo_software` existem só na documentação, e a FK `ativo.produto_software_id` ainda não existe (fora do escopo da Sprint 3). `licenca`, `licenca_vinculo` e o `ck_licenca_tipo` entraram na migração `f5f9acc0de7b`;
   - `licenca.data_expiracao` continua `NOT NULL` também para licença perpétua ("prazo indeterminado"). Mantido por decisão da equipe (mudar alteraria BR-019); revisar no Sprint 3;
-  - a validação "`licenca.ativo_id` aponta para ativo `SOFTWARE`" está em `licenca_service.criar_licenca` (409, `regra = FR-004`), porque o CHECK não enxerga outra tabela;
+  - a validação "`licenca.ativo_id` aponta para ativo `SOFTWARE`" está em `licenca_service.criar_licenca` (409, `regra = BR-035`, antes `FR-004`), porque o CHECK não enxerga outra tabela;
   - `POST /responsaveis` grava `data_source = sintetico` e `POST /fornecedores` aceita `data_source` enviado pelo cliente. A resolução do item 8 cobre só ativo e vínculo (decisão da equipe); baixa, licença e vínculo de licença, novos na Sprint 3, gravam `manual`;
   - `data_source` não tem `CHECK` no schema, embora `enumeracoes.md` diga que todo enum é `VARCHAR` com `CHECK`;
   - o `FR-003` do PRD mostra `depreciacao_acumulada = depreciacao_mensal × meses_efetivos`, sem dizer onde arredonda. O código segue a leitura aprovada no item 1 (arredondar só no fim); a redação da fórmula no PRD fica para a equipe;
   - **NFR-MAN-05** (PRD) e a premissa P6 do SPEC (`escopo-e-premissas.md`) diziam que os perfis SQLite e PostgreSQL "executam os mesmos testes". **Redação alinhada em 2026-10-02:** NFR-MAN-05, P6, ADR-007 e RI-10 marcados como revisados (item 13), sem renumerar, descrevendo o estado atual: o SQLite só executa a aplicação (verificado: migrações e fluxos de cadastro, transferência, depreciação e importação rodam em SQLite, sem trigger, lock de linha nem FK). A permanência do perfil SQLite segue como decisão da equipe;
+  - **Limitação conhecida do MVP — baixa retroativa:** `licenca_vinculo` não tem datas próprias além de `data_vinculo` (sem data de fim), então uma baixa com `data_baixa` retroativa pode ficar anterior à criação de um vínculo de licença que ela encerra (BR-031, BR-036). O encerramento só aparece no carimbo da auditoria. Não há regra para isso (diferente do BR-012, que protege o vínculo de responsável); datas no vínculo de licença ficam para depois do MVP;
   - `licenca.ck_licenca_tipo` é por tipo (PERPETUA → `ativo_id`; SUBSCRICAO → `software` + `valor_total`; OEM → `software`, sem valor), como a equipe confirmou em 2026-09-30;
   - a mensagem 409 genérica de `flush_ou_conflito` (cadastros sem BR) continua desfazendo a transação inteira, sem auditoria `RECUSADO`. Essas unicidades não são BR (item 11), então a NFR-AUD-05 não se aplica a elas.
