@@ -233,7 +233,7 @@ def test_recusa_data_inicio_futura(client, db, token_admin, ativo_id, responsave
 
 
 @pytest.mark.parametrize("inativo", ["responsavel", "setor"])
-def test_recusa_responsavel_ou_setor_inativo(
+def test_ac065_recusa_responsavel_ou_setor_inativo(
     client, db, token_admin, ativo_id, responsavel, setor, inativo
 ):
     registro = responsavel if inativo == "responsavel" else setor
@@ -243,9 +243,9 @@ def test_recusa_responsavel_ou_setor_inativo(
     resposta = _vincular(client, token_admin, ativo_id, responsavel.id, setor.id, "2025-02-01")
 
     assert resposta.status_code == 409
-    assert resposta.json()["regra"] == "FR-002"
+    assert resposta.json()["regra"] == "BR-038"
     assert _abertos(db, ativo_id) == []
-    assert _recusas(db) == [("FR-002", ativo_id)]
+    assert _recusas(db) == [("BR-038", ativo_id)]
 
 
 @pytest.mark.parametrize(
