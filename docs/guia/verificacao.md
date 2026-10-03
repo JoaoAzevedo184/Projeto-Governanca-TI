@@ -8,7 +8,9 @@ Parte do [Guia — ITAM](README.md). Ver também o [README da raiz](../../README
 ./scripts/smoke_test.sh
 ```
 
-O script verifica, em sequência: health da API, disponibilidade do banco, endpoint de indicadores, endpoint de métricas, saúde do Prometheus e saúde do Grafana. Saída diferente de zero indica ambiente incompleto.
+O script verifica, em sequência: `/health` (aplicação e banco `UP`), login do admin (exige o seed: `./scripts/seed.sh`), `GET /compliance/alertas`, `GET /indicadores`, `GET /relatorios/inventario?formato=csv`, as métricas `itam_*` em `/metrics`, o alvo `itam-api` do Prometheus em estado `up` e o dashboard `itam-tecnico` provisionado no Grafana. URLs e credenciais vêm do ambiente ou do `.env`. Saída diferente de zero indica ambiente incompleto.
+
+Com o ambiente no ar, o contador de recusas se confere à mão: provoque uma recusa (por exemplo, dar baixa duas vezes no mesmo ativo) e veja `itam_regras_violadas_total{regra="BR-024"}` subir em `http://localhost:8000/metrics`.
 
 Verificação manual mínima:
 
@@ -28,6 +30,6 @@ curl -s http://localhost:8000/api/v1/indicadores \
 
 # 4. Ver alertas de compliance
 curl -s http://localhost:8000/api/v1/compliance/alertas \
-  -H "Authorization: Bearer $TOKEN" | jq '.[] | {codigo, severidade, descricao}'
+  -H "Authorization: Bearer $TOKEN" | jq '.grupos[].alertas[] | {codigo, severidade, regra, recurso}'
 ```
 
