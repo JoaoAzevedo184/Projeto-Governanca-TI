@@ -16,3 +16,10 @@ com `tipo=codigoPdm` e `codigo=237` (PDM `ROTEADOR`).
 
 Os dados mudam a cada dia na fonte; refazer a gravação gera arquivos diferentes. Os testes não
 dependem dos valores de negócio, só da estrutura e da paginação (`totalPaginas`).
+
+## `coleta_2026-10-05/`
+
+Os 18 arquivos que `python -m collectors.compras_gov` gravou em `dataset/raw/compras_gov/2026-10-05/`
+(9 PDMs, 2 páginas de 100, 1705 registros), copiados byte a byte. `dataset/raw/` não é versionado;
+esta cópia é a entrada do exportador do arquivo do Gate 1 (`python/etl/exportar_inventario_demo.py`)
+e permite gerar de novo, e conferir, `dataset/demo/inventario_demo.csv` sem rede.
