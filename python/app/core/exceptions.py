@@ -5,6 +5,8 @@ from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import DataError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger("itam")
 
@@ -75,6 +77,15 @@ def _payload(
     }
 
 
+_TITULOS_HTTP = {
+    400: "Requisição inválida",
+    401: "Não autenticado",
+    403: "Perfil sem permissão",
+    404: "Recurso não encontrado",
+    405: "Método não permitido",
+}
+
+
 def registrar_handlers_erro(app: FastAPI) -> None:
     @app.exception_handler(ErroDominio)
     async def _erro_dominio(request: Request, exc: ErroDominio) -> JSONResponse:
@@ -91,6 +102,39 @@ def registrar_handlers_erro(app: FastAPI) -> None:
             status_code=exc.status_code,
             content=_payload(
                 exc.status_code, exc.titulo, exc.tipo, exc.detalhe, request.url.path, exc.regra
+            ),
+        )
+
+    @app.exception_handler(StarletteHTTPException)
+    async def _erro_http(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+        # Erros do próprio framework (token ausente, corpo ilegível, rota inexistente, método
+        # não permitido) saem no mesmo formato da API, e não no `{"detail": ...}` padrão.
+        titulo = _TITULOS_HTTP.get(exc.status_code, "Erro")
+        return JSONResponse(
+            status_code=exc.status_code,
+            headers=getattr(exc, "headers", None),
+            content=_payload(
+                exc.status_code,
+                titulo,
+                f"/erros/http-{exc.status_code}",
+                str(exc.detail),
+                request.url.path,
+            ),
+        )
+
+    @app.exception_handler(DataError)
+    async def _valor_fora_do_intervalo(request: Request, exc: DataError) -> JSONResponse:
+        # O banco recusou o valor (inteiro além de 32 bits num id, por exemplo): é entrada
+        # inválida, não falha do servidor. A mensagem do driver nunca sai na resposta (NFR-SEG-06).
+        logger.warning("Valor fora do intervalo aceito pelo banco em %s", request.url.path)
+        return JSONResponse(
+            status_code=422,
+            content=_payload(
+                422,
+                "Erro de validação",
+                "/erros/validacao",
+                "Um valor numérico está fora do intervalo aceito.",
+                request.url.path,
             ),
         )
 
