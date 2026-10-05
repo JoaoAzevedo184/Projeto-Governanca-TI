@@ -61,6 +61,22 @@ def licenca_existente(client, token_admin, fornecedor):
     return resposta.json()["id"]
 
 
+@pytest.fixture
+def risco_existente(client, token_admin):
+    resposta = client.post(
+        "/api/v1/riscos",
+        headers={"Authorization": f"Bearer {token_admin}"},
+        json={
+            "titulo": "Risco RBAC base",
+            "categoria": "OPERACIONAL",
+            "probabilidade": 2,
+            "impacto": 3,
+            "resposta": "MITIGAR",
+        },
+    )
+    return resposta.json()["id"]
+
+
 def _rotas(
     cat_id: int,
     forn_id: int,
@@ -71,6 +87,7 @@ def _rotas(
     setor_id: int,
     lic_id: int,
     forn_id_licenca: int,
+    risco_id: int,
 ):
     """(método, path, payload_por_perfil, kind, perfis_permitidos)."""
     todos = set(PERFIS)
@@ -205,6 +222,71 @@ def _rotas(
             "json",
             {"admin", "operador"},
         ),
+        # FR-011 (contrato §6.7): só ADMIN e GESTOR registram scorecard.
+        (
+            "POST",
+            "/api/v1/fornecedores/scorecard",
+            lambda p: {
+                "periodo": "2026-T3",
+                "criterios": [{"nome": "preco", "peso": "100"}],
+                "avaliacoes": [{"fornecedor_id": forn_id, "notas": {"preco": "8"}}],
+            },
+            "json",
+            {"admin", "gestor"},
+        ),
+        # FR-010 (contrato §6.7): só ADMIN e GESTOR comparam cenários.
+        (
+            "POST",
+            "/api/v1/cenarios/comparar",
+            lambda p: {
+                "quantidade_ativos": 10,
+                "cenarios": [
+                    {"nome": "MANTER", "capex": "0", "opex_anual": "100"},
+                    {"nome": "RENOVAR", "capex": "500", "opex_anual": "10"},
+                ],
+            },
+            "json",
+            {"admin", "gestor"},
+        ),
+        # FR-013 (contrato §6.7): leitura para todos, registro só para ADMIN e GESTOR.
+        ("GET", "/api/v1/recomendacoes", None, "json", todos),
+        (
+            "POST",
+            "/api/v1/recomendacoes",
+            lambda p: {
+                "titulo": f"Recomendação RBAC {p}",
+                "contexto": "contexto",
+                "recomendacao": "texto",
+                "responsavel_id": resp_id,
+                "evidencias": [{"tipo": "PREMISSA", "descricao": "premissa de teste"}],
+            },
+            "json",
+            {"admin", "gestor"},
+        ),
+        # FR-012 (contrato §6.7): leitura para todos, escrita só para ADMIN e GESTOR.
+        ("GET", "/api/v1/riscos", None, "json", todos),
+        (
+            "POST",
+            "/api/v1/riscos",
+            lambda p: {
+                "titulo": f"Risco RBAC {p}",
+                "categoria": "OPERACIONAL",
+                "probabilidade": 2,
+                "impacto": 2,
+                "resposta": "ACEITAR",
+            },
+            "json",
+            {"admin", "gestor"},
+        ),
+        ("GET", f"/api/v1/riscos/{risco_id}", None, "json", todos),
+        ("GET", "/api/v1/recomendacoes/999999", None, "json", todos),
+        (
+            "PATCH",
+            f"/api/v1/riscos/{risco_id}",
+            lambda p: {"gatilho": f"RBAC {p}"},
+            "json",
+            {"admin", "gestor"},
+        ),
         # FR-015, coluna Relatórios: Ler para os quatro perfis (compliance e indicadores incluídos).
         ("GET", "/api/v1/relatorios/inventario", None, "json", todos),
         ("GET", "/api/v1/relatorios/conformidade", None, "json", todos),
@@ -248,6 +330,7 @@ def test_matriz_rbac_por_perfil(
     setor,
     ativo_existente,
     licenca_existente,
+    risco_existente,
     perfil,
 ):
     tokens = _tokens(request)
@@ -261,6 +344,7 @@ def test_matriz_rbac_por_perfil(
         setor.id,
         licenca_existente,
         fornecedor.id,
+        risco_existente,
     )
 
     for metodo, path, payload, kind, permitidos in rotas:
@@ -275,7 +359,14 @@ def test_matriz_rbac_por_perfil(
 
 
 def test_matriz_rbac_sem_token_retorna_401(
-    client, categoria, fornecedor, responsavel, setor, ativo_existente, licenca_existente
+    client,
+    categoria,
+    fornecedor,
+    responsavel,
+    setor,
+    ativo_existente,
+    licenca_existente,
+    risco_existente,
 ):
     rotas = _rotas(
         categoria.id,
@@ -287,6 +378,7 @@ def test_matriz_rbac_sem_token_retorna_401(
         setor.id,
         licenca_existente,
         fornecedor.id,
+        risco_existente,
     )
     for metodo, path, payload, kind, _permitidos in rotas:
         resposta = _requisitar(client, metodo, path, None, payload, kind, "sem_token")
