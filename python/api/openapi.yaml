@@ -35,12 +35,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/auth/me:
     get:
       tags:
@@ -54,6 +84,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsuarioResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
   /api/v1/categorias:
@@ -72,6 +138,42 @@ paths:
                   $ref: '#/components/schemas/CategoriaResponse'
                 type: array
                 title: Response Listar Api V1 Categorias Get
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
     post:
@@ -92,12 +194,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoriaResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
   /api/v1/categorias/{categoria_id}:
@@ -122,12 +254,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoriaResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
     patch:
       tags:
       - categorias
@@ -155,12 +317,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoriaResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/fornecedores:
     get:
       tags:
@@ -177,6 +369,42 @@ paths:
                   $ref: '#/components/schemas/FornecedorResponse'
                 type: array
                 title: Response Listar Api V1 Fornecedores Get
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
     post:
@@ -197,12 +425,99 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FornecedorResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/fornecedores/scorecard:
+    post:
+      tags:
+      - fornecedores
+      summary: Scorecard
+      operationId: scorecard_api_v1_fornecedores_scorecard_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScorecardCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScorecardResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
   /api/v1/setores:
@@ -221,6 +536,42 @@ paths:
                   $ref: '#/components/schemas/SetorResponse'
                 type: array
                 title: Response Listar Api V1 Setores Get
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
     post:
@@ -241,12 +592,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SetorResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
   /api/v1/responsaveis:
@@ -265,6 +646,42 @@ paths:
                   $ref: '#/components/schemas/ResponsavelResponse'
                 type: array
                 title: Response Listar Api V1 Responsaveis Get
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
     post:
@@ -285,12 +702,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponsavelResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
   /api/v1/ativos:
@@ -314,12 +761,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AtivoResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
     get:
       tags:
       - ativos
@@ -406,12 +883,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListaAtivosResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/ativos/{ativo_id}:
     get:
       tags:
@@ -434,12 +941,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AtivoResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
     patch:
       tags:
       - ativos
@@ -467,12 +1004,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AtivoResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/ativos/{ativo_id}/depreciacao:
     get:
       tags:
@@ -495,12 +1062,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DepreciacaoResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/ativos/{ativo_id}/historico:
     get:
       tags:
@@ -526,12 +1123,42 @@ paths:
                 items:
                   $ref: '#/components/schemas/VinculoResponse'
                 title: Response Historico Api V1 Ativos  Ativo Id  Historico Get
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/ativos/{ativo_id}/responsavel:
     post:
       tags:
@@ -560,12 +1187,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VinculoResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/ativos/{ativo_id}/baixa:
     post:
       tags:
@@ -594,12 +1251,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BaixaResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/importacoes:
     get:
       tags:
@@ -616,6 +1303,42 @@ paths:
                   $ref: '#/components/schemas/LoteImportacaoResponse'
                 type: array
                 title: Response Listar Api V1 Importacoes Get
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
     post:
@@ -636,12 +1359,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImportacaoResumo'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
   /api/v1/importacoes/{lote_id}:
@@ -666,12 +1419,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoteImportacaoResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/importacoes/{lote_id}/erros:
     get:
       tags:
@@ -697,12 +1480,42 @@ paths:
                 items:
                   $ref: '#/components/schemas/ErroImportacaoResponse'
                 title: Response Erros Api V1 Importacoes  Lote Id  Erros Get
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/licencas:
     post:
       tags:
@@ -724,12 +1537,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LicencaResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
     get:
       tags:
       - licencas
@@ -778,12 +1621,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListaLicencasResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/licencas/{licenca_id}:
     get:
       tags:
@@ -806,12 +1679,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LicencaResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
     patch:
       tags:
       - licencas
@@ -839,12 +1742,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LicencaResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/licencas/{licenca_id}/vinculos:
     get:
       tags:
@@ -871,12 +1804,42 @@ paths:
                   $ref: '#/components/schemas/VinculoLicencaResponse'
                 title: Response Listar Vinculos Api V1 Licencas  Licenca Id  Vinculos
                   Get
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
     post:
       tags:
       - licencas
@@ -904,12 +1867,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VinculoLicencaResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/licencas/{licenca_id}/vinculos/{ativo_id}:
     delete:
       tags:
@@ -934,12 +1927,42 @@ paths:
       responses:
         '204':
           description: Successful Response
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/relatorios/inventario:
     get:
       tags:
@@ -1093,17 +2116,49 @@ paths:
           title: Tamanho
       responses:
         '200':
-          description: Successful Response
+          description: JSON, ou arquivo CSV/XLSX conforme `formato`.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InventarioResponse'
-        '422':
-          description: Validation Error
+            text/csv: {}
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/relatorios/conformidade:
     get:
       tags:
@@ -1126,17 +2181,49 @@ paths:
           title: Formato
       responses:
         '200':
-          description: Successful Response
+          description: JSON, ou arquivo CSV/XLSX conforme `formato`.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AlertasResponse'
-        '422':
-          description: Validation Error
+            text/csv: {}
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {}
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
   /api/v1/compliance/alertas:
     get:
       tags:
@@ -1150,6 +2237,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AlertasResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
       security:
       - OAuth2PasswordBearer: []
   /api/v1/indicadores:
@@ -1210,12 +2333,560 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IndicadoresResponse'
-        '422':
-          description: Validation Error
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+  /api/v1/riscos:
+    post:
+      tags:
+      - riscos
+      summary: Criar
+      operationId: criar_api_v1_riscos_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiscoCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiscoResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+    get:
+      tags:
+      - riscos
+      summary: Listar
+      operationId: listar_api_v1_riscos_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: categoria
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/CategoriaRisco'
+          - type: 'null'
+          title: Categoria
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/StatusRisco'
+          - type: 'null'
+          title: Status
+      - name: classificacao
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ClassificacaoRisco'
+          - type: 'null'
+          title: Classificacao
+      - name: pagina
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Pagina
+      - name: tamanho
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Tamanho
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaRiscosResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+  /api/v1/riscos/{risco_id}:
+    get:
+      tags:
+      - riscos
+      summary: Obter
+      operationId: obter_api_v1_riscos__risco_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: risco_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Risco Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiscoResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+    patch:
+      tags:
+      - riscos
+      summary: Atualizar
+      operationId: atualizar_api_v1_riscos__risco_id__patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: risco_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Risco Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiscoUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiscoResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+  /api/v1/cenarios/comparar:
+    post:
+      tags:
+      - cenarios
+      summary: Comparar
+      operationId: comparar_api_v1_cenarios_comparar_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompararCenariosCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompararCenariosResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/recomendacoes:
+    post:
+      tags:
+      - recomendacoes
+      summary: Criar
+      operationId: criar_api_v1_recomendacoes_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecomendacaoCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecomendacaoResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+    get:
+      tags:
+      - recomendacoes
+      summary: Listar
+      operationId: listar_api_v1_recomendacoes_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/StatusRecomendacao'
+          - type: 'null'
+          title: Status
+      - name: pagina
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Pagina
+      - name: tamanho
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Tamanho
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaRecomendacoesResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+  /api/v1/recomendacoes/{recomendacao_id}:
+    get:
+      tags:
+      - recomendacoes
+      summary: Obter
+      operationId: obter_api_v1_recomendacoes__recomendacao_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: recomendacao_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Recomendacao Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecomendacaoResponse'
+        '400':
+          description: Corpo da requisição ilegível (JSON ou multipart).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '401':
+          description: Sem token válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '403':
+          description: Perfil sem permissão (FR-015).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '404':
+          description: Recurso inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '409':
+          description: Operação recusada por regra de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+        '422':
+          description: Payload malformado ou inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
 components:
   schemas:
     AlertaResponse:
@@ -1478,6 +3149,27 @@ components:
           title: Observacoes
       type: object
       title: AtivoUpdate
+    AvaliacaoFornecedor:
+      properties:
+        fornecedor_id:
+          type: integer
+          title: Fornecedor Id
+        notas:
+          additionalProperties:
+            anyOf:
+            - type: number
+              maximum: 10.0
+              minimum: 0.0
+            - type: string
+              pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,2}|(?=[\d.]{1,5}0*$)\d{0,2}\.\d{0,2}0*$)
+          type: object
+          title: Notas
+          description: Nota de 0 a 10 para cada critério, sem faltar nenhum.
+      type: object
+      required:
+      - fornecedor_id
+      - notas
+      title: AvaliacaoFornecedor
     BaixaCreate:
       properties:
         motivo:
@@ -1649,6 +3341,15 @@ components:
       - tipo_aplicavel
       - id
       title: CategoriaResponse
+    CategoriaRisco:
+      type: string
+      enum:
+      - OPERACIONAL
+      - FINANCEIRO
+      - LEGAL
+      - SEGURANCA
+      - CONTINUIDADE
+      title: CategoriaRisco
     CategoriaUpdate:
       properties:
         nome:
@@ -1681,6 +3382,154 @@ components:
           title: Ativa
       type: object
       title: CategoriaUpdate
+    CenarioResultado:
+      properties:
+        nome:
+          $ref: '#/components/schemas/NomeCenario'
+        capex:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Capex
+        opex_anual:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Opex Anual
+        tco_5_anos:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Tco 5 Anos
+          description: capex + opex_anual × 5.
+        custo_por_ativo_ano:
+          anyOf:
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Custo Por Ativo Ano
+          description: tco ÷ (ativos × 5); nulo se não há ativos.
+        economia_vs_baseline:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Economia Vs Baseline
+          description: tco do baseline − tco do cenário.
+        score_risco:
+          type: integer
+          title: Score Risco
+          description: Soma dos scores dos riscos vinculados.
+      type: object
+      required:
+      - nome
+      - capex
+      - opex_anual
+      - tco_5_anos
+      - custo_por_ativo_ano
+      - economia_vs_baseline
+      - score_risco
+      title: CenarioResultado
+    ClassificacaoRisco:
+      type: string
+      enum:
+      - BAIXO
+      - MEDIO
+      - ALTO
+      - CRITICO
+      title: ClassificacaoRisco
+    CompararCenariosCreate:
+      properties:
+        cenarios:
+          items:
+            $ref: '#/components/schemas/EntradaCenarioCreate'
+          type: array
+          maxItems: 3
+          minItems: 2
+          title: Cenarios
+        quantidade_ativos:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0.0
+          - type: 'null'
+          title: Quantidade Ativos
+          description: 'Ativos do parque no cálculo por ativo/ano. Padrão: ativos
+            não baixados.'
+      type: object
+      required:
+      - cenarios
+      title: CompararCenariosCreate
+      description: Corpo de `POST /cenarios/comparar` (FR-010). Entre 2 e 3 cenários,
+        sem nome repetido.
+    CompararCenariosResponse:
+      properties:
+        horizonte_anos:
+          type: integer
+          title: Horizonte Anos
+        quantidade_ativos:
+          type: integer
+          title: Quantidade Ativos
+        baseline:
+          $ref: '#/components/schemas/NomeCenario'
+        cenarios:
+          items:
+            $ref: '#/components/schemas/CenarioResultado'
+          type: array
+          title: Cenarios
+        ordenado_por:
+          items:
+            type: string
+          type: array
+          title: Ordenado Por
+        observacao:
+          type: string
+          title: Observacao
+      type: object
+      required:
+      - horizonte_anos
+      - quantidade_ativos
+      - baseline
+      - cenarios
+      - ordenado_por
+      - observacao
+      title: CompararCenariosResponse
+      description: 'Os cenários ordenados por custo e risco. Nenhum vem marcado como
+        escolhido (BR-028):
+
+        `baseline` é só a referência da economia.'
+    CriterioScorecard-Input:
+      properties:
+        nome:
+          type: string
+          maxLength: 80
+          minLength: 2
+          title: Nome
+        peso:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,3}|(?=[\d.]{1,6}0*$)\d{0,3}\.\d{0,2}0*$)
+          title: Peso
+          description: Percentual do critério. A soma dos pesos deve ser 100 (BR-029).
+      type: object
+      required:
+      - nome
+      - peso
+      title: CriterioScorecard
+    CriterioScorecard-Output:
+      properties:
+        nome:
+          type: string
+          maxLength: 80
+          minLength: 2
+          title: Nome
+        peso:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,3}|(?=[\d.]{1,6}0*$)\d{0,3}\.\d{0,2}0*$)
+          title: Peso
+          description: Percentual do critério. A soma dos pesos deve ser 100 (BR-029).
+      type: object
+      required:
+      - nome
+      - peso
+      title: CriterioScorecard
     DepreciacaoResponse:
       properties:
         ativo_id:
@@ -1770,6 +3619,38 @@ components:
       - VENDA
       - DESCARTE
       title: DestinacaoBaixa
+    EntradaCenarioCreate:
+      properties:
+        nome:
+          $ref: '#/components/schemas/NomeCenario'
+        capex:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,12}|(?=[\d.]{1,15}0*$)\d{0,12}\.\d{0,2}0*$)
+          title: Capex
+          description: Investimento inicial, em reais.
+        opex_anual:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,12}|(?=[\d.]{1,15}0*$)\d{0,12}\.\d{0,2}0*$)
+          title: Opex Anual
+          description: Custo recorrente por ano, em reais.
+        riscos_ids:
+          items:
+            type: integer
+          type: array
+          title: Riscos Ids
+          description: 'Riscos vinculados ao cenário: o score soma os deles.'
+      type: object
+      required:
+      - nome
+      - capex
+      - opex_anual
+      title: EntradaCenarioCreate
     ErroImportacaoResponse:
       properties:
         numero_linha:
@@ -1793,6 +3674,100 @@ components:
       - valor_recebido
       - motivo
       title: ErroImportacaoResponse
+    ErroResponse:
+      properties:
+        tipo:
+          type: string
+          title: Tipo
+          description: 'Identificador do tipo de erro, ex.: /erros/regra-de-negocio.'
+        titulo:
+          type: string
+          title: Titulo
+        status:
+          type: integer
+          title: Status
+        detalhe:
+          type: string
+          title: Detalhe
+        instancia:
+          type: string
+          title: Instancia
+          description: Caminho da requisição.
+        regra:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Regra
+          description: BR da regra de negócio violada (nas recusas 409) ou FR-015
+            (403).
+        erros:
+          items: {}
+          type: array
+          title: Erros
+          description: Detalhe por campo, nos erros de validação (422).
+      type: object
+      required:
+      - tipo
+      - titulo
+      - status
+      - detalhe
+      - instancia
+      - regra
+      - erros
+      title: ErroResponse
+      description: Corpo de erro único da API, inspirado na RFC 7807 (docs/spec/padrao-de-erros.md).
+    EvidenciaCreate:
+      properties:
+        tipo:
+          $ref: '#/components/schemas/TipoEvidencia'
+        referencia_id:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0.0
+          - type: 'null'
+          title: Referencia Id
+        descricao:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Descricao
+      type: object
+      required:
+      - tipo
+      title: EvidenciaCreate
+      description: 'O que sustenta a recomendação (FR-013). `RISCO`, `ATIVO`, `LICENCA`
+        e `SCORECARD` (este com o
+
+        id do fornecedor avaliado) exigem `referencia_id` de um registro existente;
+        `INDICADOR`,
+
+        `CENARIO` e `PREMISSA` não têm registro (são derivados ou declarados) e exigem
+        `descricao`.'
+    EvidenciaResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        tipo:
+          $ref: '#/components/schemas/TipoEvidencia'
+        referencia_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Referencia Id
+        descricao:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Descricao
+      type: object
+      required:
+      - id
+      - tipo
+      - referencia_id
+      - descricao
+      title: EvidenciaResponse
     FornecedorCreate:
       properties:
         razao_social:
@@ -1902,15 +3877,6 @@ components:
       - total
       - alertas
       title: GrupoAlertas
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ImportacaoResumo:
       properties:
         lote_id:
@@ -2376,6 +4342,60 @@ components:
       - total
       - total_paginas
       title: ListaLicencasResponse
+    ListaRecomendacoesResponse:
+      properties:
+        itens:
+          items:
+            $ref: '#/components/schemas/RecomendacaoResponse'
+          type: array
+          title: Itens
+        pagina:
+          type: integer
+          title: Pagina
+        tamanho:
+          type: integer
+          title: Tamanho
+        total:
+          type: integer
+          title: Total
+        total_paginas:
+          type: integer
+          title: Total Paginas
+      type: object
+      required:
+      - itens
+      - pagina
+      - tamanho
+      - total
+      - total_paginas
+      title: ListaRecomendacoesResponse
+    ListaRiscosResponse:
+      properties:
+        itens:
+          items:
+            $ref: '#/components/schemas/RiscoResponse'
+          type: array
+          title: Itens
+        pagina:
+          type: integer
+          title: Pagina
+        tamanho:
+          type: integer
+          title: Tamanho
+        total:
+          type: integer
+          title: Total
+        total_paginas:
+          type: integer
+          title: Total Paginas
+      type: object
+      required:
+      - itens
+      - pagina
+      - tamanho
+      - total
+      - total_paginas
+      title: ListaRiscosResponse
     LoginRequest:
       properties:
         login:
@@ -2432,6 +4452,13 @@ components:
       - FIM_VIDA_UTIL
       - OUTRO
       title: MotivoBaixa
+    NomeCenario:
+      type: string
+      enum:
+      - MANTER
+      - RENOVAR
+      - MIGRAR_ASSINATURA
+      title: NomeCenario
     PerfilUsuario:
       type: string
       enum:
@@ -2440,6 +4467,147 @@ components:
       - GESTOR
       - AUDITOR
       title: PerfilUsuario
+    PosicaoRanking:
+      properties:
+        posicao:
+          type: integer
+          title: Posicao
+        fornecedor_id:
+          type: integer
+          title: Fornecedor Id
+        razao_social:
+          type: string
+          title: Razao Social
+        pontuacao:
+          type: string
+          pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Pontuacao
+          description: Soma ponderada, de 0 a 10, em 2 casas (half-up).
+        notas:
+          additionalProperties:
+            type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          type: object
+          title: Notas
+      type: object
+      required:
+      - posicao
+      - fornecedor_id
+      - razao_social
+      - pontuacao
+      - notas
+      title: PosicaoRanking
+    RecomendacaoCreate:
+      properties:
+        titulo:
+          type: string
+          maxLength: 160
+          minLength: 3
+          title: Titulo
+        contexto:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Contexto
+        recomendacao:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Recomendacao
+        alternativas:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Alternativas
+        responsavel_id:
+          type: integer
+          title: Responsavel Id
+        data:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data
+          description: 'Data da decisão. Padrão: hoje.'
+        status:
+          $ref: '#/components/schemas/StatusRecomendacao'
+          default: PROPOSTA
+        evidencias:
+          items:
+            $ref: '#/components/schemas/EvidenciaCreate'
+          type: array
+          title: Evidencias
+      type: object
+      required:
+      - titulo
+      - contexto
+      - recomendacao
+      - responsavel_id
+      title: RecomendacaoCreate
+      description: 'Corpo de `POST /recomendacoes` (FR-013).
+
+
+        `evidencias` é opcional no schema de propósito: a ausência (lista vazia) é
+        recusada pelo
+
+        serviço com 409 e `regra = BR-027`, registrada na auditoria (NFR-AUD-05, AC-051).
+
+        O sistema só registra: a decisão é de quem assina (`responsavel_id`).'
+    RecomendacaoResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        titulo:
+          type: string
+          title: Titulo
+        contexto:
+          type: string
+          title: Contexto
+        recomendacao:
+          type: string
+          title: Recomendacao
+        alternativas:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Alternativas
+        responsavel_id:
+          type: integer
+          title: Responsavel Id
+        data:
+          type: string
+          format: date
+          title: Data
+        status:
+          $ref: '#/components/schemas/StatusRecomendacao'
+        data_source:
+          type: string
+          title: Data Source
+        criado_em:
+          type: string
+          format: date-time
+          title: Criado Em
+        evidencias:
+          items:
+            $ref: '#/components/schemas/EvidenciaResponse'
+          type: array
+          title: Evidencias
+      type: object
+      required:
+      - id
+      - titulo
+      - contexto
+      - recomendacao
+      - alternativas
+      - responsavel_id
+      - data
+      - status
+      - data_source
+      - criado_em
+      - evidencias
+      title: RecomendacaoResponse
     ResponsavelCreate:
       properties:
         nome:
@@ -2536,6 +4704,211 @@ components:
       - id
       - data_source
       title: ResponsavelResponse
+    RespostaRisco:
+      type: string
+      enum:
+      - ACEITAR
+      - MITIGAR
+      - TRANSFERIR
+      - EVITAR
+      title: RespostaRisco
+    RiscoCreate:
+      properties:
+        titulo:
+          type: string
+          maxLength: 160
+          minLength: 3
+          title: Titulo
+        descricao:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Descricao
+        categoria:
+          $ref: '#/components/schemas/CategoriaRisco'
+        probabilidade:
+          type: integer
+          maximum: 5.0
+          minimum: 1.0
+          title: Probabilidade
+        impacto:
+          type: integer
+          maximum: 5.0
+          minimum: 1.0
+          title: Impacto
+        resposta:
+          $ref: '#/components/schemas/RespostaRisco'
+        responsavel_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Responsavel Id
+        status:
+          $ref: '#/components/schemas/StatusRisco'
+          default: ABERTO
+        gatilho:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Gatilho
+        data_revisao:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data Revisao
+      type: object
+      required:
+      - titulo
+      - categoria
+      - probabilidade
+      - impacto
+      - resposta
+      title: RiscoCreate
+      description: Corpo de `POST /riscos` (FR-012). `score` e `classificacao` não
+        se informam.
+    RiscoResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        titulo:
+          type: string
+          title: Titulo
+        descricao:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Descricao
+        categoria:
+          $ref: '#/components/schemas/CategoriaRisco'
+        probabilidade:
+          type: integer
+          title: Probabilidade
+        impacto:
+          type: integer
+          title: Impacto
+        score:
+          type: integer
+          title: Score
+          description: probabilidade × impacto, de 1 a 25 (AC-050).
+        classificacao:
+          $ref: '#/components/schemas/ClassificacaoRisco'
+          description: Baixo 1–4, médio 5–9, alto 10–14, crítico 15–25.
+        resposta:
+          $ref: '#/components/schemas/RespostaRisco'
+        responsavel_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Responsavel Id
+        status:
+          $ref: '#/components/schemas/StatusRisco'
+        gatilho:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gatilho
+        data_revisao:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data Revisao
+        data_source:
+          type: string
+          title: Data Source
+        criado_em:
+          type: string
+          format: date-time
+          title: Criado Em
+        atualizado_em:
+          type: string
+          format: date-time
+          title: Atualizado Em
+      type: object
+      required:
+      - id
+      - titulo
+      - descricao
+      - categoria
+      - probabilidade
+      - impacto
+      - score
+      - classificacao
+      - resposta
+      - responsavel_id
+      - status
+      - gatilho
+      - data_revisao
+      - data_source
+      - criado_em
+      - atualizado_em
+      title: RiscoResponse
+    RiscoUpdate:
+      properties:
+        titulo:
+          anyOf:
+          - type: string
+            maxLength: 160
+            minLength: 3
+          - type: 'null'
+          title: Titulo
+        descricao:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Descricao
+        categoria:
+          anyOf:
+          - $ref: '#/components/schemas/CategoriaRisco'
+          - type: 'null'
+        probabilidade:
+          anyOf:
+          - type: integer
+            maximum: 5.0
+            minimum: 1.0
+          - type: 'null'
+          title: Probabilidade
+        impacto:
+          anyOf:
+          - type: integer
+            maximum: 5.0
+            minimum: 1.0
+          - type: 'null'
+          title: Impacto
+        resposta:
+          anyOf:
+          - $ref: '#/components/schemas/RespostaRisco'
+          - type: 'null'
+        responsavel_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Responsavel Id
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/StatusRisco'
+          - type: 'null'
+        gatilho:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Gatilho
+        data_revisao:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Data Revisao
+      type: object
+      title: RiscoUpdate
+      description: 'Corpo de `PATCH /riscos/{id}`: só o que muda. O `score` acompanha
+        sozinho.'
     SaudeResponse:
       properties:
         status:
@@ -2558,6 +4931,63 @@ components:
       title: SaudeResponse
       description: Estado da aplicação e do banco (FR-014, NFR-DIS-03, NFR-OBS-04,
         AC-053).
+    ScorecardCreate:
+      properties:
+        periodo:
+          type: string
+          maxLength: 20
+          minLength: 1
+          title: Periodo
+          description: 'Rótulo do período, ex.: 2026-T3.'
+        criterios:
+          items:
+            $ref: '#/components/schemas/CriterioScorecard-Input'
+          type: array
+          minItems: 1
+          title: Criterios
+        avaliacoes:
+          items:
+            $ref: '#/components/schemas/AvaliacaoFornecedor'
+          type: array
+          minItems: 1
+          title: Avaliacoes
+      type: object
+      required:
+      - periodo
+      - criterios
+      - avaliacoes
+      title: ScorecardCreate
+      description: 'Corpo de `POST /fornecedores/scorecard` (FR-011).
+
+
+        Nota fora de 0–10, critério sem nota, critério desconhecido, critério ou fornecedor
+        repetido
+
+        são erros de validação (422). A soma dos pesos diferente de 100 é regra de
+        negócio: o
+
+        serviço recusa com 409 e `regra = BR-029`, registrada na auditoria (NFR-AUD-05).'
+    ScorecardResponse:
+      properties:
+        periodo:
+          type: string
+          title: Periodo
+        criterios:
+          items:
+            $ref: '#/components/schemas/CriterioScorecard-Output'
+          type: array
+          title: Criterios
+        ranking:
+          items:
+            $ref: '#/components/schemas/PosicaoRanking'
+          type: array
+          title: Ranking
+      type: object
+      required:
+      - periodo
+      - criterios
+      - ranking
+      title: ScorecardResponse
     SetorCreate:
       properties:
         nome:
@@ -2611,12 +5041,38 @@ components:
       - EM_MANUTENCAO
       - BAIXADO
       title: StatusAtivo
+    StatusRecomendacao:
+      type: string
+      enum:
+      - PROPOSTA
+      - APROVADA
+      - REJEITADA
+      - IMPLEMENTADA
+      title: StatusRecomendacao
+    StatusRisco:
+      type: string
+      enum:
+      - ABERTO
+      - EM_TRATAMENTO
+      - ENCERRADO
+      title: StatusRisco
     TipoAtivo:
       type: string
       enum:
       - HARDWARE
       - SOFTWARE
       title: TipoAtivo
+    TipoEvidencia:
+      type: string
+      enum:
+      - INDICADOR
+      - RISCO
+      - ATIVO
+      - LICENCA
+      - SCORECARD
+      - CENARIO
+      - PREMISSA
+      title: TipoEvidencia
     TipoLicenciamento:
       type: string
       enum:
@@ -2682,27 +5138,6 @@ components:
       - perfil
       - ativo
       title: UsuarioResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     VinculoCreate:
       properties:
         responsavel_id:
