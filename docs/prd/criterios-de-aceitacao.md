@@ -100,3 +100,9 @@ Parte de [PRD — ITAM](README.md).
 ### FR-001 — Chave de licença única (BR-039)
 
 - [ ] **AC-067** — Dado um ativo com uma chave de licença já cadastrada, quando se tenta cadastrar outro ativo com a mesma chave (pela API ou pela importação), então o sistema recusa: a API responde `409` com `regra = BR-039` e grava a recusa na auditoria; a importação rejeita só a linha, com erro no campo `chave_licenca`, e processa as demais. A chave completa não aparece na mensagem, na auditoria nem no relatório de erros. Ativos sem chave continuam aceitos.
+- [ ] **AC-070** — Dados dois cadastros simultâneos de ativo com o mesmo número de série, quando o segundo conflita no índice único do banco (e não na checagem prévia), então a API responde `409` com `regra = BR-001`, grava a recusa na auditoria e a conta em `itam_regras_violadas_total`, em vez de falhar com `500`.
+
+### FR-008 — Importação sem violar o banco (AC-068, AC-069)
+
+- [ ] **AC-068** — Dado um arquivo de importação com uma linha cujo `nome`, `numero_serie`, `chave_licenca` ou `localizacao` passa do tamanho da coluna, quando importado, então a linha é rejeitada com erro de linha (número, campo e motivo) e as demais são importadas; o arquivo não é recusado por inteiro. A chave de licença nunca aparece completa no relatório de erros, e o valor mostrado no relatório é cortado no tamanho do campo do relatório.
+- [ ] **AC-069** — Dado um arquivo de importação com uma linha cujo `valor_compra` tem parte inteira acima do que a coluna comporta (10 dígitos), mais de duas casas decimais ou não é um número finito, quando importado, então a linha é rejeitada com erro de linha, sem arredondar o valor, e as demais são importadas.

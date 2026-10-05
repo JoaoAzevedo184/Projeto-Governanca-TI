@@ -22,6 +22,24 @@ TAMANHO_MAXIMO_BYTES = 5 * 1024 * 1024
 LINHAS_MAXIMAS = 5_000
 
 
+def _coluna(atributo, propriedade: str) -> int:
+    """Propriedade (`length`, `precision`, `scale`) do tipo da coluna no modelo: os limites do
+    importador vêm do banco, não de um número repetido aqui."""
+    return int(getattr(atributo.type, propriedade))
+
+
+# Texto que o importador grava em `ativo`: recusado na linha se passar do tamanho da coluna.
+LIMITE_TEXTO = {
+    campo: _coluna(getattr(Ativo, campo), "length")
+    for campo in ("nome", "numero_serie", "chave_licenca", "localizacao")
+}
+# O que `valor_recebido` do relatório de erros comporta: o valor mostrado é cortado nele.
+LIMITE_VALOR_RECEBIDO = _coluna(ErroImportacao.valor_recebido, "length")
+CASAS_DECIMAIS = _coluna(Ativo.valor_compra, "scale")
+DIGITOS_INTEIROS = _coluna(Ativo.valor_compra, "precision") - CASAS_DECIMAIS
+CENTAVO = Decimal(1).scaleb(-CASAS_DECIMAIS)
+
+
 def _ler_planilha(nome_arquivo: str, conteudo: bytes) -> pd.DataFrame:
     nome = nome_arquivo.lower()
     if not nome.endswith((".csv", ".xlsx")):
@@ -58,11 +76,25 @@ def _validar_linha(
     erros: list[dict] = []
 
     def registrar_erro(campo: str, valor: str, motivo: str) -> None:
-        erros.append({"campo": campo, "valor_recebido": valor, "motivo": motivo})
+        erros.append(
+            {"campo": campo, "valor_recebido": valor[:LIMITE_VALOR_RECEBIDO], "motivo": motivo}
+        )
+
+    def acima_do_limite(campo: str, valor: str, mostrado: str | None = None) -> bool:
+        if len(valor) <= LIMITE_TEXTO[campo]:
+            return False
+        registrar_erro(
+            campo,
+            valor if mostrado is None else mostrado,
+            f"Excede o limite de {LIMITE_TEXTO[campo]} caracteres.",
+        )
+        return True
 
     nome = linha.get("nome", "").strip()
     if len(nome) < 3:
         registrar_erro("nome", nome, "Nome deve ter ao menos 3 caracteres.")
+    else:
+        acima_do_limite("nome", nome)
 
     tipo = linha.get("tipo", "").strip().upper()
     if tipo not in {"HARDWARE", "SOFTWARE"}:
@@ -85,7 +117,7 @@ def _validar_linha(
     if tipo == "SOFTWARE" and not chave_licenca:
         registrar_erro("chave_licenca", "", "Obrigatória para ativos do tipo SOFTWARE (BR-002).")
 
-    if numero_serie:
+    if numero_serie and not acima_do_limite("numero_serie", numero_serie):
         if numero_serie in numeros_serie_vistos:
             registrar_erro(
                 "numero_serie", numero_serie, "Duplicado dentro do próprio arquivo (AC-046)."
@@ -93,8 +125,11 @@ def _validar_linha(
         elif db.scalar(select(Ativo).where(Ativo.numero_serie == numero_serie)) is not None:
             registrar_erro("numero_serie", numero_serie, "Já cadastrado na base (BR-001).")
 
-    if chave_licenca:
-        # BR-039. O relatório de erros guarda a chave mascarada (RI-08).
+    # O relatório de erros guarda a chave mascarada, também quando é longa demais (RI-08).
+    if chave_licenca and not acima_do_limite(
+        "chave_licenca", chave_licenca, mascarar_chave(chave_licenca)
+    ):
+        # BR-039.
         if chave_licenca in chaves_vistas:
             registrar_erro(
                 "chave_licenca",
@@ -105,6 +140,10 @@ def _validar_linha(
             registrar_erro(
                 "chave_licenca", mascarar_chave(chave_licenca), "Já cadastrada na base (BR-039)."
             )
+
+    localizacao = linha.get("localizacao", "").strip() or None
+    if localizacao:
+        acima_do_limite("localizacao", localizacao)
 
     valor_data_aquisicao = linha.get("data_aquisicao", "").strip()
     data_aquisicao: date | None = None
@@ -121,6 +160,19 @@ def _validar_linha(
         valor_compra = Decimal(valor_valor_compra)
         if valor_compra <= 0:
             registrar_erro("valor_compra", valor_valor_compra, "Deve ser maior que zero (BR-004).")
+        elif valor_compra.adjusted() + 1 > DIGITOS_INTEIROS:
+            registrar_erro(
+                "valor_compra",
+                valor_valor_compra,
+                f"Parte inteira acima de {DIGITOS_INTEIROS} dígitos inteiros (limite da coluna).",
+            )
+        # `quantize` levanta InvalidOperation para Infinity (e `<=` para NaN): "valor inválido".
+        elif valor_compra != valor_compra.quantize(CENTAVO):
+            registrar_erro(
+                "valor_compra",
+                valor_valor_compra,
+                f"Mais de {CASAS_DECIMAIS} casas decimais (o valor não é arredondado).",
+            )
     except InvalidOperation:
         registrar_erro("valor_compra", valor_valor_compra, "Valor decimal inválido.")
 
@@ -147,7 +199,7 @@ def _validar_linha(
         data_aquisicao=data_aquisicao,
         valor_compra=valor_compra,
         vida_util_meses=categoria.vida_util_meses,
-        localizacao=linha.get("localizacao", "").strip() or None,
+        localizacao=localizacao,
         data_source="importacao",
     )
     return ativo, []

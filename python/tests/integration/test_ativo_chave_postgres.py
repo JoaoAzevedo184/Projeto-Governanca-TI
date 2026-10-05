@@ -1,12 +1,14 @@
-"""Chave de licença única no PostgreSQL (BR-039, AC-067): o índice e a corrida real.
+"""Índices únicos de `ativo` no PostgreSQL (BR-039, AC-067; BR-001, AC-070): índice e corrida real.
 
 Roda contra o PostgreSQL de teste migrado pelo `conftest.py`. O conflito é provocado com uma
 segunda conexão real, sem mock (docs/guia/testes.md).
 """
 
+import io
 import threading
 import time
 
+from prometheus_client import REGISTRY
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
@@ -47,27 +49,25 @@ def test_licenca_continua_sem_unicidade_na_chave(db):
     assert indices == [] and restricoes == []
 
 
-def _cadastrar_com_escritor_externo(client, token, categoria, fornecedor, externo_sql, payload):
-    """Corrida real: um escritor externo (ETL, carga D.8) insere sem confirmar; o cadastro passa
-    pelas checagens do serviço, bloqueia no índice único e recebe o IntegrityError quando o
-    externo confirma. Devolve a resposta do cadastro ou, se o
-    erro subir sem tratamento, a exceção (chave `erro`)."""
+def _com_escritor_externo(externo_sql, parametros, requisicao):
+    """Corrida real: um escritor externo (ETL, carga D.8) executa `externo_sql` sem confirmar; a
+    `requisicao(client)` passa pelas checagens do serviço, bloqueia no banco e só prossegue quando
+    o externo confirma. Devolve `{"resposta": ...}` ou, se o erro subir sem tratamento (o
+    TestClient o repropaga), `{"erro": exceção}`."""
     externo = engine.connect()
     transacao_externa = externo.begin()
     pid_externo = externo.scalar(text("SELECT pg_backend_pid()"))
-    externo.execute(externo_sql, {"c": categoria.id, "f": fornecedor.id})
+    externo.execute(externo_sql, parametros)
 
     resultado = {}
 
-    def cadastrar():
+    def executar():
         try:
-            resultado["resposta"] = client.post(
-                "/api/v1/ativos", headers={"Authorization": f"Bearer {token}"}, json=payload
-            )
+            resultado["resposta"] = requisicao()
         except Exception as erro:  # o TestClient repropaga o erro não tratado do servidor
             resultado["erro"] = erro
 
-    thread = threading.Thread(target=cadastrar)
+    thread = threading.Thread(target=executar)
     thread.start()
     try:
         # AUTOCOMMIT: pg_stat_activity é congelada por transação; sem isso o polling não atualiza.
@@ -77,7 +77,7 @@ def _cadastrar_com_escritor_externo(client, token, categoria, fornecedor, extern
             )
             limite = time.monotonic() + 10
             while not monitor.scalar(consulta, {"pid": pid_externo}):
-                assert time.monotonic() < limite, "o cadastro não bloqueou no índice"
+                assert time.monotonic() < limite, "a requisição não bloqueou no banco"
                 time.sleep(0.02)  # polling da condição, não sincronização por tempo
         transacao_externa.commit()
     finally:
@@ -85,6 +85,16 @@ def _cadastrar_com_escritor_externo(client, token, categoria, fornecedor, extern
         thread.join(timeout=10)
     assert not thread.is_alive()
     return resultado
+
+
+def _cadastrar_com_escritor_externo(client, token, categoria, fornecedor, externo_sql, payload):
+    return _com_escritor_externo(
+        externo_sql,
+        {"c": categoria.id, "f": fornecedor.id},
+        lambda: client.post(
+            "/api/v1/ativos", headers={"Authorization": f"Bearer {token}"}, json=payload
+        ),
+    )
 
 
 def _payload(categoria, fornecedor, **campos):
@@ -131,15 +141,53 @@ def test_ac067_conflito_real_no_indice_grava_recusa_na_auditoria(
     assert detalhe == {"ativo_conflitante_id": ativos[0][0]}  # nada do cadastro concorrente ficou
 
 
-def test_corrida_em_outro_indice_nao_vira_br039(client, db, token_admin, categoria, fornecedor):
-    """Só o índice da chave vira BR-039. A corrida no número de série segue como antes desta
-    regra: o IntegrityError sobe sem tratamento (a API responderia 500). É uma lacuna conhecida,
-    fora do escopo da BR-039; o teste fixa que a regra nova não engole o erro dos outros índices."""
+def _violadas(regra: str) -> float:
+    return REGISTRY.get_sample_value("itam_regras_violadas_total", {"regra": regra}) or 0.0
+
+
+def test_ac070_corrida_real_no_numero_de_serie_recusa_com_br001_e_audita(
+    client, db, token_admin, categoria, fornecedor
+):
+    """Mesma corrida do BR-039, agora no índice do número de série: antes subia como
+    IntegrityError e a API respondia 500; agora é 409 com `regra = BR-001`."""
     externo_sql = text(
         "INSERT INTO ativo (nome, tipo, categoria_id, fornecedor_id, numero_serie, data_aquisicao,"
         " valor_compra, vida_util_meses, status, data_source) VALUES ('Externo', 'HARDWARE',"
         " :c, :f, 'SN-CORRIDA', '2025-01-10', 100, 36, 'ATIVO', 'sintetico')"
     )
+    antes = _violadas("BR-001")
+
+    resposta = _cadastrar_com_escritor_externo(
+        client,
+        token_admin,
+        categoria,
+        fornecedor,
+        externo_sql,
+        _payload(categoria, fornecedor, tipo="HARDWARE", numero_serie="SN-CORRIDA"),
+    )["resposta"]
+
+    assert resposta.status_code == 409
+    assert resposta.json()["regra"] == "BR-001"
+    assert _violadas("BR-001") == antes + 1
+    with engine.connect() as conexao:
+        auditoria = conexao.execute(
+            text(
+                "SELECT operacao, resultado, regra_violada, detalhe FROM audit_log"
+                " WHERE entidade = 'ativo'"
+            )
+        ).all()
+        ativos = conexao.execute(text("SELECT id, nome FROM ativo")).all()
+    assert auditoria == [("CRIAR", "RECUSADO", "BR-001", {"ativo_conflitante_id": ativos[0][0]})]
+    assert [a[1] for a in ativos] == ["Externo"]  # nada do cadastro concorrente ficou
+
+
+def test_corrida_em_outra_restricao_nao_vira_recusa_de_regra(
+    client, db, token_admin, categoria, fornecedor
+):
+    """Só os dois índices únicos viram BR-001/BR-039. Outra restrição (aqui, a categoria apagada
+    por um escritor externo entre a checagem e o INSERT: violação de FK) segue subindo como
+    IntegrityError, para a regra nova não engolir erro que não é dela."""
+    externo_sql = text("DELETE FROM categoria WHERE id = :c")
 
     resultado = _cadastrar_com_escritor_externo(
         client,
@@ -147,14 +195,47 @@ def test_corrida_em_outro_indice_nao_vira_br039(client, db, token_admin, categor
         categoria,
         fornecedor,
         externo_sql,
-        _payload(categoria, fornecedor, tipo="HARDWARE", numero_serie="SN-CORRIDA"),
+        _payload(categoria, fornecedor, tipo="HARDWARE", numero_serie="SN-FK"),
     )
 
     assert "resposta" not in resultado
     assert isinstance(resultado["erro"], IntegrityError)
-    assert resultado["erro"].orig.diag.constraint_name == "ativo_numero_serie_key"
+    assert resultado["erro"].orig.diag.constraint_name == "ativo_categoria_id_fkey"
     with engine.connect() as conexao:
         recusas = conexao.execute(
             text("SELECT regra_violada FROM audit_log WHERE resultado = 'RECUSADO'")
         ).all()
     assert recusas == []
+
+
+def test_falha_do_banco_no_meio_do_lote_desfaz_ativos_lote_e_auditorias(
+    client, db, token_admin, categoria, fornecedor
+):
+    """Falha real do banco durante o lote: um escritor externo apaga a categoria que as linhas
+    usam (a checagem do importador a vê; o INSERT bloqueia e falha na FK). Nada fica: nem os
+    ativos, nem o lote, nem as auditorias, porque tudo é uma transação só."""
+    linhas = [
+        "nome,tipo,categoria,fornecedor,numero_serie,data_aquisicao,valor_compra",
+        f"Notebook 1,HARDWARE,{categoria.nome},{fornecedor.razao_social},SN-1,2025-01-10,1000.00",
+        f"Notebook 2,HARDWARE,{categoria.nome},{fornecedor.razao_social},SN-2,2025-01-10,1000.00",
+    ]
+    conteudo = ("\n".join(linhas) + "\n").encode("utf-8")
+
+    resultado = _com_escritor_externo(
+        text("DELETE FROM categoria WHERE id = :c"),
+        {"c": categoria.id},
+        lambda: client.post(
+            "/api/v1/importacoes",
+            headers={"Authorization": f"Bearer {token_admin}"},
+            files={"arquivo": ("inventario.csv", io.BytesIO(conteudo), "text/csv")},
+        ),
+    )
+
+    assert "resposta" not in resultado
+    assert resultado["erro"].orig.diag.constraint_name == "ativo_categoria_id_fkey"
+    with engine.connect() as conexao:
+        contagens = [
+            conexao.scalar(text(f"SELECT count(*) FROM {tabela}"))
+            for tabela in ("ativo", "lote_importacao", "erro_importacao", "audit_log")
+        ]
+    assert contagens == [0, 0, 0, 0]

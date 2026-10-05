@@ -264,6 +264,7 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 **Comportamentos:**
 - Validação dos cabeçalhos esperados antes de processar as linhas.
 - Conversão e validação de datas, valores decimais e enumerados.
+- Validação do tamanho dos textos e do intervalo do valor: texto acima do tamanho da coluna (`nome`, `numero_serie`, `chave_licenca`, `localizacao`) e `valor_compra` com parte inteira acima de 10 dígitos, com mais de duas casas decimais ou que não é número finito são recusados na linha, sem arredondar em silêncio. Nenhum desses valores chega ao banco, então nunca derrubam o arquivo (AC-068, AC-069).
 - Detecção de duplicidade por número de série, dentro do arquivo e contra a base.
 - Separação entre registros válidos (importados) e inválidos (rejeitados).
 - Criação de um **lote de importação** com identificador, data, usuário, total processado, total aceito e total rejeitado.

@@ -315,24 +315,6 @@ def test_importacao_recusada_antes_de_processar_nao_grava_auditoria(client, db, 
     assert _total(db, AuditLog) == 0
 
 
-def test_falha_do_banco_no_meio_do_lote_desfaz_ativos_lote_e_auditorias(
-    client, db, token_admin, categoria, fornecedor
-):
-    # 14 dígitos passam na validação (> 0) mas estouram NUMERIC(12,2) no flush: erro real do banco.
-    linhas = [
-        _linha(categoria, fornecedor, numero_serie="SN-1"),
-        _linha(categoria, fornecedor, numero_serie="SN-2", valor_compra="99999999999999.00"),
-    ]
-
-    resposta = _importar(client, token_admin, _csv([CABECALHO, *linhas]))
-
-    assert resposta.status_code == 422
-    db.rollback()  # a sessão do teste é compartilhada com a rota; em produção o get_db a fecha
-    assert _total(db, Ativo) == 0
-    assert _total(db, LoteImportacao) == 0
-    assert _total(db, AuditLog) == 0
-
-
 def test_ac067_importacao_rejeita_so_a_linha_com_chave_repetida_no_arquivo_ou_na_base(
     client, db, token_admin, categoria, fornecedor
 ):
@@ -388,3 +370,228 @@ def test_ac067_importacao_aceita_varias_linhas_sem_chave(
 
     assert resposta.json()["total_aceito"] == 3
     assert db.scalar(select(func.count()).where(Ativo.chave_licenca.is_(None))) == 3
+
+
+COLUNAS = [*CABECALHO.split(","), "localizacao"]
+LIMITE_NOME = Ativo.__table__.c.nome.type.length
+LIMITE_SERIE = Ativo.__table__.c.numero_serie.type.length
+LIMITE_CHAVE = Ativo.__table__.c.chave_licenca.type.length
+LIMITE_LOCALIZACAO = Ativo.__table__.c.localizacao.type.length
+LIMITE_VALOR_RECEBIDO = ErroImportacao.__table__.c.valor_recebido.type.length
+FORMATOS = pytest.mark.parametrize("formato", ["csv", "xlsx"])
+
+
+def _arquivo(formato: str, linhas: list[dict]) -> tuple[bytes, str]:
+    """CSV e XLSX com as mesmas linhas, tudo como texto (o importador lê tudo como texto)."""
+    tabela = pd.DataFrame(linhas, columns=COLUNAS, dtype=str).fillna("")
+    if formato == "csv":
+        return tabela.to_csv(index=False).encode("utf-8"), "inventario.csv"
+    buffer = io.BytesIO()
+    tabela.to_excel(buffer, index=False)
+    return buffer.getvalue(), "inventario.xlsx"
+
+
+def _linha_valida(cat, forn, serie, **campos):
+    return {
+        "nome": f"Notebook {serie}",
+        "tipo": "HARDWARE",
+        "categoria": cat.nome,
+        "fornecedor": forn.razao_social,
+        "numero_serie": serie,
+        "chave_licenca": "",
+        "data_aquisicao": "2025-01-10",
+        "valor_compra": "1000.00",
+        "localizacao": "",
+        **campos,
+    }
+
+
+def _importar_formato(client, token, formato, linhas):
+    conteudo, nome = _arquivo(formato, linhas)
+    return _importar(client, token, conteudo, nome)
+
+
+def _erros(db, lote_id):
+    consulta = select(ErroImportacao).where(ErroImportacao.lote_id == lote_id)
+    return db.scalars(consulta.order_by(ErroImportacao.numero_linha, ErroImportacao.campo)).all()
+
+
+@FORMATOS
+def test_ac068_texto_maior_que_a_coluna_vira_erro_de_linha_e_o_lote_segue(
+    client, db, token_admin, categoria, fornecedor, formato
+):
+    chave_longa = "K" * (LIMITE_CHAVE + 1)
+    linhas = [
+        _linha_valida(categoria, fornecedor, "SN-OK-1"),
+        _linha_valida(categoria, fornecedor, "SN-NOME", nome="N" * (LIMITE_NOME + 1)),
+        _linha_valida(categoria, fornecedor, "S" * (LIMITE_SERIE + 1)),
+        _linha_valida(
+            categoria,
+            fornecedor,
+            "",
+            nome="Licenca longa",
+            tipo="SOFTWARE",
+            chave_licenca=chave_longa,
+        ),
+        _linha_valida(
+            categoria, fornecedor, "SN-LOCAL", localizacao="L" * (LIMITE_LOCALIZACAO + 1)
+        ),
+        _linha_valida(categoria, fornecedor, "SN-OK-2"),
+    ]
+
+    resposta = _importar_formato(client, token_admin, formato, linhas)
+
+    assert resposta.status_code == 202  # nem 422 do arquivo inteiro, nem 500
+    corpo = resposta.json()
+    assert (corpo["total_processado"], corpo["total_aceito"], corpo["total_rejeitado"]) == (6, 2, 4)
+    assert sorted(db.scalars(select(Ativo.numero_serie))) == ["SN-OK-1", "SN-OK-2"]
+    erros = _erros(db, corpo["lote_id"])
+    assert [(e.numero_linha, e.campo) for e in erros] == [
+        (3, "nome"),
+        (4, "numero_serie"),
+        (5, "chave_licenca"),
+        (6, "localizacao"),
+    ]
+    limites = {
+        "nome": LIMITE_NOME,
+        "numero_serie": LIMITE_SERIE,
+        "chave_licenca": LIMITE_CHAVE,
+        "localizacao": LIMITE_LOCALIZACAO,
+    }
+    for erro in erros:
+        assert str(limites[erro.campo]) in erro.motivo  # o limite vem da coluna do modelo
+        assert len(erro.valor_recebido) <= LIMITE_VALOR_RECEBIDO
+    # RI-08: a chave, mesmo recusada, não sai inteira no relatório.
+    relatorio = client.get(
+        f"/api/v1/importacoes/{corpo['lote_id']}/erros",
+        headers={"Authorization": f"Bearer {token_admin}"},
+    )
+    assert chave_longa not in relatorio.text and chave_longa[:60] not in relatorio.text
+    assert erros[2].valor_recebido == "****-****-" + chave_longa[-4:]
+
+
+@FORMATOS
+def test_ac068_texto_exatamente_no_limite_da_coluna_e_aceito(
+    client, db, token_admin, categoria, fornecedor, formato
+):
+    linha = _linha_valida(
+        categoria,
+        fornecedor,
+        "S" * LIMITE_SERIE,
+        nome="N" * LIMITE_NOME,
+        localizacao="L" * LIMITE_LOCALIZACAO,
+    )
+    software = _linha_valida(
+        categoria, fornecedor, "", tipo="SOFTWARE", chave_licenca="K" * LIMITE_CHAVE
+    )
+
+    resposta = _importar_formato(client, token_admin, formato, [linha, software])
+
+    assert (resposta.status_code, resposta.json()["total_aceito"]) == (202, 2)
+    gravado = db.scalar(select(Ativo).where(Ativo.numero_serie == "S" * LIMITE_SERIE))
+    assert len(gravado.nome) == LIMITE_NOME and len(gravado.localizacao) == LIMITE_LOCALIZACAO
+
+
+@FORMATOS
+def test_ac068_valor_do_relatorio_de_erros_e_cortado_no_tamanho_da_coluna(
+    client, db, token_admin, categoria, fornecedor, formato
+):
+    """O valor recebido de qualquer campo inválido cabe no relatório: antes, um `tipo` ou uma
+    categoria de 400 caracteres estourava `erro_importacao.valor_recebido` e derrubava o lote."""
+    linhas = [
+        _linha_valida(categoria, fornecedor, "SN-OK"),
+        _linha_valida(categoria, fornecedor, "SN-TIPO", tipo="T" * 400),
+        _linha_valida(categoria, fornecedor, "SN-CAT", categoria="C" * 400),
+        _linha_valida(categoria, fornecedor, "SN-FORN", fornecedor="F" * 400),
+        _linha_valida(categoria, fornecedor, "SN-DATA", data_aquisicao="9" * 400),
+        _linha_valida(categoria, fornecedor, "SN-VALOR", valor_compra="9" * 400),
+    ]
+
+    resposta = _importar_formato(client, token_admin, formato, linhas)
+
+    assert (resposta.status_code, resposta.json()["total_aceito"]) == (202, 1)
+    erros = _erros(db, resposta.json()["lote_id"])
+    assert [(e.numero_linha, e.campo) for e in erros] == [
+        (3, "tipo"),
+        (4, "categoria"),
+        (5, "fornecedor"),
+        (6, "data_aquisicao"),
+        (7, "valor_compra"),
+    ]
+    assert {len(e.valor_recebido) for e in erros} == {LIMITE_VALOR_RECEBIDO}
+
+
+@FORMATOS
+def test_ac069_valor_fora_do_que_a_coluna_comporta_vira_erro_de_linha_e_o_lote_segue(
+    client, db, token_admin, categoria, fornecedor, formato
+):
+    linhas = [
+        _linha_valida(categoria, fornecedor, "SN-OK"),
+        _linha_valida(categoria, fornecedor, "SN-11", valor_compra="99999999999.99"),
+        _linha_valida(categoria, fornecedor, "SN-EXP", valor_compra="1E+30"),
+        _linha_valida(categoria, fornecedor, "SN-INF", valor_compra="Infinity"),
+        _linha_valida(categoria, fornecedor, "SN-3CASAS", valor_compra="442.584"),
+        _linha_valida(categoria, fornecedor, "SN-MICRO", valor_compra="0.001"),
+        _linha_valida(categoria, fornecedor, "SN-LIMITE", valor_compra="9999999999.99"),
+        _linha_valida(categoria, fornecedor, "SN-ZERO-FINAL", valor_compra="442.580"),
+    ]
+
+    resposta = _importar_formato(client, token_admin, formato, linhas)
+
+    assert resposta.status_code == 202  # nem 422 do arquivo inteiro, nem 500
+    corpo = resposta.json()
+    assert (corpo["total_processado"], corpo["total_aceito"], corpo["total_rejeitado"]) == (8, 3, 5)
+    valores = dict(db.execute(select(Ativo.numero_serie, Ativo.valor_compra)).all())
+    # escrito à mão: 442.580 vale 442.58 sem perder nada, então não é arredondamento
+    assert valores == {
+        "SN-OK": Decimal("1000.00"),
+        "SN-LIMITE": Decimal("9999999999.99"),
+        "SN-ZERO-FINAL": Decimal("442.58"),
+    }
+    erros = _erros(db, corpo["lote_id"])
+    assert [(e.numero_linha, e.campo) for e in erros] == [(3, "valor_compra")] + [
+        (n, "valor_compra") for n in (4, 5, 6, 7)
+    ]
+    motivos = {e.numero_linha: e.motivo for e in erros}
+    assert "10 dígitos inteiros" in motivos[3] and "10 dígitos inteiros" in motivos[4]
+    assert "inválido" in motivos[5]
+    assert "2 casas decimais" in motivos[6] and "2 casas decimais" in motivos[7]
+    assert [e.valor_recebido for e in erros if e.numero_linha == 6] == ["442.584"]
+
+
+@FORMATOS
+def test_ac068_ac069_uma_linha_invalida_de_cada_tipo_importa_as_validas_e_relata_cada_erro(
+    client, db, token_admin, categoria, fornecedor, formato
+):
+    """Critério do bloco: 1 linha de cada tipo + N válidas: N importadas, cada erro com linha e
+    campo, e nenhuma resposta 422/500 para o arquivo."""
+    linhas = [
+        _linha_valida(categoria, fornecedor, "SN-A"),
+        _linha_valida(categoria, fornecedor, "SN-NOME", nome="N" * (LIMITE_NOME + 1)),
+        _linha_valida(categoria, fornecedor, "SN-B"),
+        _linha_valida(categoria, fornecedor, "S" * (LIMITE_SERIE + 1)),
+        _linha_valida(categoria, fornecedor, "SN-C"),
+        _linha_valida(
+            categoria, fornecedor, "", tipo="SOFTWARE", chave_licenca="K" * (LIMITE_CHAVE + 1)
+        ),
+        _linha_valida(categoria, fornecedor, "SN-D", localizacao="L" * (LIMITE_LOCALIZACAO + 1)),
+        _linha_valida(categoria, fornecedor, "SN-INT", valor_compra="12345678901.00"),
+        _linha_valida(categoria, fornecedor, "SN-DEC", valor_compra="1.001"),
+        _linha_valida(categoria, fornecedor, "SN-E"),
+    ]
+
+    resposta = _importar_formato(client, token_admin, formato, linhas)
+
+    assert resposta.status_code == 202
+    corpo = resposta.json()
+    assert (corpo["total_aceito"], corpo["total_rejeitado"]) == (4, 6)
+    erros = _erros(db, corpo["lote_id"])
+    assert [(e.numero_linha, e.campo) for e in erros] == [
+        (3, "nome"),
+        (5, "numero_serie"),
+        (7, "chave_licenca"),
+        (8, "localizacao"),
+        (9, "valor_compra"),
+        (10, "valor_compra"),
+    ]
+    assert sorted(db.scalars(select(Ativo.numero_serie))) == ["SN-A", "SN-B", "SN-C", "SN-E"]

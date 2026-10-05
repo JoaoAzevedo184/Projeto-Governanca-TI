@@ -14,6 +14,9 @@ from app.models.usuario import Usuario
 from app.schemas.ativo import AtivoCreate, AtivoUpdate
 
 INDICE_CHAVE_UNICA = "ux_ativo_chave_licenca"
+INDICE_NUMERO_SERIE_UNICO = "ativo_numero_serie_key"  # nome que o PostgreSQL deu ao UNIQUE
+# Os dois únicos índices cujo conflito, sob concorrência, vira recusa de regra de negócio.
+REGRA_POR_INDICE = {INDICE_CHAVE_UNICA: "BR-039", INDICE_NUMERO_SERIE_UNICO: "BR-001"}
 
 COLUNAS_ORDENACAO = {
     "id": Ativo.id,
@@ -50,6 +53,23 @@ def _recusar_chave_duplicada(db: Session, usuario: Usuario, conflitante_id: int 
         entidade="ativo",
         regra="BR-039",
         mensagem="Chave de licença já cadastrada em outro ativo (BR-039).",
+        detalhe={"ativo_conflitante_id": conflitante_id},
+    )
+
+
+def _recusar_corrida(db: Session, usuario: Usuario, regra: str, dados: AtivoCreate) -> NoReturn:
+    """O índice recusou o INSERT que a checagem prévia deixou passar (escritor concorrente)."""
+    if regra == "BR-039":
+        assert dados.chave_licenca is not None  # o índice é parcial: só vale com chave
+        _recusar_chave_duplicada(db, usuario, _id_do_ativo_com_chave(db, dados.chave_licenca))
+    conflitante_id = db.scalar(select(Ativo.id).where(Ativo.numero_serie == dados.numero_serie))
+    recusar_operacao(
+        db,
+        usuario_id=usuario.id,
+        operacao="CRIAR",
+        entidade="ativo",
+        regra=regra,
+        mensagem="Número de série já cadastrado em outro ativo (BR-001).",
         detalhe={"ativo_conflitante_id": conflitante_id},
     )
 
@@ -95,7 +115,7 @@ def criar_ativo(db: Session, dados: AtivoCreate, usuario: Usuario) -> Ativo:
         observacoes=dados.observacoes,
         data_source="manual",
     )
-    corrida = False
+    regra_da_corrida = None
     try:
         # Savepoint: no conflito só o INSERT é desfeito e a recusa ainda é auditada (NFR-AUD-05).
         with db.begin_nested():
@@ -103,14 +123,13 @@ def criar_ativo(db: Session, dados: AtivoCreate, usuario: Usuario) -> Ativo:
             db.flush()
     except IntegrityError as erro:
         # A checagem acima não vê o escritor concorrente (ETL, carga D.8) que ainda não
-        # confirmou; só o índice garante BR-039. Outro IntegrityError não é desta regra.
+        # confirmou; só o índice garante BR-001 e BR-039. Outro IntegrityError não é dessas regras.
         diagnostico = getattr(erro.orig, "diag", None)
-        if getattr(diagnostico, "constraint_name", None) != INDICE_CHAVE_UNICA:
+        regra_da_corrida = REGRA_POR_INDICE.get(getattr(diagnostico, "constraint_name", ""))
+        if regra_da_corrida is None:
             raise
-        corrida = True
-    if corrida:  # fora do `except`: a exceção do banco traz a chave na mensagem (RI-08)
-        assert dados.chave_licenca is not None  # o índice é parcial: só vale com chave
-        _recusar_chave_duplicada(db, usuario, _id_do_ativo_com_chave(db, dados.chave_licenca))
+    if regra_da_corrida is not None:  # fora do `except`: a mensagem do banco traz a chave (RI-08)
+        _recusar_corrida(db, usuario, regra_da_corrida, dados)
     registrar_auditoria(
         db, usuario_id=usuario.id, operacao="CRIAR", entidade="ativo", entidade_id=ativo.id
     )
