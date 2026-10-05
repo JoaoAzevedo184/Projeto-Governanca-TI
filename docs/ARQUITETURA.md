@@ -81,10 +81,10 @@ graph TB
 ```mermaid
 graph TB
     subgraph rt["api/v1/routers"]
-        R1["existem: auth · categorias · fornecedores<br/>setores · responsaveis · ativos (inclui a baixa)<br/>importacoes · licencas · relatorios<br/>compliance · indicadores · tecnico (/health, /metrics)<br/>planejados: riscos · recomendacoes"]
+        R1["existem: auth · categorias · fornecedores<br/>setores · responsaveis · ativos (inclui a baixa)<br/>importacoes · licencas · relatorios<br/>compliance · indicadores · tecnico (/health, /metrics)<br/>riscos · cenarios · recomendacoes"]
     end
     subgraph sv["services — regras de negócio"]
-        S1["existem: ativo · responsavel · depreciacao<br/>importacao · categoria · fornecedor · setor<br/>baixa · licenca · compliance · indicador<br/>relatorio · observabilidade<br/>planejados: cenario · scorecard · risco<br/>recomendacao"]
+        S1["existem: ativo · responsavel · depreciacao<br/>importacao · categoria · fornecedor · setor<br/>baixa · licenca · compliance · indicador<br/>relatorio · observabilidade<br/>cenario · scorecard · risco · recomendacao"]
     end
     subgraph md["models — SQLAlchemy"]
         M1["mapeamento, constraints, índices"]
@@ -93,7 +93,7 @@ graph TB
         C1["existem: config · database · security<br/>exceptions · audit · metrics · logging"]
     end
     subgraph ut["utils — funções puras"]
-        U1["existem: depreciacao · datas · mascaramento<br/>conformidade · indicadores · exportacao"]
+        U1["existem: depreciacao · datas · mascaramento<br/>conformidade · indicadores · exportacao<br/>risco · scorecard · cenario"]
     end
 
     rt --> sv
@@ -104,7 +104,7 @@ graph TB
     cr -.-> sv
 ```
 
-"Planejados" são módulos que existem como arquivo vazio (placeholder) e entram na Sprint 5; ver [`ROADMAP.md`](ROADMAP.md). Não há camada de repositório: `app/repositories/` existe só com `.gitkeep`. Os serviços usam a `Session` do SQLAlchemy direto sobre os modelos. A seta tracejada `rt → md` são as leituras que não passam por serviço, porque não aplicam regra de negócio:
+Todos os módulos estão implementados (Sprint 5); ver [`ROADMAP.md`](ROADMAP.md). Não há camada de repositório: `app/repositories/` existe só com `.gitkeep`. Os serviços usam a `Session` do SQLAlchemy direto sobre os modelos. A seta tracejada `rt → md` são as leituras que não passam por serviço, porque não aplicam regra de negócio:
 
 | Onde | Consulta direta ao modelo |
 |---|---|

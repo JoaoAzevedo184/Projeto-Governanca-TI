@@ -16,7 +16,7 @@ _Última atualização: 2026-10-02_
 | Gate 1 | Inventário operacional | Aguardando liberação (importar arquivo real de 100 linhas) |
 | Gate 2 | Responsabilidade e valor | Sprint 2 implementado; aguardando liberação (demonstração da linha do tempo com três transferências e conferência manual do residual) |
 | Gate 3 | Conformidade e evento surpresa | Em andamento: baixa e licenças (Sprint 3) e painel de compliance (Sprint 4) implementados; falta demonstrar |
-| Gate 4 | Decisão e defesa | Não iniciado |
+| Gate 4 | Decisão e defesa | Em andamento: decisão rastreável implementada (Sprint 5); falta demonstrar e o roteiro de defesa |
 
 ---
 
@@ -147,12 +147,37 @@ Implementada em 2026-10-02. Ambiente completo (API, banco, Prometheus, Grafana) 
 
 ## Sprint 5 — Decisão, qualidade e defesa
 
-- [ ] Serviços de cenário, scorecard, risco e recomendação — `cenario_service.py`, `scorecard_service.py`, `risco_service.py`, `recomendacao_service.py` vazios
-- [ ] Endpoints correspondentes
-- [ ] Testes de contrato — `tests/contract/` vazio
-- [x] Cobertura ≥ 70% global / 100% em `utils` e `services` — verificado em 2026-10-02: 99,4% global e 100% em `utils/`+`services/` (314 testes contra PostgreSQL 16)
-- [x] `scripts/smoke_test.sh` — arquivo existe; validar execução quando `/health` estiver exposto
+Implementada em 2026-10-03, exceto o roteiro de defesa e o pipeline de dados (fora desta entrega).
+
+- [x] Riscos (FR-012): `models/risco.py`, `risco_service.py`, `utils/risco.py`, `/riscos` (AC-050); migração `a7c1e5d90b21`
+- [x] Scorecard de fornecedores (FR-011): `models/fornecedor.py` (`FornecedorAvaliacao`), `scorecard_service.py`, `utils/scorecard.py`, `POST /fornecedores/scorecard` (AC-048, AC-049, BR-029); migração `b3d8f2a61c47`
+- [x] Cenários e TCO (FR-010): `cenario_service.py`, `utils/cenario.py`, `POST /cenarios/comparar` (AC-052, BR-028). Só calculado, não persistido
+- [x] Recomendação rastreável (FR-013): `models/recomendacao.py`, `recomendacao_service.py`, `/recomendacoes` (AC-051, BR-027); migração `c9e4a7d25f83`
+- [x] Testes de contrato: schemathesis 4.10.2 sobre `api/openapi.yaml` em todas as operações (`tests/contract/test_contrato_schemathesis.py`), mais a sincronia do arquivo com o app
+- [x] Cobertura ≥ 70% global / 100% em `utils` e `services`
+- [x] `scripts/smoke_test.sh` — executado contra o ambiente completo
 - [ ] Roteiro de defesa
+
+### Decisões da Sprint 5 (os docs não definiam; revisar com a equipe)
+
+- **409, não 422, em BR-027 e BR-029:** o contrato §6.7 dizia 422; vale o `padrao-de-erros.md` (regra de negócio = 409 com `regra`, auditada e contada). Contrato corrigido.
+- **Permissões:** `GET /riscos/{id}` passa a ser de todos os perfis (FR-015); escrita em governança só ADMIN e GESTOR. A US-035 (Auditor registra riscos) perde para o AC-055.
+- **Cenário só calculado:** sem tabela, sem auditoria. Entrada com `capex`, `opex_anual` e `riscos_ids`; baseline `MANTER` (ou o primeiro); ordem por TCO, score, nome; custo por ativo usa os ativos não baixados por padrão.
+- **Contrato:** dinheiro como string no exemplo de cenários; o exemplo numérico contradizia o §6.
+- **Evidência:** `INDICADOR`, `CENARIO` e `PREMISSA` não têm registro e levam `descricao` (sem `referencia_id`); `SCORECARD` aponta para o fornecedor; alerta de compliance não é tipo de evidência.
+- **`status_risco`** (`ABERTO`, `EM_TRATAMENTO`, `ENCERRADO`) e **`periodo`** do scorecard (rótulo de texto) foram definidos aqui: os docs citam os campos sem os valores.
+- **Recomendação sem edição:** o contrato não tem `PATCH`; o status é o informado ao registrar. Faltaria um endpoint de transição (proposta → aprovada → implementada) para a decisão avançar no sistema.
+- **Scorecard sem `UNIQUE`:** reavaliar o mesmo período acrescenta linhas. Empate de pontuação desempata pelo menor id.
+- **Doc corrigido:** `0.3 + 0.3 + 0.4 != 1.0` (regras-de-calculo §7.4) é falso em Python; o exemplo passou a `0.1 + 0.2 != 0.3`.
+
+### Achados dos testes de contrato (Sprint 5)
+
+- **Corrigido, 500 → 422:** id maior que 32 bits na rota ou no corpo (`/ativos/99999999999`) estourava o driver (`NumericValueOutOfRange`) e virava 500. Um handler de `DataError` devolve 422 sem a mensagem do driver.
+- **Corrigido, fora do formato:** token ausente, corpo ilegível, rota inexistente e método não permitido saíam como `{"detail": ...}`; agora saem no formato único (`/erros/http-<status>`).
+- **Corrigido, contrato incompleto:** o `openapi.yaml` só documentava 200/201/422 e o 422 como `HTTPValidationError`, que a API não devolve. Agora toda rota documenta 400, 401, 403, 404, 409 e 422 com `ErroResponse`; os relatórios documentam `text/csv` e XLSX.
+- **Não corrigido:** a validação do Pydantic é permissiva e aceita `0` como booleano e números como texto onde o schema diz boolean; o schemathesis acusa (`negative_data_rejection`). Modo estrito quebraria a entrada de dinheiro como string. Check desligado no teste, achado registrado aqui.
+- **Não corrigido:** `positive_data_acceptance` desligado, porque uma API de regras recusa com 404/409 dados válidos pelo schema (id inexistente, série duplicada).
+- **Sem 500 residual** nas 45 operações com 10 exemplos cada, semente fixa.
 
 ---
 
