@@ -81,7 +81,7 @@ Detalhamento fonte a fonte, regras de uso e conformidade com a LGPD em [`docs/FO
 - Acesso à internet
 - Chave de API do NVD (gratuita, recomendada — sem ela o NVD aplica limite de requisições mais restrito). Solicite em https://nvd.nist.gov/developers/request-an-api-key e defina `NVD_API_KEY` no `.env`.
 
-> A coleta **não é necessária** para executar o projeto: o repositório já inclui os datasets processados em `dataset/processed/`. O seed atual **não** os carrega: ele cria só os usuários de demonstração e as categorias (a carga do pipeline é a pendência D.9 do [`ROADMAP.md`](docs/ROADMAP.md)).
+> A coleta **não é necessária** para executar o projeto. `dataset/processed/` está vazio (só `.gitkeep`): a normalização e a carga do pipeline ainda não existem (D.6, D.8 e D.9 do [`ROADMAP.md`](docs/ROADMAP.md)), e o seed cria só os usuários de demonstração e as categorias. O que o repositório inclui é o arquivo de demonstração do Gate 1, `dataset/demo/inventario_demo.csv`: 100 linhas reais do Compras.gov.br (92 válidas e 8 inválidas de propósito), com `dataset/demo/fornecedores_demo.csv` e a metodologia em `dataset/demo/inventario_demo.LEIAME.md`. Para usá-lo: seed, `python -m etl.carregar_fornecedores` e `POST /api/v1/importacoes` ([guia de importação](docs/guia/importacao.md)).
 
 ---
 
@@ -158,9 +158,9 @@ python/
 └── api/openapi.yaml      # contrato congelado, usado nos testes de contrato
 
 dataset/
-├── demo/inventario_demo.csv
+├── demo/             # inventario_demo.csv (Gate 1), fornecedores_demo.csv e o LEIAME com a metodologia
 ├── raw/              # respostas originais das APIs, por fonte e data (imutável)
-├── processed/        # dados normalizados, prontos para carga
+├── processed/        # dados normalizados (vazio por enquanto: D.6)
 └── synthetic/        # CSVs e esquemas do Mockaroo (versionados)
 
 scripts/              # operação do ambiente
