@@ -220,25 +220,47 @@ Códigos: `KPI-02` (cobertura de responsáveis), `KPI-03` (conformidade de licen
 | POST | `/cenarios/comparar` | ADMIN, GESTOR | FR-010 |
 | POST | `/fornecedores/scorecard` | ADMIN, GESTOR | FR-011 |
 | GET/POST | `/riscos` | GET: todos · POST: ADMIN, GESTOR | FR-012 |
-| GET/PATCH | `/riscos/{id}` | ADMIN, GESTOR | FR-012 |
+| GET/PATCH | `/riscos/{id}` | GET: todos · PATCH: ADMIN, GESTOR | FR-012 |
 | GET/POST | `/recomendacoes` | GET: todos · POST: ADMIN, GESTOR | FR-013 |
 | GET | `/recomendacoes/{id}` | todos | FR-013 |
 
-**`POST /recomendacoes`** — a lista `evidencias` deve conter pelo menos um item; lista vazia retorna `422` citando `BR-027` (AC-051).
+> **Permissões (ADR-013).** Esta tabela dizia `ADMIN, GESTOR` para `GET /riscos/{id}`, enquanto `GET /riscos` era de todos. A matriz do FR-015 dá `Ler` a todos os perfis, e o contrato foi corrigido, como na Sprint 3. A escrita segue `ADMIN, GESTOR`: o `AUDITOR` e o `OPERADOR` recebem `403` (AC-055), o que prevalece sobre a US-035, que fala em o Auditor registrar riscos.
 
-**`POST /cenarios/comparar`** — a resposta ordena por custo e risco e **não** marca nenhum cenário como escolhido (BR-028, AC-052):
+**Recusas por regra de negócio** (`BR-027` e `BR-029`) são `409` com `regra`, registradas na auditoria e contadas em `itam_regras_violadas_total`, como todas as outras recusas (`padrao-de-erros.md`). Esta seção dizia `422`; o schema aceita a lista de evidências vazia e a soma de pesos errada de propósito, para a recusa ter `regra` e ir à auditoria. `422` fica para payload malformado.
+
+**`POST /riscos`** — corpo: `titulo`, `categoria` (`OPERACIONAL`, `FINANCEIRO`, `LEGAL`, `SEGURANCA`, `CONTINUIDADE`), `probabilidade` e `impacto` (1 a 5), `resposta` (`ACEITAR`, `MITIGAR`, `TRANSFERIR`, `EVITAR`) e, opcionais, `descricao`, `responsavel_id`, `status` (`ABERTO` por padrão, `EM_TRATAMENTO`, `ENCERRADO`), `gatilho` e `data_revisao`. A resposta traz `score` (probabilidade × impacto, gerado pelo banco, nunca informado) e `classificacao` (`BAIXO` 1–4, `MEDIO` 5–9, `ALTO` 10–14, `CRITICO` 15–25). Probabilidade 4 e impacto 5 dão score 20, `CRITICO` (AC-050). `GET /riscos` ordena por score decrescente e filtra por `categoria`, `status` e `classificacao`. `PATCH` recalcula o score. `responsavel_id` inexistente é `404`.
+
+**`POST /fornecedores/scorecard`** — avalia um ou mais fornecedores num período e devolve a pontuação e o ranking (`201`). Corpo: `periodo` (rótulo de até 20 caracteres, ex.: `2026-T3`), `criterios` (`[{ "nome", "peso" }]`, pesos em percentual) e `avaliacoes` (`[{ "fornecedor_id", "notas": { "<criterio>": "8.5" } }]`).
+
+- Os pesos têm de somar exatamente 100 (`Decimal`, nunca `float`); senão `409` com `regra = BR-029` (AC-048).
+- Cada fornecedor traz uma nota de 0 a 10 para todos os critérios, sem faltar nem sobrar nenhum; critério ou fornecedor repetido, nota fora de 0–10 ou critério sem nota são `422`. Fornecedor inexistente é `404`.
+- `pontuacao = Σ nota × peso ÷ 100`, em 2 casas, half-up, arredondada só no fim (AC-049). O ranking vai da maior para a menor pontuação, com desempate pelo menor `fornecedor_id` e posições sequenciais.
+- Persiste uma linha de `fornecedor_avaliacao` por fornecedor e critério e uma auditoria `CRIAR` por fornecedor. Notas, pesos e pontuações voltam como string decimal com 2 casas.
+
+**`POST /cenarios/comparar`** — a resposta ordena por custo e risco e **não** marca nenhum cenário como escolhido (BR-028, AC-052). Os cenários são **só calculados**: não há tabela de cenário, e a chamada não grava nem audita nada. Corpo: `cenarios` (2 ou 3, sem nome repetido; `nome` em `MANTER`, `RENOVAR`, `MIGRAR_ASSINATURA`; `capex` e `opex_anual` em reais; `riscos_ids` opcional) e `quantidade_ativos` opcional (padrão: ativos não baixados; sem ativos, `custo_por_ativo_ano` é nulo).
+
+- `tco_5_anos = capex + opex_anual × 5`; `custo_por_ativo_ano = tco ÷ (ativos × 5)`; `score_risco` é a soma dos scores dos riscos de `riscos_ids` (risco inexistente é `404`).
+- `economia_vs_baseline = tco do baseline − tco do cenário`. O baseline é `MANTER` quando está na lista, senão o primeiro cenário informado. Ele só serve de referência da economia e não é uma escolha.
+- Ordem: `tco_5_anos` crescente, depois `score_risco` crescente, depois o nome. Dinheiro como string (o exemplo numérico antigo desta seção contradizia a regra do §6):
 
 ```json
 {
   "horizonte_anos": 5,
+  "quantidade_ativos": 400,
+  "baseline": "MANTER",
   "cenarios": [
-    { "nome": "MANTER", "capex": 0, "opex_anual": 84000, "tco_5_anos": 420000,
-      "custo_por_ativo_ano": 210.0, "economia_vs_baseline": 0, "score_risco": 16 }
+    { "nome": "MANTER", "capex": "0.00", "opex_anual": "84000.00", "tco_5_anos": "420000.00",
+      "custo_por_ativo_ano": "210.00", "economia_vs_baseline": "0.00", "score_risco": 16 }
   ],
   "ordenado_por": ["tco_5_anos", "score_risco"],
   "observacao": "A seleção da alternativa é decisão humana e deve ser registrada em /recomendacoes."
 }
 ```
+
+**`POST /recomendacoes`** — o sistema **registra** a decisão de uma pessoa; não a gera. Corpo: `titulo`, `contexto`, `recomendacao`, `alternativas` (opcional), `responsavel_id` (quem decide), `data` (padrão hoje, não futura), `status` (`PROPOSTA` por padrão; `APROVADA`, `REJEITADA`, `IMPLEMENTADA`) e `evidencias`. Não há `PATCH`: o status é o informado no registro.
+
+- **BR-027:** sem nenhuma evidência (lista vazia ou campo omitido), `409` com `regra = BR-027` e nada é gravado (AC-051). A recomendação e as evidências nascem na mesma transação.
+- Cada evidência tem `tipo` (`INDICADOR`, `RISCO`, `ATIVO`, `LICENCA`, `SCORECARD`, `CENARIO`, `PREMISSA`), `referencia_id` e `descricao`. `RISCO`, `ATIVO` e `LICENCA` exigem `referencia_id` de um registro existente; `SCORECARD` aponta para o `fornecedor_id` de um fornecedor que tem avaliação. Registro inexistente é `404` e a recomendação não é gravada. `INDICADOR` (valor na hora do registro, com o código do KPI), `CENARIO` (o resultado comparado) e `PREMISSA` não têm registro no banco, porque indicador e cenário são derivados: ficam sem `referencia_id` e com `descricao` obrigatória. Alerta de compliance não é um tipo: cite o `ATIVO` ou a `LICENCA` do alerta.
 
 ### 6.8 Endpoints técnicos
 

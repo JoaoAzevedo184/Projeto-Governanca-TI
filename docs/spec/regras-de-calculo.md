@@ -84,7 +84,7 @@ pontuacao(f) = soma(nota[f][c] * peso[c] / 100)
 ranking = ordenar por pontuacao desc
 ```
 
-A comparação de soma de pesos usa `Decimal`, não `float` — `0.3 + 0.3 + 0.4 != 1.0` em ponto flutuante binário.
+A comparação de soma de pesos usa `Decimal`, não `float` — o ponto flutuante binário erra somas decimais (`0.1 + 0.2 != 0.3`). *Corrigido:* o texto anterior citava `0.3 + 0.3 + 0.4 != 1.0`, que em Python é verdadeiro (dá `1.0`). Implementado em `app/utils/scorecard.py`; a pontuação arredonda só no fim, em 2 casas half-up (BR-017).
 
 ### 7.5 TCO de cenários (FR-010)
 
@@ -93,5 +93,7 @@ tco_5_anos           = capex + (opex_anual * 5)
 custo_por_ativo_ano  = tco_5_anos / (quantidade_ativos * 5)
 economia_vs_baseline = tco_baseline − tco_cenario
 score_risco          = soma dos scores dos riscos vinculados ao cenário
+baseline             = MANTER, se presente; senão o primeiro cenário informado
+ordenação            = tco_5_anos ↑, score_risco ↑, nome (o sistema ordena, não escolhe: BR-028)
 ```
 
