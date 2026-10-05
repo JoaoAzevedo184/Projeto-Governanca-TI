@@ -38,6 +38,8 @@ Cobertura mínima exigida: **70% global**, **100%** em `app/utils/` e `app/servi
 
 **Métricas nos testes:** os contadores do Prometheus são globais ao processo e não zeram entre testes. Compare o valor antes e depois da operação (`REGISTRY.get_sample_value`), nunca o valor absoluto.
 
+**Testes de contrato (`tests/contract/`):** `test_contrato_schemathesis.py` gera requisições a partir do `api/openapi.yaml` e valida as respostas do app real (ASGI, PostgreSQL de teste) em todas as operações, com o token de um ADMIN. Dez exemplos por operação e semente fixa (`CONTRATO_EXEMPLOS=N` muda), cerca de 2 minutos. Checks ligados: erro de servidor, código de status e tipo de conteúdo documentados, schema da resposta, cabeçalhos e autenticação ignorada. Desligados, de propósito: `positive_data_acceptance` e `negative_data_rejection` (ver o ROADMAP, "Achados dos testes de contrato"). `test_openapi_sincronizado.py` garante que o arquivo é igual ao gerado pelo app: depois de mudar uma rota, regenere o `openapi.yaml` (ver [`contribuicao.md`](contribuicao.md)). A dependência é `schemathesis==4.10.2` no `requirements-dev.txt`, a última versão compatível com o `pytest==8.3.4` fixado.
+
 **Smoke test do ambiente completo:** `docker compose up -d --build`, `./scripts/seed.sh` e `./scripts/smoke_test.sh` (ver [`verificacao.md`](verificacao.md)).
 
 O banco usado vem de `TEST_DATABASE_URL` (padrão `postgresql+psycopg://itam:itam@localhost:5432/itam_test`). O `tests/conftest.py` aplica `alembic upgrade head` uma vez por sessão (o schema nunca vem de `create_all`) e trunca todas as tabelas antes de cada teste. Por segurança, recusa qualquer banco cujo nome não termine em `_test`.

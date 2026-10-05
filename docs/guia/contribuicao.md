@@ -15,5 +15,5 @@ test(licencas): cobre AC-021 — excedente de quantitativo
 feat(collectors): adiciona coletor do Compras.gov por CATMAT (FR-001)
 ```
 
-**Definition of Done:** testes do critério passando · migração aplicada e reversível · `openapi.yaml` regenerado · `ruff check` limpo · README atualizado se a forma de execução mudou · novos dados com `data_source` preenchido.
+**Definition of Done:** testes do critério passando · migração aplicada e reversível · `openapi.yaml` regenerado (`cd python && python -c "import sys, yaml; from app.main import app; sys.stdout.write(yaml.safe_dump(app.openapi(), sort_keys=False, allow_unicode=True))" > api/openapi.yaml`) · `ruff check` limpo · README atualizado se a forma de execução mudou · novos dados com `data_source` preenchido.
 
