@@ -263,7 +263,7 @@ def test_ac057_importacao_audita_cada_ativo_criado_com_o_lote_de_origem(
         assert registro.regra_violada is None
         assert registro.usuario_id == autor
         assert registro.carimbo is not None
-        assert registro.detalhe == {"lote_importacao_id": lote_id}
+        assert registro.detalhe == {"lote_importacao_id": lote_id, "data_source": "importacao"}
     # Da auditoria chega-se ao lote e ao arquivo de origem.
     lote = db.get(LoteImportacao, registros[0].detalhe["lote_importacao_id"])
     assert (lote.nome_arquivo, lote.usuario_id) == ("inventario.csv", autor)
@@ -381,9 +381,9 @@ LIMITE_VALOR_RECEBIDO = ErroImportacao.__table__.c.valor_recebido.type.length
 FORMATOS = pytest.mark.parametrize("formato", ["csv", "xlsx"])
 
 
-def _arquivo(formato: str, linhas: list[dict]) -> tuple[bytes, str]:
+def _arquivo(formato: str, linhas: list[dict], colunas=COLUNAS) -> tuple[bytes, str]:
     """CSV e XLSX com as mesmas linhas, tudo como texto (o importador lê tudo como texto)."""
-    tabela = pd.DataFrame(linhas, columns=COLUNAS, dtype=str).fillna("")
+    tabela = pd.DataFrame(linhas, columns=colunas, dtype=str).fillna("")
     if formato == "csv":
         return tabela.to_csv(index=False).encode("utf-8"), "inventario.csv"
     buffer = io.BytesIO()
@@ -406,8 +406,8 @@ def _linha_valida(cat, forn, serie, **campos):
     }
 
 
-def _importar_formato(client, token, formato, linhas):
-    conteudo, nome = _arquivo(formato, linhas)
+def _importar_formato(client, token, formato, linhas, colunas=COLUNAS):
+    conteudo, nome = _arquivo(formato, linhas, colunas)
     return _importar(client, token, conteudo, nome)
 
 
@@ -595,3 +595,82 @@ def test_ac068_ac069_uma_linha_invalida_de_cada_tipo_importa_as_validas_e_relata
         (10, "valor_compra"),
     ]
     assert sorted(db.scalars(select(Ativo.numero_serie))) == ["SN-A", "SN-B", "SN-C", "SN-E"]
+
+
+COLUNAS_COM_ORIGEM = [*COLUNAS, "data_source"]
+
+
+def _origens(db):
+    return dict(db.execute(select(Ativo.numero_serie, Ativo.data_source)).all())
+
+
+@FORMATOS
+def test_ac071_arquivo_sem_a_coluna_data_source_grava_importacao(
+    client, db, token_admin, categoria, fornecedor, formato
+):
+    linhas = [_linha_valida(categoria, fornecedor, f"SN-{i}") for i in range(3)]
+
+    resposta = _importar_formato(client, token_admin, formato, linhas)
+
+    assert resposta.json()["total_aceito"] == 3
+    assert set(_origens(db).values()) == {"importacao"}
+
+
+@FORMATOS
+def test_ac071_data_source_da_linha_vale_e_a_vazia_cai_em_importacao(
+    client, db, token_admin, categoria, fornecedor, formato
+):
+    linhas = [
+        _linha_valida(categoria, fornecedor, "SN-CG", data_source="compras_gov"),
+        _linha_valida(categoria, fornecedor, "SN-VAZIO", data_source=""),
+        _linha_valida(categoria, fornecedor, "SN-IMP", data_source="importacao"),
+        _linha_valida(categoria, fornecedor, "SN-NORM", data_source="  Compras_GOV "),
+        _linha_valida(categoria, fornecedor, "SN-AUSENTE"),  # sem o campo na linha
+    ]
+
+    resposta = _importar_formato(client, token_admin, formato, linhas, COLUNAS_COM_ORIGEM)
+
+    assert (resposta.status_code, resposta.json()["total_aceito"]) == (202, 5)
+    assert _origens(db) == {
+        "SN-CG": "compras_gov",
+        "SN-VAZIO": "importacao",
+        "SN-IMP": "importacao",
+        "SN-NORM": "compras_gov",  # mesma normalização do `tipo`: espaços e maiúsculas
+        "SN-AUSENTE": "importacao",
+    }
+    # A auditoria de cada ativo diz a origem gravada, a mesma que está no ativo.
+    auditoria = {
+        a.entidade_id: a.detalhe["data_source"]
+        for a in db.scalars(select(AuditLog).where(AuditLog.entidade == "ativo"))
+    }
+    ids = dict(db.execute(select(Ativo.id, Ativo.data_source)).all())
+    assert auditoria == ids and set(ids.values()) == {"compras_gov", "importacao"}
+
+
+@FORMATOS
+def test_ac071_data_source_fora_da_lista_e_erro_de_linha_e_o_lote_segue(
+    client, db, token_admin, categoria, fornecedor, formato
+):
+    linhas = [
+        _linha_valida(categoria, fornecedor, "SN-OK", data_source="compras_gov"),
+        _linha_valida(categoria, fornecedor, "SN-MANUAL", data_source="manual"),
+        _linha_valida(categoria, fornecedor, "SN-NVD", data_source="nvd"),
+        _linha_valida(categoria, fornecedor, "SN-LONGO", data_source="x" * 400),
+        _linha_valida(categoria, fornecedor, "SN-OK-2"),
+    ]
+
+    resposta = _importar_formato(client, token_admin, formato, linhas, COLUNAS_COM_ORIGEM)
+
+    assert resposta.status_code == 202  # nem 422 do arquivo inteiro, nem 500
+    corpo = resposta.json()
+    assert (corpo["total_aceito"], corpo["total_rejeitado"]) == (2, 3)
+    assert sorted(_origens(db)) == ["SN-OK", "SN-OK-2"]
+    erros = _erros(db, corpo["lote_id"])
+    assert [(e.numero_linha, e.campo) for e in erros] == [
+        (3, "data_source"),
+        (4, "data_source"),
+        (5, "data_source"),
+    ]
+    assert [e.valor_recebido for e in erros][:2] == ["manual", "nvd"]
+    assert len(erros[2].valor_recebido) == LIMITE_VALOR_RECEBIDO
+    assert "compras_gov" in erros[0].motivo and "importacao" in erros[0].motivo
