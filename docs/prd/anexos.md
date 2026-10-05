@@ -32,7 +32,7 @@ Parte de [PRD — ITAM](README.md).
 
 | Requisito | Histórias | Regras de negócio | Critérios de aceite | Indicador associado |
 |---|---|---|---|---|
-| FR-001 | US-001 a US-006 | BR-001 a BR-006 | AC-001 a AC-008 | KPI-01 |
+| FR-001 | US-001 a US-006 | BR-001 a BR-006, BR-039 | AC-001 a AC-008, AC-067 | KPI-01 |
 | FR-002 | US-007 a US-011 | BR-007 a BR-012, BR-038 | AC-009 a AC-014, AC-065 | KPI-02 |
 | FR-003 | US-012 a US-016 | BR-013 a BR-017 | AC-015 a AC-020 | KPI-05 |
 | FR-004 | US-017 a US-021 | BR-018 a BR-021, BR-032 a BR-035, BR-037 | AC-021 a AC-026, AC-059 a AC-062, AC-064, AC-066 | KPI-03 |

@@ -67,6 +67,8 @@ Parte de [SPEC — ITAM](README.md).
 
 **Resposta `201`:** o recurso criado, já com `status: "ATIVO"`, `vida_util_meses` herdada e bloco `depreciacao` calculado.
 
+**Recusas de unicidade (`409`):** `numero_serie` já cadastrado (`BR-001`) e `chave_licenca` já cadastrada em outro ativo (`BR-039`, AC-067). Ambas gravam `RECUSADO` na auditoria. A recusa de `BR-039` não devolve a chave nem o nome do outro ativo (RI-08); a auditoria guarda só `ativo_conflitante_id`. `PATCH /ativos/{id}` não edita `numero_serie` nem `chave_licenca`. Na importação (`POST /importacoes`) a chave repetida, no arquivo ou na base, vira erro de linha no campo `chave_licenca` com a chave mascarada, sem derrubar o lote.
+
 **`GET /ativos/{id}/depreciacao` — resposta:**
 
 ```json

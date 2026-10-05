@@ -96,3 +96,7 @@ Parte de [PRD — ITAM](README.md).
 - [ ] **AC-064** — Dada uma licença cujo ativo `SOFTWARE` está `BAIXADO`, quando se tenta vincular uma máquina a ela, então o sistema recusa a operação com `regra = BR-037` e registra a recusa na auditoria.
 - [ ] **AC-065** — Dado um responsável ou um setor inativo, quando se tenta atribuí-lo a um ativo, então o sistema recusa a operação com `regra = BR-038` e registra a recusa na auditoria.
 - [ ] **AC-066** — Dado um ativo `SOFTWARE` com status `BAIXADO`, quando se tenta criar uma licença `PERPETUA` apontando para ele, então o sistema recusa a operação com `regra = BR-037` e registra a recusa na auditoria.
+
+### FR-001 — Chave de licença única (BR-039)
+
+- [ ] **AC-067** — Dado um ativo com uma chave de licença já cadastrada, quando se tenta cadastrar outro ativo com a mesma chave (pela API ou pela importação), então o sistema recusa: a API responde `409` com `regra = BR-039` e grava a recusa na auditoria; a importação rejeita só a linha, com erro no campo `chave_licenca`, e processa as demais. A chave completa não aparece na mensagem, na auditoria nem no relatório de erros. Ativos sem chave continuam aceitos.

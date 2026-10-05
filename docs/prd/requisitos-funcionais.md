@@ -44,7 +44,7 @@ Parte de [PRD — ITAM](README.md).
 | `tipo` | Enum | Sim | `HARDWARE` \| `SOFTWARE` |
 | `categoria` | Referência | Sim | Deve existir em Categoria |
 | `numero_serie` | Texto (até 80) | Condicional | Obrigatório e único quando `tipo = HARDWARE` |
-| `chave_licenca` | Texto (até 200) | Condicional | Obrigatório quando `tipo = SOFTWARE` |
+| `chave_licenca` | Texto (até 200) | Condicional | Obrigatório quando `tipo = SOFTWARE`; única entre os ativos quando preenchida (BR-039) |
 | `data_aquisicao` | Data | Sim | Não pode ser futura |
 | `valor_compra` | Decimal(12,2) | Sim | > 0 |
 | `fornecedor` | Referência | Sim | Deve existir em Fornecedor |
@@ -56,6 +56,7 @@ Parte de [PRD — ITAM](README.md).
 **Comportamentos:**
 - Na criação, o status assume `ATIVO` e a vida útil é herdada da categoria.
 - O número de série é único em todo o sistema, incluindo ativos baixados.
+- A chave de licença do ativo é única entre os ativos, incluindo os baixados (BR-039, AC-067). A unicidade vale para o ativo e não para a licença (FR-004), cuja chave pode se repetir na renovação de uma subscrição. A importação (FR-008) rejeita a linha com chave repetida, no arquivo ou na base.
 - A transição para `BAIXADO` ocorre exclusivamente via FR-005, nunca por edição direta do campo.
 - Listagem paginada, ordenável e filtrável por todos os campos indexados.
 

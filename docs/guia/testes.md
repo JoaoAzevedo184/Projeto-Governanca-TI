@@ -46,7 +46,7 @@ O banco usado vem de `TEST_DATABASE_URL` (padrão `postgresql+psycopg://itam:ita
 
 ## Convenção contra falso positivo
 
-Todo teste novo ou alterado segue os critérios do item 15 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md#15-critérios-contra-falso-positivo-acrescentado-na-aprovação):
+Todo teste novo ou alterado segue os critérios do item 15 de `RESOLUCAO_PENDENCIAS_SPRINT2.md`:
 
 - **Banco real:** sem mock de banco, de sessão ou de exceção do banco. Conflitos de concorrência são provocados com uma segunda conexão real (ver `test_responsavel_vinculo.py`).
 - **Efeito, não só status:** além do código HTTP, o teste consulta o banco (linha criada, vínculo encerrado, auditoria gravada ou não).

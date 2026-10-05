@@ -24,7 +24,7 @@ O campo `regra` cria rastreabilidade direta entre o comportamento em runtime e o
 |---|---|---|
 | Payload malformado ou validação Pydantic | 422 | — |
 | Violação de regra de negócio | 409 | BR-009, BR-018, BR-024 |
-| Violação de unicidade | 409 | BR-001 |
+| Violação de unicidade | 409 | BR-001, BR-039 |
 | Recurso inexistente | 404 | — |
 | Sem token ou token inválido | 401 | — |
 | Perfil sem permissão | 403 | FR-015 |

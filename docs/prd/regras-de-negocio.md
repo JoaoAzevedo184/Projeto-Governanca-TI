@@ -76,4 +76,5 @@ Parte de [PRD — ITAM](README.md).
 | BR-036 | O registro de baixa do ativo `SOFTWARE` de uma licença perpétua encerra, na mesma transação, todos os vínculos ativos dessa licença; cada encerramento é auditado e os assentos voltam ao saldo. A licença não é apagada nem alterada. |
 | BR-037 | Licença cujo ativo `SOFTWARE` está `BAIXADO` não pode receber novos vínculos, e uma licença `PERPETUA` não pode ser criada apontando para ativo `SOFTWARE` já `BAIXADO`. |
 | BR-038 | Atribuição de responsável exige responsável e setor ativos; responsável ou setor inativo é recusado. |
+| BR-039 | A chave de licença é única entre os ativos, incluindo os baixados; ativos sem chave não conflitam. A regra vale para `ativo.chave_licenca`: a licença (`licenca.chave_licenca`) não é única, porque a renovação de subscrição pode repetir a chave. A recusa não revela a chave (RI-08). |
 

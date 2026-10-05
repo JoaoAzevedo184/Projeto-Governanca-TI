@@ -81,7 +81,7 @@ Parte de [SPEC — ITAM](README.md).
 | `categoria_id` | BIGINT | NOT NULL, FK | BR-005 |
 | `fornecedor_id` | BIGINT | NOT NULL, FK | BR-005 |
 | `numero_serie` | VARCHAR(80) | UNIQUE | BR-001, BR-002 |
-| `chave_licenca` | VARCHAR(200) | | BR-002 |
+| `chave_licenca` | VARCHAR(200) | UNIQUE parcial (`ux_ativo_chave_licenca`, só quando não nula) | BR-002, BR-039 |
 | `data_aquisicao` | DATE | NOT NULL | BR-003 |
 | `valor_compra` | NUMERIC(12,2) | NOT NULL, CHECK > 0 | BR-004 |
 | `vida_util_meses` | INTEGER | NOT NULL, CHECK > 0 | BR-006 |
@@ -102,7 +102,7 @@ CONSTRAINT ck_ativo_identificador CHECK (
 )
 ```
 
-**Índices:** `numero_serie` (único), `status`, `categoria_id`, `fornecedor_id`, `data_aquisicao` (NFR-PER-05).
+**Índices:** `numero_serie` (único), `chave_licenca` (único parcial, `WHERE chave_licenca IS NOT NULL`, BR-039), `status`, `categoria_id`, `fornecedor_id`, `data_aquisicao` (NFR-PER-05).
 
 #### `historico_transferencia` *(append-only)*
 

@@ -60,7 +60,7 @@ Parte de [Modelo de Dados — ITAM](README.md).
 | `categoria_id` | BIGINT | não | BR-005 | FK |
 | `fornecedor_id` | BIGINT | não | BR-005 | FK |
 | `numero_serie` | VARCHAR(80) | sim | BR-001, BR-002 | **Único**, inclusive entre baixados |
-| `chave_licenca` | VARCHAR(200) | sim | BR-002 | Mascarada fora do perfil ADMIN |
+| `chave_licenca` | VARCHAR(200) | sim | BR-002, BR-039 | **Única** quando preenchida (índice parcial `ux_ativo_chave_licenca`); mascarada fora do perfil ADMIN |
 | `data_aquisicao` | DATE | não | BR-003 | Não futura |
 | `valor_compra` | NUMERIC(12,2) | não | BR-004 | `CHECK > 0` |
 | `vida_util_meses` | INTEGER | não | BR-006 | Herdada da categoria, sobrescrevível |
