@@ -7,6 +7,7 @@ import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.audit import registrar_auditoria
 from app.core.exceptions import ErroValidacaoArquivo
 from app.core.metrics import IMPORTACOES_TOTAL
 from app.models.ativo import Ativo
@@ -14,6 +15,7 @@ from app.models.categoria import Categoria
 from app.models.fornecedor import Fornecedor
 from app.models.importacao import ErroImportacao, LoteImportacao
 from app.models.usuario import Usuario
+from app.utils.mascaramento import mascarar_chave
 
 COLUNAS_OBRIGATORIAS = ["nome", "tipo", "categoria", "fornecedor", "data_aquisicao", "valor_compra"]
 TAMANHO_MAXIMO_BYTES = 5 * 1024 * 1024
@@ -51,6 +53,7 @@ def _validar_linha(
     linha: dict[str, str],
     numero_linha: int,
     numeros_serie_vistos: set[str],
+    chaves_vistas: set[str],
 ) -> tuple[Ativo | None, list[dict]]:
     erros: list[dict] = []
 
@@ -90,6 +93,19 @@ def _validar_linha(
         elif db.scalar(select(Ativo).where(Ativo.numero_serie == numero_serie)) is not None:
             registrar_erro("numero_serie", numero_serie, "Já cadastrado na base (BR-001).")
 
+    if chave_licenca:
+        # BR-039. O relatório de erros guarda a chave mascarada (RI-08).
+        if chave_licenca in chaves_vistas:
+            registrar_erro(
+                "chave_licenca",
+                mascarar_chave(chave_licenca),
+                "Duplicada dentro do próprio arquivo (BR-039).",
+            )
+        elif db.scalar(select(Ativo.id).where(Ativo.chave_licenca == chave_licenca)) is not None:
+            registrar_erro(
+                "chave_licenca", mascarar_chave(chave_licenca), "Já cadastrada na base (BR-039)."
+            )
+
     valor_data_aquisicao = linha.get("data_aquisicao", "").strip()
     data_aquisicao: date | None = None
     try:
@@ -118,6 +134,8 @@ def _validar_linha(
 
     if numero_serie:
         numeros_serie_vistos.add(numero_serie)
+    if chave_licenca:
+        chaves_vistas.add(chave_licenca)
 
     ativo = Ativo(
         nome=nome,
@@ -172,11 +190,14 @@ def _processar(db: Session, nome_arquivo: str, conteudo: bytes, usuario: Usuario
     db.flush()
 
     numeros_serie_vistos: set[str] = set()
+    chaves_vistas: set[str] = set()
     aceitos: list[Ativo] = []
     erros: list[dict] = []
 
     for indice, linha_bruta in enumerate(tabela.to_dict(orient="records"), start=2):
-        ativo, erros_linha = _validar_linha(db, linha_bruta, indice, numeros_serie_vistos)
+        ativo, erros_linha = _validar_linha(
+            db, linha_bruta, indice, numeros_serie_vistos, chaves_vistas
+        )
         if ativo is not None:
             aceitos.append(ativo)
         else:
@@ -190,6 +211,32 @@ def _processar(db: Session, nome_arquivo: str, conteudo: bytes, usuario: Usuario
 
     lote.total_aceito = len(aceitos)
     lote.total_rejeitado = len(erros)
+    db.flush()  # atribui o id de cada ativo, que a auditoria precisa
+
+    # BR-030 / AC-057: auditoria na mesma transação do lote (um único commit): se algo falhar,
+    # ativos, lote e auditorias saem juntos. Mesma operação e entidade de `criar_ativo`.
+    for ativo in aceitos:
+        registrar_auditoria(
+            db,
+            usuario_id=usuario.id,
+            operacao="CRIAR",
+            entidade="ativo",
+            entidade_id=ativo.id,
+            detalhe={"lote_importacao_id": lote.id},
+        )
+    registrar_auditoria(
+        db,
+        usuario_id=usuario.id,
+        operacao="CRIAR",
+        entidade="lote_importacao",
+        entidade_id=lote.id,
+        detalhe={
+            "nome_arquivo": nome_arquivo,
+            "total_processado": lote.total_processado,
+            "total_aceito": lote.total_aceito,
+            "total_rejeitado": lote.total_rejeitado,
+        },
+    )
     db.commit()
     db.refresh(lote)
     return lote

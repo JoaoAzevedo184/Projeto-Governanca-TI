@@ -7,7 +7,9 @@ import pytest
 from sqlalchemy import func, select
 
 from app.models.ativo import Ativo
+from app.models.auditoria import AuditLog
 from app.models.importacao import ErroImportacao, LoteImportacao
+from app.models.usuario import Usuario
 
 
 def _total(db, modelo) -> int:
@@ -227,3 +229,162 @@ def test_recusa_arquivo_vazio_ou_ilegivel_sem_criar_lote(
     assert trecho in corpo["detalhe"]
     assert _total(db, LoteImportacao) == 0
     assert _total(db, Ativo) == 0
+
+
+def _auditoria(db, entidade: str) -> list[AuditLog]:
+    return list(db.scalars(select(AuditLog).where(AuditLog.entidade == entidade)))
+
+
+def test_ac057_importacao_audita_cada_ativo_criado_com_o_lote_de_origem(
+    client, db, token_admin, categoria, fornecedor
+):
+    linhas = [
+        _linha(categoria, fornecedor, nome="Notebook A", numero_serie="SN-A"),
+        _linha(categoria, fornecedor, nome="Notebook B", numero_serie="SN-B"),
+        _linha(categoria, fornecedor, nome="Notebook C", numero_serie="SN-C"),
+        _linha(categoria, fornecedor, nome="Sem serie", numero_serie=""),
+        _linha(categoria, fornecedor, nome="Valor zero", numero_serie="SN-Z", valor_compra="0"),
+    ]
+
+    resposta = _importar(client, token_admin, _csv([CABECALHO, *linhas]))
+
+    assert resposta.status_code == 202
+    lote_id = resposta.json()["lote_id"]
+    autor = db.scalar(select(Usuario.id).where(Usuario.login == "admin_teste"))
+    ativos = {a.numero_serie: a.id for a in db.scalars(select(Ativo))}
+    assert set(ativos) == {"SN-A", "SN-B", "SN-C"}
+
+    registros = _auditoria(db, "ativo")
+    # Uma linha por ativo criado e nenhuma para as 2 linhas rejeitadas (3 e não 5).
+    assert len(registros) == 3
+    assert {r.entidade_id for r in registros} == set(ativos.values())
+    for registro in registros:
+        assert (registro.operacao, registro.resultado) == ("CRIAR", "SUCESSO")
+        assert registro.regra_violada is None
+        assert registro.usuario_id == autor
+        assert registro.carimbo is not None
+        assert registro.detalhe == {"lote_importacao_id": lote_id}
+    # Da auditoria chega-se ao lote e ao arquivo de origem.
+    lote = db.get(LoteImportacao, registros[0].detalhe["lote_importacao_id"])
+    assert (lote.nome_arquivo, lote.usuario_id) == ("inventario.csv", autor)
+
+
+def test_ac057_importacao_audita_a_criacao_do_lote_com_os_totais(
+    client, db, token_admin, categoria, fornecedor
+):
+    linhas = [
+        _linha(categoria, fornecedor, numero_serie="SN-OK"),
+        _linha(categoria, fornecedor, numero_serie="", nome="Sem serie"),
+    ]
+
+    lote_id = _importar(client, token_admin, _csv([CABECALHO, *linhas])).json()["lote_id"]
+
+    autor = db.scalar(select(Usuario.id).where(Usuario.login == "admin_teste"))
+    registro = _auditoria(db, "lote_importacao")
+    assert len(registro) == 1
+    assert (registro[0].operacao, registro[0].resultado) == ("CRIAR", "SUCESSO")
+    assert (registro[0].entidade_id, registro[0].usuario_id) == (lote_id, autor)
+    assert registro[0].detalhe == {
+        "nome_arquivo": "inventario.csv",
+        "total_processado": 2,
+        "total_aceito": 1,
+        "total_rejeitado": 1,
+    }
+
+
+def test_ac057_importacao_so_com_rejeicoes_audita_o_lote_e_nenhum_ativo(
+    client, db, token_admin, categoria, fornecedor
+):
+    linhas = [
+        _linha(categoria, fornecedor, numero_serie="", nome=f"Sem serie {i}") for i in range(2)
+    ]
+
+    resposta = _importar(client, token_admin, _csv([CABECALHO, *linhas]))
+
+    assert resposta.status_code == 202
+    assert resposta.json()["total_aceito"] == 0
+    assert _total(db, Ativo) == 0
+    assert _auditoria(db, "ativo") == []
+    assert len(_auditoria(db, "lote_importacao")) == 1
+
+
+def test_importacao_recusada_antes_de_processar_nao_grava_auditoria(client, db, token_admin):
+    resposta = _importar(client, token_admin, _csv(["coluna_errada,outra", "x,y"]))
+
+    assert resposta.status_code == 422
+    assert _total(db, AuditLog) == 0
+
+
+def test_falha_do_banco_no_meio_do_lote_desfaz_ativos_lote_e_auditorias(
+    client, db, token_admin, categoria, fornecedor
+):
+    # 14 dígitos passam na validação (> 0) mas estouram NUMERIC(12,2) no flush: erro real do banco.
+    linhas = [
+        _linha(categoria, fornecedor, numero_serie="SN-1"),
+        _linha(categoria, fornecedor, numero_serie="SN-2", valor_compra="99999999999999.00"),
+    ]
+
+    resposta = _importar(client, token_admin, _csv([CABECALHO, *linhas]))
+
+    assert resposta.status_code == 422
+    db.rollback()  # a sessão do teste é compartilhada com a rota; em produção o get_db a fecha
+    assert _total(db, Ativo) == 0
+    assert _total(db, LoteImportacao) == 0
+    assert _total(db, AuditLog) == 0
+
+
+def test_ac067_importacao_rejeita_so_a_linha_com_chave_repetida_no_arquivo_ou_na_base(
+    client, db, token_admin, categoria, fornecedor
+):
+    base = {
+        "nome": "Suite Base",
+        "tipo": "SOFTWARE",
+        "categoria_id": categoria.id,
+        "fornecedor_id": fornecedor.id,
+        "chave_licenca": "BASE-1111-2222-ZZ99",
+        "data_aquisicao": "2025-01-10",
+        "valor_compra": "100.00",
+    }
+    headers = {"Authorization": f"Bearer {token_admin}"}
+    assert client.post("/api/v1/ativos", headers=headers, json=base).status_code == 201
+
+    def software(nome, chave):
+        return _linha(
+            categoria, fornecedor, nome=nome, tipo="SOFTWARE", numero_serie="", chave_licenca=chave
+        )
+
+    linhas = [
+        software("Soft A", "NOVA-1111-2222-AA11"),
+        software("Soft B", "NOVA-1111-2222-AA11"),  # repetida dentro do arquivo
+        software("Soft C", "BASE-1111-2222-ZZ99"),  # já existe na base
+        software("Soft D", "NOVA-3333-4444-DD44"),
+    ]
+    resposta = _importar(client, token_admin, _csv([CABECALHO, *linhas]))
+
+    assert resposta.status_code == 202
+    corpo = resposta.json()
+    assert (corpo["total_processado"], corpo["total_aceito"], corpo["total_rejeitado"]) == (4, 2, 2)
+    assert sorted(db.scalars(select(Ativo.nome))) == ["Soft A", "Soft D", "Suite Base"]
+    erros = db.scalars(select(ErroImportacao).order_by(ErroImportacao.numero_linha)).all()
+    assert [(e.numero_linha, e.campo) for e in erros] == [
+        (3, "chave_licenca"),
+        (4, "chave_licenca"),
+    ]
+    assert "dentro do próprio arquivo" in erros[0].motivo and "BR-039" in erros[0].motivo
+    assert "cadastrada na base" in erros[1].motivo and "BR-039" in erros[1].motivo
+    # RI-08: o relatório de erros guarda a chave mascarada, nunca a completa.
+    assert [e.valor_recebido for e in erros] == ["****-****-AA11", "****-****-ZZ99"]
+    relatorio = client.get(f"/api/v1/importacoes/{corpo['lote_id']}/erros", headers=headers)
+    assert "NOVA-1111-2222-AA11" not in relatorio.text
+    assert "BASE-1111-2222-ZZ99" not in relatorio.text
+
+
+def test_ac067_importacao_aceita_varias_linhas_sem_chave(
+    client, db, token_admin, categoria, fornecedor
+):
+    linhas = [_linha(categoria, fornecedor, numero_serie=f"SN-{i}") for i in range(3)]
+
+    resposta = _importar(client, token_admin, _csv([CABECALHO, *linhas]))
+
+    assert resposta.json()["total_aceito"] == 3
+    assert db.scalar(select(func.count()).where(Ativo.chave_licenca.is_(None))) == 3

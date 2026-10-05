@@ -1,7 +1,10 @@
+from typing import NoReturn
+
 from sqlalchemy import func, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.audit import registrar_auditoria
+from app.core.audit import recusar_operacao, registrar_auditoria
 from app.core.exceptions import RecursoNaoEncontradoError, RegraNegocioError
 from app.models.ativo import Ativo
 from app.models.categoria import Categoria
@@ -9,6 +12,8 @@ from app.models.enums import StatusAtivo, TipoAtivo
 from app.models.fornecedor import Fornecedor
 from app.models.usuario import Usuario
 from app.schemas.ativo import AtivoCreate, AtivoUpdate
+
+INDICE_CHAVE_UNICA = "ux_ativo_chave_licenca"
 
 COLUNAS_ORDENACAO = {
     "id": Ativo.id,
@@ -30,6 +35,23 @@ def _obter_fornecedor(db: Session, fornecedor_id: int) -> Fornecedor:
     if fornecedor is None:
         raise RecursoNaoEncontradoError(f"Fornecedor {fornecedor_id} não encontrado.")
     return fornecedor
+
+
+def _id_do_ativo_com_chave(db: Session, chave: str) -> int | None:
+    return db.scalar(select(Ativo.id).where(Ativo.chave_licenca == chave))
+
+
+def _recusar_chave_duplicada(db: Session, usuario: Usuario, conflitante_id: int | None) -> NoReturn:
+    """BR-039. Nem a mensagem nem a auditoria levam a chave (RI-08): só o ativo que a tem."""
+    recusar_operacao(
+        db,
+        usuario_id=usuario.id,
+        operacao="CRIAR",
+        entidade="ativo",
+        regra="BR-039",
+        mensagem="Chave de licença já cadastrada em outro ativo (BR-039).",
+        detalhe={"ativo_conflitante_id": conflitante_id},
+    )
 
 
 def criar_ativo(db: Session, dados: AtivoCreate, usuario: Usuario) -> Ativo:
@@ -54,6 +76,11 @@ def criar_ativo(db: Session, dados: AtivoCreate, usuario: Usuario) -> Ativo:
                 regra="BR-001",
             )
 
+    if dados.chave_licenca is not None:
+        conflitante_id = _id_do_ativo_com_chave(db, dados.chave_licenca)
+        if conflitante_id is not None:
+            _recusar_chave_duplicada(db, usuario, conflitante_id)
+
     ativo = Ativo(
         nome=dados.nome,
         tipo=dados.tipo,
@@ -68,8 +95,22 @@ def criar_ativo(db: Session, dados: AtivoCreate, usuario: Usuario) -> Ativo:
         observacoes=dados.observacoes,
         data_source="manual",
     )
-    db.add(ativo)
-    db.flush()
+    corrida = False
+    try:
+        # Savepoint: no conflito só o INSERT é desfeito e a recusa ainda é auditada (NFR-AUD-05).
+        with db.begin_nested():
+            db.add(ativo)
+            db.flush()
+    except IntegrityError as erro:
+        # A checagem acima não vê o escritor concorrente (ETL, carga D.8) que ainda não
+        # confirmou; só o índice garante BR-039. Outro IntegrityError não é desta regra.
+        diagnostico = getattr(erro.orig, "diag", None)
+        if getattr(diagnostico, "constraint_name", None) != INDICE_CHAVE_UNICA:
+            raise
+        corrida = True
+    if corrida:  # fora do `except`: a exceção do banco traz a chave na mensagem (RI-08)
+        assert dados.chave_licenca is not None  # o índice é parcial: só vale com chave
+        _recusar_chave_duplicada(db, usuario, _id_do_ativo_com_chave(db, dados.chave_licenca))
     registrar_auditoria(
         db, usuario_id=usuario.id, operacao="CRIAR", entidade="ativo", entidade_id=ativo.id
     )

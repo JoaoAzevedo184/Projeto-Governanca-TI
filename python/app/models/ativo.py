@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, Date, ForeignKey, Index, Integer, Numeric, String
+from sqlalchemy import CheckConstraint, Date, ForeignKey, Index, Integer, Numeric, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import baixa as _baixa  # noqa: F401 — registra BaixaAtivo para o relationship
@@ -26,6 +26,14 @@ class Ativo(Base, TimestampMixin):
         Index("ix_ativo_categoria_id", "categoria_id"),
         Index("ix_ativo_fornecedor_id", "fornecedor_id"),
         Index("ix_ativo_data_aquisicao", "data_aquisicao"),
+        # BR-039: a chave de licença é única entre os ativos; só vale quando preenchida.
+        Index(
+            "ux_ativo_chave_licenca",
+            "chave_licenca",
+            unique=True,
+            postgresql_where=text("chave_licenca IS NOT NULL"),
+            sqlite_where=text("chave_licenca IS NOT NULL"),
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

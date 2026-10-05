@@ -1,6 +1,32 @@
 # codigos CATMAT e produtos monitorados por coletor
 compras_gov:
-  catmat_codigos: []
+  base_url: https://dadosabertos.compras.gov.br
+  # Endpoint com preco unitario, data da compra e CNPJ do fornecedor por item (ver
+  # docs/FONTES_DE_DADOS.md). O /modulo-legado/2_consultarItemLicitacao, citado na ADR-011, nao
+  # traz preco pago nem data da compra, e o CNPJ vem preenchido em poucos registros.
+  endpoint: /modulo-pesquisa-preco/1_consultarMaterial
+  # Como os codigos abaixo sao enviados: codigoPdm (padrao descritivo, agrupa os itens) ou
+  # codigoItemCatalogo (item CATMAT individual).
+  tipo_codigo: codigoPdm
+  tamanho_pagina: 100          # a API aceita de 10 a 500
+  max_paginas_por_codigo: 2    # teto por codigo: 2 x 100 = ate 200 registros
+  intervalo_segundos: 1.0      # pausa entre requisicoes
+  timeout_segundos: 30
+  tentativas: 4                # por requisicao, com espera crescente entre elas
+  espera_inicial_segundos: 2.0 # 2, 4, 8... ate espera_maxima_segundos
+  espera_maxima_segundos: 60
+  # PDMs do grupo 70 (informatica) do CATMAT. Lista provisoria, a equipe confirma (ver
+  # graphify-out/DIAGNOSTICO_D2.md). Nobreak e smartphone nao foram achados no grupo 70.
+  catmat_codigos:
+    - 8435   # NOTEBOOK                    -> Notebook
+    - 6661   # MICROCOMPUTADOR             -> Desktop
+    - 6484   # MICROCOMPUTADOR ALL IN ONE  -> Desktop
+    - 10293  # SERVIDOR                    -> Servidor
+    - 6669   # MONITOR COMPUTADOR          -> Monitor
+    - 5522   # SWITCH                      -> Switch
+    - 237    # ROTEADOR                    -> Roteador
+    - 15287  # IMPRESSORA MONOCROMATICA    -> Impressora
+    - 19246  # TABLET                      -> Tablet
 endoflife:
   produtos: []
 nvd:
