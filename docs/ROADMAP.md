@@ -2,7 +2,7 @@
 
 Snapshot de progresso contra os gates e sprints definidos em [`BACKLOG_E_GATES.md`](BACKLOG_E_GATES.md). Atualizar a cada gate liberado.
 
-_Última atualização: 2026-10-02_
+_Última atualização: 2026-10-05_
 
 > Legenda: `[x]` concluído · `[ ]` pendente ou aguardando verificação. Observações após o travessão indicam o que ainda falta.
 
@@ -13,10 +13,34 @@ _Última atualização: 2026-10-02_
 | Gate | Tema | Status |
 |---|---|---|
 | Gate 0 | Enquadramento | Completo |
-| Gate 1 | Inventário operacional | Aguardando liberação (importar arquivo real de 100 linhas) |
+| Gate 1 | Inventário operacional | Aguardando liberação. Critério de liberação: arquivo de 100 linhas importado, 92 ativos e relatório de 8 erros. O pipeline reproduz 100/92/8 em teste com arquivo sintético (`test_ac044_*`), mas `dataset/demo/inventario_demo.csv` está vazio (0 bytes; a importação responde 422) e o arquivo real ainda não foi importado |
 | Gate 2 | Responsabilidade e valor | Sprint 2 implementado; aguardando liberação (demonstração da linha do tempo com três transferências e conferência manual do residual) |
 | Gate 3 | Conformidade e evento surpresa | Em andamento: baixa e licenças (Sprint 3) e painel de compliance (Sprint 4) implementados; falta demonstrar |
 | Gate 4 | Decisão e defesa | Em andamento: decisão rastreável implementada (Sprint 5); falta demonstrar e o roteiro de defesa |
+
+## Critérios de aceite da disciplina
+
+| # | Critério | FR | Onde está | Situação |
+|---|---|---|---|---|
+| 1 | Cadastro válido com bloqueio de duplicidade por número de série ou chave de licença | FR-001 | Sprint 1 (BR-001, AC-002; BR-039, AC-067) | Implementado: número de série (BR-001, AC-002, AC-046) e chave de licença do ativo (BR-039, AC-067, índice `ux_ativo_chave_licenca`, decisão da equipe de 2026-10-05); falta demonstrar (Gate 1). A chave da licença (`licenca.chave_licenca`) continua sem unicidade, de propósito |
+| 2 | Histórico de responsáveis append-only | FR-002 | Sprint 2 (trigger, AC-009 a AC-014) | Implementado; falta demonstrar (Gate 2) |
+| 3 | Depreciação linear e valor residual automáticos | FR-003 | Sprint 2 (AC-015 a AC-020) | Implementado; falta conferência manual (Gate 2) |
+| 4 | Alertas de licença excedente e próxima do vencimento | FR-004, FR-007 | Sprints 3 e 4 (CP-01 a CP-04, AC-021 a AC-023) | Implementado; falta demonstrar (Gate 3) |
+| 5 | Baixa com motivo, data e destinação | FR-005 | Sprint 3 (BR-022 a BR-026, AC-027 a AC-033) | Implementado; falta demonstrar (Gate 3) |
+| 6 | Importação CSV/XLSX com relatório de rejeitadas | FR-008 | Sprint 1 (AC-044 a AC-046) | Implementado; falta importar o arquivo de 100 linhas (Gate 1): `dataset/demo/inventario_demo.csv` tem 0 bytes. O teste `test_ac044_*` (`python/tests/integration/test_importacao.py:31`) reproduz 100 linhas, 92 aceitos e 8 rejeitados com arquivo sintético |
+| 7 | Indicadores reproduzíveis | FR-009 | Sprint 4 (AC-047) | Implementado; KPI-01, KPI-04 e KPI-05 fora do MVP |
+| 8 | Cenários com TCO de cinco anos | FR-010 | Sprint 5 (AC-052) | Implementado; falta demonstrar (Gate 4) |
+| 9 | Scorecard com pesos configuráveis | FR-011 | Sprint 5 (AC-048, AC-049) | Implementado; falta demonstrar (Gate 4) |
+| 10 | Recomendação vinculada a evidências e riscos, sem decisão automática | FR-013 | Sprint 5 (BR-027, BR-028, AC-051) | Evidência implementada (`python/app/services/recomendacao_service.py:53-64`, BR-027, AC-051). Risco entra como evidência do tipo `RISCO`, opcional, com `referencia_id` validado contra `risco` (`recomendacao_service.py:27-28`; testes em `python/tests/integration/test_recomendacoes.py:85-141`). O PRD exige só ≥ 1 evidência de qualquer tipo (BR-027, `docs/prd/requisitos-funcionais.md:343`): nada obriga a citar um risco, e `evidencia.referencia_id` não tem FK |
+
+## Itens do backlog e dos gates sem registro neste roadmap
+
+- [ ] 5.8 Documentação final e checklist de entrega
+- [ ] Gate 4: deploy funcionando (confirmar com o professor o que conta como deploy)
+- [ ] Datasets liberados por gate: definir como entram no sistema (a importação só carrega ativos)
+- [ ] Gate 3: preparação para o evento surpresa
+- [ ] 4.4 Relatórios de depreciação, baixas e histórico (fora do MVP)
+- [ ] Definition of Done: revisão por outro integrante dos itens das Sprints 3 a 5
 
 ---
 
@@ -40,6 +64,7 @@ _Última atualização: 2026-10-02_
 - [x] Dependência `require_perfil` / RBAC (`app/api/deps.py`)
 - [x] Endpoints `POST/GET/PATCH /ativos` com paginação e filtros (status, tipo, categoria, fornecedor, busca)
 - [x] Unicidade de número de série (BR-001, AC-002)
+- [x] Unicidade de chave de licença do ativo (BR-039, AC-067) — **decisão da equipe em 2026-10-05**: o critério 1 da disciplina exige bloqueio por chave de licença; unicidade só em `ativo.chave_licenca` (índice único parcial `ux_ativo_chave_licenca`, migração `d4a6c8e0f1b2`), não em `licenca.chave_licenca`, porque a renovação de subscrição pode repetir a chave. Recusa 409 `BR-039` com `RECUSADO` na auditoria, sem expor a chave (RI-08); a importação rejeita a linha. `PATCH /ativos` segue sem editar `numero_serie` nem `chave_licenca`. Corrida resolvida pelo índice (escritor externo: ETL, carga D.8)
 - [x] Validações de data e valor (BR-003, BR-004 — via `model_validator`/`Field`, 422)
 - [x] Herança de vida útil da categoria (BR-006, AC-007)
 - [x] Pipeline de importação CSV/XLSX (pandas) — cabeçalho, duplicidade no arquivo e na base, isolamento por linha
@@ -49,7 +74,8 @@ _Última atualização: 2026-10-02_
 - [x] Migração `13ade34ba8a3` (tabelas de Sprint 1) — aplicada e revertida
 - [x] Cadastros de apoio (`/categorias` com `GET/PATCH /{id}`, `/fornecedores`, `/setores`, `/responsaveis`) — CRUD, 404, 422, unicidade (409, via `flush_ou_conflito`) e auditoria testados em `tests/integration/test_cadastros.py`
 - [x] Matriz RBAC completa das rotas existentes (`tests/integration/test_seguranca.py`) — parametrizada pelos 4 perfis (ADMIN, OPERADOR, GESTOR, AUDITOR) × todas as rotas de `docs/spec/contrato-api.md` §6.2/6.3/6.6, mais um teste dedicado de "sem token → 401" em todas elas, inclusive `GET /auth/me`
-- [x] `POST/PATCH` de categoria/fornecedor/setor/responsável agora registram auditoria (`app/services/{categoria,fornecedor,setor,responsavel}_service.py`) — antes só `ativo`/`importação` registravam, violava AC-057/BR-030
+- [x] `POST/PATCH` de categoria/fornecedor/setor/responsável agora registram auditoria (`app/services/{categoria,fornecedor,setor,responsavel}_service.py`) — antes só `ativo` registrava, violava AC-057/BR-030. **Correção de 2026-10-05:** a frase anterior dizia que a importação também registrava, mas `importacao_service.py` nunca chamou `registrar_auditoria` (o histórico do git não tem nenhuma versão que o fizesse). A importação passou a auditar em 2026-10-05, ver o item abaixo
+- [x] Importação em lote audita (2026-10-05, AC-057/BR-030): uma linha `CRIAR`/`ativo` por ativo aceito, com `lote_importacao_id` no `detalhe`, e uma linha `CRIAR`/`lote_importacao` com os totais, todas na mesma transação do lote (`app/services/importacao_service.py`). Linhas rejeitadas não geram auditoria de ativo. Testes `test_ac057_importacao_*` em `tests/integration/test_importacao.py`
 - [x] 47 testes (`tests/integration/`) — 19 seguem a convenção `test_ac###_...`, 28 são testes de suporte (CRUD/RBAC/404/422 sem AC dedicado); 96% de cobertura em `app/`, `ruff`/`mypy`/`bandit` limpos
 - **Observação:** a unicidade de `categoria.nome`, `fornecedor.cnpj`, `setor.nome` e `responsavel.matricula` (docs/spec/modelo-fisico.md) não tem BR associado no PRD — é `UNIQUE` de schema, sem regra de negócio numerada (diferente de `ativo.numero_serie`, que é BR-001). Equipe decide se formaliza um BR ou mantém como restrição de schema.
 - **Decisão pausada:** `POST /importacoes` para ADMIN+OPERADOR foi proposto e barrado por contradizer `docs/prd/jornadas-historias.md` (US-031/US-032, "Como Administrador de TI"). Continua ADMIN-only; `GET /importacoes*` foi aberto aos 4 perfis (decisão sem contradição, registrada em `docs/REGISTRO_USO_DE_IA.md`)
@@ -66,7 +92,7 @@ _Última atualização: 2026-10-02_
 - [x] Migração `c8365ce7e5e4` (tabela, índice parcial e trigger) — `upgrade` → `downgrade` → `upgrade` e `alembic check` testados em SQLite e em PostgreSQL 16
 - [x] `api/openapi.yaml` regenerado a partir do app (também cobre as rotas do Sprint 1, que ainda estavam em `paths: {}`)
 - [x] Testes AC-009 a AC-020 — AC-013 testado no banco (trigger) e na API (nenhuma rota de edição/exclusão)
-- [x] **Resolução de pendências** ([`RESOLUCAO_PENDENCIAS_SPRINT2.md`](RESOLUCAO_PENDENCIAS_SPRINT2.md), aprovada em 2026-09-30) — itens 0 a 15 aplicados:
+- [x] **Resolução de pendências** ,  aprovada em 2026-09-30 — itens 0 a 15 aplicados:
   - ADR-013: PRD prevalece em regra de negócio, SPEC em implementação (item 0);
   - depreciação arredonda só no resultado final, `valor × meses ÷ vida_útil`; a mensal é informativa (item 1, AC-020 passa a 2.000,00);
   - subscrição e OEM não são ativo; nota de amortização no glossário (itens 2 e 3);
@@ -93,7 +119,7 @@ Baixa (FR-005) e licenças (FR-004) implementadas em 2026-10-02. O painel de com
 - [x] Mascaramento de `chave_licenca` (RI-08, `****-****-A3F9`; completa só no detalhe e só para ADMIN) em licenças **e** nas respostas de ativo (`app/utils/mascaramento.py`). Chave com menos de 8 caracteres sai toda mascarada
 - [x] Recusas por regra gravam `RECUSADO` na auditoria com `regra` (NFR-AUD-05); recusa por concorrência provocada de verdade (BR-018 com lock na licença; BR-024 e `ux_licenca_ativo` com escritor externo)
 - [x] ACs cobertos: AC-011, AC-019, AC-021, AC-024 a AC-030, AC-032, AC-033 e AC-058 a AC-064 (mapa na seção "Decisões da Sprint 3" abaixo)
-- [ ] **AC-022 e AC-023** — dependem do painel de compliance (FR-007, backlog 3.5 e 3.10): a licença traz `dias_para_expiracao`, mas `status_conformidade` e `alertas` (contrato §6.4) ainda não existem
+- [x] **AC-022 e AC-023** — dependiam do painel de compliance (FR-007, backlog 3.5 e 3.10); entregues na Sprint 4 (`status_conformidade` e `alertas` da licença, `GET /compliance/alertas`)
 - [x] **AC-031** — "relatório de inventário ativo": coberto na Sprint 4 por `GET /relatorios/inventario` (sem `status`, o baixado não aparece), teste `test_ac031_*` em `tests/integration/test_relatorios.py`
 - [x] Regras CP-01 a CP-04 e `compliance_service.py` — Sprint 4 (AC-022, AC-023, AC-039 a AC-043). CP-05 a CP-09: ver FR-007 no PRD
 - [x] Contador `itam_regras_violadas_total` (`docs/spec/observabilidade.md`) nas recusas — entregue na Sprint 4
@@ -183,9 +209,9 @@ Implementada em 2026-10-03, exceto o roteiro de defesa e o pipeline de dados (fo
 
 ## Pipeline de dados
 
-Hoje `python/collectors/` só tem `config.yaml` (sem código) e `python/etl/` só tem `gerar_sinteticos.py` (entidades via Mockaroo). Nenhuma das etapas abaixo existe ainda. Numeração D.1–D.9 sincronizada com `docs/BACKLOG_E_GATES.md` — ver [ADR-011](adr/0011-estrategia-dados-reais-demonstracao.md) para a decisão de identificador/fornecedor em D.1 (confirmada contra o schema real da API do Compras.gov.br).
+Hoje `python/collectors/` tem o coletor `compras_gov` (D.1) e `config.yaml`, e `python/etl/` só tem `gerar_sinteticos.py` (entidades via Mockaroo). As demais etapas abaixo ainda não existem. Numeração D.1–D.9 sincronizada com `docs/BACKLOG_E_GATES.md` — ver [ADR-011](adr/0011-estrategia-dados-reais-demonstracao.md) para a decisão de identificador/fornecedor em D.1 (confirmada contra o schema real da API do Compras.gov.br).
 
-- [ ] D.1 — Coletor `compras_gov` (`python/collectors/compras_gov.py`) — itens de TI por CATMAT, `dataset/raw/compras_gov/<data>/*.json`, testes com fixtures em `tests/fixtures/` (sem rede)
+- [x] D.1 — Coletor `compras_gov` (`python/collectors/compras_gov.py`) — itens de TI por CATMAT, `dataset/raw/compras_gov/<data>/*.json`, testes com fixtures em `tests/fixtures/` (sem rede). **Concluído em 2026-10-05:** `python -m collectors.compras_gov` coleta os PDMs de `config.yaml` com paginação, novas tentativas com espera crescente, intervalo entre requisições e gravação atômica (sem arquivo pela metade; rodar de novo no mesmo dia pula o que já está completo); 27 testes em `tests/unit/test_compras_gov.py` com respostas reais gravadas em `tests/fixtures/compras_gov/` (ver `ORIGEM.md`). **Divergências a confirmar pela equipe:** usa `/modulo-pesquisa-preco/1_consultarMaterial`, não o `modulo-legado/2_consultarItemLicitacao` da ADR-011 (o legado não traz preço pago nem data da compra); a lista de 9 PDMs em `config.yaml` é provisória (sem Nobreak nem Smartphone). Diagnóstico do que o D.2 exige: `graphify-out/DIAGNOSTICO_D2.md`
 - [ ] D.2 — Exportar 100 itens coletados no formato de `dataset/demo/inventario_demo.csv` e importar via `POST /importacoes` — libera o Gate 1
 - [ ] D.3 — Coletor `endoflife` (`python/collectors/endoflife.py`) — ciclos de vida por produto, `dataset/raw/endoflife/<data>/*.json`, testes com fixtures
 - [ ] D.4 — Coletor `nvd` (`python/collectors/nvd.py`) — CVEs por produto, `dataset/raw/nvd/<data>/*.json`, testes com fixtures
@@ -202,12 +228,12 @@ Hoje `python/collectors/` só tem `config.yaml` (sem código) e `python/etl/` s�
 - [ ] 3. Liberar o Gate 2: demonstrar a linha do tempo de um ativo com três transferências e conferir o residual à mão.
 - [x] 4. Fechar a cobertura de `ativo_service.py` e `importacao_service.py` — 100% em `utils/` + `services/`.
 - [ ] 5. Preencher os papéis em `docs/guia/equipe-e-ia.md`.
-- [x] 6. Sprint 3 — licenças (com `ck_licenca_tipo` e validação do ativo `SOFTWARE` no serviço) e baixas (com `data_baixa` na depreciação, AC-019). Falta a parte de compliance (FR-007, CP-01 a CP-09).
+- [x] 6. Sprint 3 — licenças (com `ck_licenca_tipo` e validação do ativo `SOFTWARE` no serviço) e baixas (com `data_baixa` na depreciação, AC-019).
 
 ## Riscos do roadmap
 
-- `app/models/risco.py`, `recomendacao.py` e os serviços das Sprints 4–5 (`compliance_service.py`, `indicador_service.py` etc.) ainda são placeholders vazios. Os de baixa e licença foram preenchidos na Sprint 3.
-- **Pendências abertas pela resolução do Sprint 2** (decisões da equipe em 2026-09-30, ver [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](RESOLUCAO_PENDENCIAS_SPRINT2.md)):
+- **Carga D.8 e auditoria (BR-030):** a carga D.8 grava via ORM (`dataset/processed/` e `dataset/synthetic/` → tabelas) e não passa pelos services, então não grava `audit_log`. A importação pela API (`POST /importacoes`) audita desde 2026-10-05, mas a carga externa não. A equipe precisa decidir se a BR-030 vale para carga externa; se valer, a carga terá de chamar `registrar_auditoria` ou passar pelos services.
+- **Pendências abertas pela resolução do Sprint 2** (decisões da equipe em 2026-09-30, ver `RESOLUCAO_PENDENCIAS_SPRINT2.md`):
   - `produto_software` e `ativo_software` existem só na documentação, e a FK `ativo.produto_software_id` ainda não existe (fora do escopo da Sprint 3). `licenca`, `licenca_vinculo` e o `ck_licenca_tipo` entraram na migração `f5f9acc0de7b`;
   - `licenca.data_expiracao` continua `NOT NULL` também para licença perpétua ("prazo indeterminado"). Mantido por decisão da equipe (mudar alteraria BR-019); revisar no Sprint 3;
   - a validação "`licenca.ativo_id` aponta para ativo `SOFTWARE`" está em `licenca_service.criar_licenca` (409, `regra = BR-035`, antes `FR-004`), porque o CHECK não enxerga outra tabela;
