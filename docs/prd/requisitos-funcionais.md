@@ -306,6 +306,8 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 
 **Comportamento crítico:** o sistema **ordena** os cenários por custo e risco, mas **não seleciona** automaticamente a alternativa. A decisão permanece humana e deve ser registrada via FR-013.
 
+**Decisões da implementação (Sprint 5):** o cenário é só calculado, não persistido (não há tabela). Os custos (`capex`, `opex_anual`) e os riscos vinculados vêm na requisição; `score_risco` soma os scores dos riscos informados. O baseline da economia é `MANTER` (ou o primeiro cenário, se `MANTER` não vier). A quantidade de ativos do custo por ativo/ano é a informada ou, por padrão, a dos ativos não baixados.
+
 ---
 
 ### FR-011 — Scorecard de Fornecedores *(extensão)*
@@ -317,7 +319,8 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 - Notas por critério no intervalo de 0 a 10; nota obrigatória para todos os critérios.
 - Pontuação ponderada calculada e ranking produzido.
 - Critérios sugeridos: preço, prazo de entrega, qualidade do suporte, taxa de defeitos no período, aderência contratual.
-- Rejeição explícita de submissões com soma de pesos diferente de 100% ou com critérios sem nota.
+- Rejeição explícita de submissões com soma de pesos diferente de 100% (`409`, BR-029) ou com critérios sem nota (`422`).
+- Decisões da implementação (Sprint 5): o `periodo` é um rótulo de texto; a avaliação é gravada (uma linha por fornecedor e critério) e o ranking é derivado; empate de pontuação desempata pelo menor id de fornecedor.
 
 ---
 
@@ -329,6 +332,8 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 
 **Classificação:** score 1–4 baixo, 5–9 médio, 10–14 alto, 15–25 crítico.
 
+**Decisões da implementação (Sprint 5):** `status` do risco é `ABERTO`, `EM_TRATAMENTO` ou `ENCERRADO`; o responsável é um registro de `responsavel` e é opcional; `resposta` é obrigatória.
+
 ---
 
 ### FR-013 — Recomendação Rastreável *(extensão)*
@@ -339,7 +344,9 @@ A licença representa **só o contrato de direito de uso**. O valor patrimonial 
 
 **Campos:** título, contexto, recomendação, alternativas consideradas, evidências vinculadas (≥ 1), responsável pela decisão, data, status (proposta, aprovada, rejeitada, implementada).
 
-Tentativas de gravar recomendação sem evidência retornam erro de validação com mensagem explícita.
+Tentativas de gravar recomendação sem evidência são recusadas com mensagem explícita (`409`, BR-027, registrada na auditoria).
+
+**Decisões da implementação (Sprint 5):** a evidência de risco, ativo ou licença aponta para o registro; a de scorecard, para o fornecedor avaliado. Indicador, cenário e premissa não têm registro (são derivados ou declarados), então levam só a descrição, com o valor ou resultado no momento do registro. O `responsavel` da decisão é um registro de `responsavel`. Não há edição: o status é o informado ao registrar, e o sistema nunca gera recomendação.
 
 ---
 
