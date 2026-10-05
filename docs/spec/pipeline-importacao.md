@@ -17,6 +17,7 @@ Parte de [SPEC — ITAM](README.md).
 | `data_aquisicao` | Sim | `AAAA-MM-DD` |
 | `valor_compra` | Sim | decimal, ponto como separador, até 10 dígitos inteiros e 2 casas decimais (`NUMERIC(12,2)`); mais casas é recusado, não arredondado |
 | `localizacao` | Não | texto, até o tamanho da coluna (120) |
+| `data_source` | Não | `compras_gov` ou `importacao`; vazia ou ausente grava `importacao`. Maiúsculas e espaços são normalizados, como em `tipo`. Outro valor, inclusive `manual` (cadastro pela API), é erro de linha |
 
 ### 10.2 Etapas
 
@@ -29,6 +30,7 @@ Parte de [SPEC — ITAM](README.md).
    ├── normalizar (trim, upper em enums, parse de data e decimal)
    ├── validar campos obrigatórios e domínios
    ├── validar tamanho dos textos e o intervalo do valor (AC-068, AC-069)
+   ├── validar a origem declarada em `data_source`, se houver (AC-071)
    ├── resolver categoria e fornecedor por nome
    ├── verificar duplicidade contra o arquivo já lido
    ├── verificar duplicidade contra a base (AC-046)

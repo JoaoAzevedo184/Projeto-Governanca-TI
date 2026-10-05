@@ -217,6 +217,8 @@ Códigos: `KPI-02` (cobertura de responsáveis), `KPI-03` (conformidade de licen
 
 Linha inválida vira erro de linha (número, campo e motivo) em `GET /importacoes/{id}/erros`, e o lote segue. Isso vale também para texto acima do tamanho da coluna e para `valor_compra` fora do que a coluna comporta (parte inteira acima de 10 dígitos, mais de duas casas decimais, não finito): o arquivo nunca é recusado por inteiro por causa de uma linha (AC-068, AC-069). A `chave_licenca` aparece mascarada no relatório (RI-08).
 
+O arquivo pode trazer a coluna opcional `data_source` (`compras_gov` ou `importacao`); vazia ou ausente, o ativo é gravado com `importacao`. Outro valor, inclusive `manual`, vira erro de linha no campo `data_source` (AC-071). O cadastro direto (`POST /ativos`) continua gravando `manual`.
+
 ### 6.7 Governança e decisão
 
 | Método | Rota | Perfis | FR |

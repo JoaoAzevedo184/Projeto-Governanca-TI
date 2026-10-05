@@ -110,7 +110,7 @@ Vale repetir aqui porque é a regra que mais gera confusão: o banco **não guar
 
 ## 8. Importação do usuário
 
-Registrada aqui apenas por completude de `data_source`: planilhas CSV/XLSX enviadas via `POST /api/v1/importacoes` (FR-008) recebem `data_source = importacao`. Não é uma fonte externa coletada — é dado informado pelo operador da API. Contrato completo do arquivo em [`docs/spec/pipeline-importacao.md`](spec/pipeline-importacao.md). Da mesma forma, registros criados direto pela API (`POST /ativos` e o vínculo de `POST /ativos/{id}/responsavel`) recebem `data_source = manual`.
+Registrada aqui apenas por completude de `data_source`: planilhas CSV/XLSX enviadas via `POST /api/v1/importacoes` (FR-008) recebem `data_source = importacao`, salvo quando o arquivo traz a coluna opcional `data_source` com `compras_gov` (itens coletados do Compras.gov.br e exportados para planilha); `manual` não é aceito em arquivo, porque é a origem do cadastro pela API (AC-071). Não é uma fonte externa coletada — é dado informado pelo operador da API. Contrato completo do arquivo em [`docs/spec/pipeline-importacao.md`](spec/pipeline-importacao.md). Da mesma forma, registros criados direto pela API (`POST /ativos` e o vínculo de `POST /ativos/{id}/responsavel`) recebem `data_source = manual`.
 
 ---
 
