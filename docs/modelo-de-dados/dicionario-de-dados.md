@@ -194,16 +194,21 @@ CREATE UNIQUE INDEX ux_licenca_ativo
 | `probabilidade`, `impacto` | INTEGER | `CHECK BETWEEN 1 AND 5` |
 | `score` | INTEGER | `GENERATED ALWAYS AS (probabilidade * impacto) STORED` |
 | `categoria`, `resposta`, `status` | VARCHAR | enums |
-| `titulo`, `descricao`, `gatilho` | VARCHAR | — |
-| `responsavel_id`, `data_revisao` | — | — |
+| `titulo`, `descricao`, `gatilho` | VARCHAR | `titulo` ≥ 3 caracteres |
+| `responsavel_id`, `data_revisao` | FK → `responsavel`, DATE | opcionais |
+| `data_source`, `criado_em`, `atualizado_em` | — | `manual` quando criado pela API |
 
-| `recomendacao` | `titulo`, `contexto`, `recomendacao`, `alternativas`, `responsavel_id`, `data`, `status` |
+| `recomendacao` | `titulo`, `contexto`, `recomendacao`, `alternativas`, `responsavel_id` (FK → `responsavel`, NOT NULL), `data`, `status`, `data_source`, `criado_em` |
 |---|---|
-| `evidencia` | `id`, `recomendacao_id` (FK CASCADE), `tipo`, `referencia_id`, `descricao` |
+| `evidencia` | `id`, `recomendacao_id` (FK CASCADE), `tipo`, `referencia_id` (nulo em `INDICADOR`, `CENARIO`, `PREMISSA`), `descricao` |
+
+`ck_evidencia_referencia`: só `INDICADOR`, `CENARIO` e `PREMISSA` podem ter `referencia_id` nulo. `ck_evidencia_descricao`: esses três exigem `descricao` com ao menos 3 caracteres. `referencia_id` não é FK (aponta para tabelas diferentes conforme o `tipo`), então a existência do registro é verificada pelo serviço. BR-027 não é constraint: é o serviço (ver [`invariantes.md`](invariantes.md)).
 
 | `fornecedor_avaliacao` | Tipo |
 |---|---|
-| `fornecedor_id`, `criterio`, `peso` (NUMERIC(5,2)), `nota` (NUMERIC(4,2), `CHECK 0–10`), `periodo` | — |
+| `fornecedor_id`, `criterio` (VARCHAR(80)), `peso` (NUMERIC(5,2), `CHECK` > 0 e ≤ 100), `nota` (NUMERIC(4,2), `CHECK 0–10`), `periodo` (VARCHAR(20), rótulo livre), `data_source`, `criado_em` | — |
+
+Uma linha por fornecedor, critério e submissão. A pontuação e o ranking não são colunas: saem da soma ponderada das linhas (`utils/scorecard.py`). Não há `UNIQUE` por fornecedor, critério e período: reavaliar o mesmo período acrescenta linhas, e o histórico fica. A soma dos pesos (BR-029) é validada no serviço, antes de gravar.
 
 ### 3.10 `usuario` e `audit_log`
 

@@ -12,7 +12,7 @@ Parte de [Modelo de Dados — ITAM](README.md).
 | `0004_baixa` | `baixa_ativo`, `UNIQUE (ativo_id)`, trigger de imutabilidade |
 | `0005_licenca` | `licenca`, `licenca_vinculo`, índice parcial |
 | `0006_importacao` | `lote_importacao`, `erro_importacao`, FK em `ativo` |
-| `0007_governanca` | `risco`, `recomendacao`, `evidencia`, `fornecedor_avaliacao` |
+| `0007_governanca` | `risco`, `recomendacao`, `evidencia`, `fornecedor_avaliacao` (no código real, três revisões, uma por parte da Sprint 5, abaixo) |
 | `0008_auditoria` | `audit_log`, trigger de imutabilidade, índices |
 | `0009_data_source` | Coluna `data_source` em `ativo`, `fornecedor`, `responsavel`, `historico_transferencia`, `baixa_ativo`, `licenca`, `licenca_vinculo` |
 | `0010_software_externo` | `produto_software`, `vulnerabilidade`, `ativo_software` |
@@ -28,6 +28,16 @@ Parte de [Modelo de Dados — ITAM](README.md).
 A função `bloquear_mutacao()` é criada por `25b1f6d20128` e reaplicada com `CREATE OR REPLACE` por `ee62f9bcb421`. O `downgrade` de `ee62f9bcb421` remove só o trigger de `baixa_ativo` (e a tabela) e **não** remove a função, porque `audit_log` continua dependendo dela.
 
 Os nomes `0001_base` a `0008_auditoria` acima são o plano original; as revisões reais do Alembic têm identificadores gerados (`alembic/versions/`). Revisões da Sprint 3: `ee62f9bcb421` (`baixa_ativo`, `UNIQUE (ativo_id)`, CHECKs de enum, de resíduo e de justificativa, e o trigger) e `f5f9acc0de7b` (`licenca` com `ck_licenca_tipo`, `ck_licenca_vigencia` e demais CHECKs, e `licenca_vinculo` com o índice parcial `ux_licenca_ativo`). Em SQLite o índice parcial é criado e o trigger não (`_postgres()`). No SQLite nenhum desses triggers é criado (`_postgres()`). O `TRUNCATE` que o `conftest.py` usa entre os testes não aciona trigger de linha; um `TRUNCATE` direto em `audit_log` não é bloqueado.
+
+**Revisões da Sprint 5** (todas só DDL portável, sem trigger, então sem guarda `_postgres()`; o `score` do risco é `sa.Computed(persisted=True)`, aceito pelo PostgreSQL e pelo SQLite):
+
+| Revisão | Conteúdo | `downgrade` |
+|---|---|---|
+| `a7c1e5d90b21` | `risco`, com `score` gerado, CHECKs de enum e de 1 a 5, índices de `score` e `status` | remove índices e tabela |
+| `b3d8f2a61c47` | `fornecedor_avaliacao`, com CHECKs de peso e nota | remove índice e tabela |
+| `c9e4a7d25f83` | `recomendacao` e `evidencia` (`ON DELETE CASCADE`, CHECKs de tipo, de referência e de descrição) | remove `evidencia` e depois `recomendacao` |
+
+Conferido em 2026-10-03: `downgrade -1` e `upgrade head` de cada uma, `downgrade base` seguido de `upgrade head`, e `alembic check` sem diferença.
 
 Toda migração precisa de `downgrade` funcional e testado. Triggers e funções são criados e removidos na própria migração, nunca por script externo — do contrário o ambiente do professor diverge do da equipe no primeiro `alembic upgrade head`.
 

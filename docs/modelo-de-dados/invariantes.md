@@ -23,7 +23,11 @@ Parte de [Modelo de Dados — ITAM](README.md).
 | Uso de licença ≤ contratado | BR-018 | Verificação com lock na licença | Serviço |
 | Valor residual nunca negativo | BR-014 | `max(..., 0)` + `CHECK ≥ 0` na baixa | Cálculo + banco |
 | Recomendação exige evidência | BR-027 | Criação na mesma transação | **Serviço** (ver abaixo) |
-| Pesos do scorecard somam 100% | BR-029 | Validação com `Decimal` | Serviço |
+| Pesos do scorecard somam 100% | BR-029 | Validação com `Decimal` antes de gravar | Serviço |
+| Score do risco é probabilidade × impacto | AC-050 | Coluna gerada (`GENERATED ALWAYS AS ... STORED`) | **Banco** |
+| Probabilidade e impacto de 1 a 5; nota de 0 a 10 | FR-012, FR-011 | `CHECK` | **Banco** |
+| Evidência de risco, ativo, licença e scorecard aponta para um registro | FR-013 | `CHECK` de `referencia_id` não nulo; existência no serviço | Banco + serviço |
+| O sistema ordena cenários e não escolhe | BR-028 | Resposta sem campo de seleção; cenário não é persistido | Serviço |
 
 **BR-031, BR-032, BR-036 e BR-037 são do serviço, não do banco.** Valem só para quem passa pela API: baixa e vinculação travam a linha do `ativo` (`FOR NO KEY UPDATE` na máquina e na baixa; `FOR SHARE` no software da licença, em `vincular`) antes de ler o status e os vínculos, então uma operação sempre enxerga o resultado da outra. Ordem de travamento em `vincular`: máquina, licença, ativo SOFTWARE; a baixa trava só o próprio ativo e depois as linhas de `licenca_vinculo` em ordem de `id`. Um escritor externo (ETL, carga D.8) que insira em `licenca_vinculo` ou em `baixa_ativo` sem esse lock contorna as duas; o dataset precisa respeitar a coerência listada em [`datasets-de-demonstracao.md`](datasets-de-demonstracao.md).
 
