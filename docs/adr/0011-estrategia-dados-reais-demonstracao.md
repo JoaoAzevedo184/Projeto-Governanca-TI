@@ -62,3 +62,27 @@ Sinalizado como gerado (não é número de série de fábrica) — mesmo padrão
 - O projeto passa a depender da disponibilidade e da estabilidade de três APIs externas (Compras.gov.br, endoflife.date, NVD) no momento da coleta. Mitigado por `dataset/raw/` imutável: a coleta não precisa ser refeita a cada carga, e a API do ITAM nunca depende dessas fontes em tempo de requisição.
 - O catálogo de itens de TI disponíveis no Compras.gov.br é o que existe nos pregões públicos coletados — a diversidade de categorias no inventário fica limitada ao que órgãos públicos efetivamente compraram, e não a um catálogo desenhado sob medida para cobrir todos os cenários de compliance do dataset.
 - Coordenar três coletores com regras de negócio do ETL (nenhum evento antes da aquisição, baixa preferencialmente em ativos com vida útil encerrada etc.) é mais complexo do que um gerador sintético único — custo aceito porque é o único caminho que preserva preço e data reais.
+
+## Atualização de 2026-10-05 (D.1 e D.2)
+
+A implementação do coletor (D.1) e do arquivo do Gate 1 (D.2) corrigiu dois pontos da decisão
+sobre identificador e fornecedor acima. O restante da ADR segue valendo.
+
+- **Endpoint.** O `/modulo-legado/2_consultarItemLicitacao` não serve: não traz preço pago nem data
+  da compra (só `valor_estimado` e `dt_alteracao`), e numa amostra de 188 registros só 27 vinham
+  com CNPJ do fornecedor e 29 com `valor_estimado` maior que zero. O coletor usa
+  `/modulo-pesquisa-preco/1_consultarMaterial` (`tipo=codigoPdm`), que traz `precoUnitario`,
+  `dataCompra`, `niFornecedor` (CNPJ), `nomeFornecedor`, `marca`, `idCompra`, `idCompraItem` e
+  `idItemCompra`. Detalhes em `docs/FONTES_DE_DADOS.md`.
+- **Identificador.** A fórmula `CG-{id_compra}-{id_compra_item}-{sequencial}` colide: em 13 itens
+  da coleta o mesmo `idCompraItem` aparece com fornecedores e preços diferentes. O identificador
+  passa a ser `numero_serie = CG-{idItemCompra}-001`, e `idItemCompra` é único nos 1705 registros
+  coletados. A expansão por quantidade e o teto ficam para a carga do pipeline (D.8); o arquivo do
+  Gate 1 usa uma linha por item de compra.
+- **É sintético.** Esse número **não é número de série de fábrica**: a fonte pública não traz
+  número de série. É um identificador técnico, derivado do item de compra, que só existe para
+  satisfazer `ck_ativo_identificador` e a unicidade (BR-001). Deve ser tratado e documentado assim
+  onde aparecer (`dataset/demo/inventario_demo.LEIAME.md`).
+- **Fornecedor.** Vem de `nomeFornecedor` (razão social do vencedor) e `niFornecedor` (CNPJ), com
+  `data_source = compras_gov`; o importador o resolve por razão social exata, então os fornecedores
+  são carregados antes (`python -m etl.carregar_fornecedores`).
