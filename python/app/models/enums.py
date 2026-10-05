@@ -34,6 +34,34 @@ class TipoLicenciamento(str, Enum):
     OEM = "OEM"
 
 
+class CategoriaRisco(str, Enum):
+    OPERACIONAL = "OPERACIONAL"
+    FINANCEIRO = "FINANCEIRO"
+    LEGAL = "LEGAL"
+    SEGURANCA = "SEGURANCA"
+    CONTINUIDADE = "CONTINUIDADE"
+
+
+class RespostaRisco(str, Enum):
+    ACEITAR = "ACEITAR"
+    MITIGAR = "MITIGAR"
+    TRANSFERIR = "TRANSFERIR"
+    EVITAR = "EVITAR"
+
+
+class StatusRisco(str, Enum):
+    ABERTO = "ABERTO"
+    EM_TRATAMENTO = "EM_TRATAMENTO"
+    ENCERRADO = "ENCERRADO"
+
+
+class ClassificacaoRisco(str, Enum):
+    BAIXO = "BAIXO"
+    MEDIO = "MEDIO"
+    ALTO = "ALTO"
+    CRITICO = "CRITICO"
+
+
 class PerfilUsuario(str, Enum):
     ADMIN = "ADMIN"
     OPERADOR = "OPERADOR"
@@ -49,3 +77,33 @@ def check_in(coluna: str, enum_cls: type[Enum]) -> str:
     """
     valores = ", ".join(f"'{membro.value}'" for membro in enum_cls)
     return f"{coluna} IN ({valores})"
+
+
+class NomeCenario(str, Enum):
+    MANTER = "MANTER"
+    RENOVAR = "RENOVAR"
+    MIGRAR_ASSINATURA = "MIGRAR_ASSINATURA"
+
+
+class StatusRecomendacao(str, Enum):
+    PROPOSTA = "PROPOSTA"
+    APROVADA = "APROVADA"
+    REJEITADA = "REJEITADA"
+    IMPLEMENTADA = "IMPLEMENTADA"
+
+
+class TipoEvidencia(str, Enum):
+    INDICADOR = "INDICADOR"
+    RISCO = "RISCO"
+    ATIVO = "ATIVO"
+    LICENCA = "LICENCA"
+    SCORECARD = "SCORECARD"
+    CENARIO = "CENARIO"
+    PREMISSA = "PREMISSA"
+
+
+# Evidências sem registro próprio no banco (indicador e cenário são derivados na hora; premissa é
+# declarada): não têm `referencia_id` e a `descricao` carrega o que sustenta a recomendação.
+EVIDENCIAS_SEM_REFERENCIA = frozenset(
+    {TipoEvidencia.INDICADOR, TipoEvidencia.CENARIO, TipoEvidencia.PREMISSA}
+)
