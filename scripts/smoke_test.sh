@@ -36,7 +36,8 @@ token="$(curl -sf -X POST "$API/api/v1/auth/login" -H 'content-type: application
   || falha "login do admin (o seed foi executado?)"
 passo "login do admin"
 
-for rota in /api/v1/compliance/alertas /api/v1/indicadores "/api/v1/relatorios/inventario?formato=csv"; do
+for rota in /api/v1/compliance/alertas /api/v1/indicadores "/api/v1/relatorios/inventario?formato=csv" \
+  /api/v1/riscos /api/v1/recomendacoes; do
   curl -sf "$API$rota" -H "Authorization: Bearer $token" >/dev/null || falha "GET $rota"
   passo "GET $rota"
 done
