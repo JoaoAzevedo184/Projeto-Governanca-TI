@@ -20,6 +20,11 @@ from app.utils.mascaramento import mascarar_chave
 COLUNAS_OBRIGATORIAS = ["nome", "tipo", "categoria", "fornecedor", "data_aquisicao", "valor_compra"]
 TAMANHO_MAXIMO_BYTES = 5 * 1024 * 1024
 LINHAS_MAXIMAS = 5_000
+# Origens que uma linha pode declarar na coluna opcional `data_source` (FR-008, AC-071). Das
+# origens do projeto (enumeracoes.md), são as que existem para `ativo` (modelo-fisico.md): `manual`
+# é o cadastro pela API, e `endoflife`, `nvd` e `sintetico` são de outras tabelas.
+ORIGEM_PADRAO = "importacao"
+ORIGENS_ACEITAS = ("compras_gov", ORIGEM_PADRAO)
 
 
 def _coluna(atributo, propriedade: str) -> int:
@@ -145,6 +150,13 @@ def _validar_linha(
     if localizacao:
         acima_do_limite("localizacao", localizacao)
 
+    valor_origem = linha.get("data_source", "").strip()
+    origem = valor_origem.lower() or ORIGEM_PADRAO
+    if origem not in ORIGENS_ACEITAS:
+        registrar_erro(
+            "data_source", valor_origem, f"Origem deve ser {' ou '.join(ORIGENS_ACEITAS)}."
+        )
+
     valor_data_aquisicao = linha.get("data_aquisicao", "").strip()
     data_aquisicao: date | None = None
     try:
@@ -200,7 +212,7 @@ def _validar_linha(
         valor_compra=valor_compra,
         vida_util_meses=categoria.vida_util_meses,
         localizacao=localizacao,
-        data_source="importacao",
+        data_source=origem,
     )
     return ativo, []
 
@@ -274,7 +286,7 @@ def _processar(db: Session, nome_arquivo: str, conteudo: bytes, usuario: Usuario
             operacao="CRIAR",
             entidade="ativo",
             entidade_id=ativo.id,
-            detalhe={"lote_importacao_id": lote.id},
+            detalhe={"lote_importacao_id": lote.id, "data_source": ativo.data_source},
         )
     registrar_auditoria(
         db,
