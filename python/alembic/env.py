@@ -13,7 +13,9 @@ from app.models import (  # noqa: F401 — importados para registrar as tabelas 
     historico,
     importacao,
     licenca,
+    recomendacao,
     responsavel,
+    risco,
     setor,
     usuario,
 )
