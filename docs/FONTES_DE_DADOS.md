@@ -11,15 +11,15 @@ Detalha, fonte a fonte, o que o `README.md` resume na seção "Origem dos dados"
 | **O que fornece** | Itens de TI efetivamente adquiridos por órgãos públicos federais: descrição, fabricante/marca, modelo, quantidade, valor unitário, data da compra, órgão comprador, classificado por código CATMAT |
 | **URL base** | `https://dadosabertos.compras.gov.br` |
 | **Documentação** | `https://dadosabertos.compras.gov.br/swagger-ui/index.html` |
-| **Autenticação** | <!-- TODO: confirmar --> API de dados abertos; confirmar se algum endpoint usado exige chave ou se todos são de acesso público irrestrito |
-| **Endpoints usados** | <!-- TODO: confirmar --> endpoint(s) de consulta de itens de compra/material por código CATMAT, a definir em `python/collectors/config.yaml` |
+| **Autenticação** | Nenhuma: os endpoints de consulta usados (`modulo-pesquisa-preco` e `modulo-material`) respondem sem chave nem cabeçalho de autorização (verificado em 2026-10-05). Os de `/usuarios` e `/autenticacao` da mesma API não são usados |
+| **Endpoints usados** | `GET /modulo-pesquisa-preco/1_consultarMaterial` com `tipo=codigoPdm` e `codigo=<PDM>` (preço unitário, data da compra, CNPJ e razão social do fornecedor, marca, `idCompra`, `idCompraItem`, `idItemCompra`), configurado em `python/collectors/config.yaml`. Também usados na exploração: `modulo-material/3_consultarPdmMaterial` e `4_consultarItemMaterial` (catálogo CATMAT). O `modulo-legado/2_consultarItemLicitacao`, previsto na ADR-011, não traz preço pago nem data da compra e quase não traz CNPJ (ver ADR-011, atualização de 2026-10-05) |
 | **Campos aproveitados** | descrição do item, código CATMAT, fabricante, modelo, quantidade, valor unitário, data de homologação/compra, órgão |
-| **Mapeamento** | `ativo.nome`, `ativo.valor_compra`, `ativo.data_aquisicao`, `ativo.fornecedor_id` (via razão social do fabricante, resolvida contra `fornecedor`), `categoria_id` (via classificação do CATMAT — ver seção 6) |
+| **Mapeamento** | `ativo.nome` (`nomePdm` + `marca`), `ativo.valor_compra` (`precoUnitario`), `ativo.data_aquisicao` (`dataCompra`), `ativo.fornecedor_id` (razão social do fornecedor vencedor, `nomeFornecedor`, resolvida contra `fornecedor`), `ativo.numero_serie` (`CG-{idItemCompra}-001`, **identificador técnico sintético**: a fonte não traz número de série), `categoria_id` (PDM -> categoria, ver `dataset/demo/inventario_demo.LEIAME.md`) |
 | **Requisitos atendidos** | FR-001, FR-003, FR-004 (fornecedor), FR-010, FR-011 |
-| **Limites de uso** | <!-- TODO: confirmar --> limite de requisições por período da API de dados abertos |
+| **Limites de uso** | A API não publica limite de requisições. `tamanhoPagina` aceita de 10 a 500 (fora disso, HTTP 400). O coletor espera 1 s entre requisições e repete 429 e 5xx com espera crescente; na coleta de 2026-10-05 (18 requisições) não houve 429 |
 | **Licença** | Dados abertos do Governo Federal brasileiro |
 
-**Classificação CATMAT.** A normalização usa o código CATMAT para decidir a `categoria` do ativo (Notebook, Desktop, Servidor, Monitor, Impressora, Switch, Roteador etc.), conforme a tabela de vida útil do FR-003. Os códigos CATMAT específicos monitorados ficam em `python/collectors/config.yaml` — <!-- TODO: confirmar --> lista definitiva de códigos.
+**Classificação CATMAT.** A normalização usa o código CATMAT para decidir a `categoria` do ativo (Notebook, Desktop, Servidor, Monitor, Impressora, Switch, Roteador etc.), conforme a tabela de vida útil do FR-003. Os códigos monitorados ficam em `python/collectors/config.yaml`: 9 PDMs do grupo 70 (informática) do CATMAT, escolhidos pela equipe. Nobreak, Smartphone e Software perpétuo não têm PDM nesse grupo e ficam sem dado real.
 
 ---
 
