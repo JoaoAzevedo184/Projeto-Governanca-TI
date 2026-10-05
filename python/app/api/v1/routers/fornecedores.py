@@ -6,7 +6,9 @@ from app.models.enums import PerfilUsuario
 from app.models.fornecedor import Fornecedor
 from app.models.usuario import Usuario
 from app.schemas.fornecedor import FornecedorCreate, FornecedorResponse
+from app.schemas.scorecard import ScorecardCreate, ScorecardResponse
 from app.services.fornecedor_service import criar_fornecedor
+from app.services.scorecard_service import registrar_scorecard
 
 router = APIRouter(prefix="/fornecedores", tags=["fornecedores"])
 
@@ -23,3 +25,12 @@ def criar(
     usuario: Usuario = Depends(require_perfil(PerfilUsuario.ADMIN)),
 ) -> Fornecedor:
     return criar_fornecedor(db, dados, usuario)
+
+
+@router.post("/scorecard", response_model=ScorecardResponse, status_code=201)
+def scorecard(
+    dados: ScorecardCreate,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(require_perfil(PerfilUsuario.ADMIN, PerfilUsuario.GESTOR)),
+) -> ScorecardResponse:
+    return registrar_scorecard(db, dados, usuario)

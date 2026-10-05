@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.orm import Session
@@ -17,6 +17,17 @@ router = APIRouter(prefix="/relatorios", tags=["relatorios"])
 
 Formato = Literal["json", "csv", "xlsx"]
 
+# Em `csv` e `xlsx` a resposta é um arquivo, não JSON (contrato §6.5).
+_ARQUIVOS: dict[int | str, dict[str, Any]] = {
+    200: {
+        "description": "JSON, ou arquivo CSV/XLSX conforme `formato`.",
+        "content": {
+            "text/csv": {},
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {},
+        },
+    }
+}
+
 
 def _arquivo(conteudo: bytes, media_type: str, nome: str, formato: str) -> Response:
     return Response(
@@ -26,7 +37,7 @@ def _arquivo(conteudo: bytes, media_type: str, nome: str, formato: str) -> Respo
     )
 
 
-@router.get("/inventario", response_model=InventarioResponse)
+@router.get("/inventario", response_model=InventarioResponse, responses=_ARQUIVOS)
 def inventario(
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(get_current_user),
@@ -66,7 +77,7 @@ def inventario(
     return _arquivo(conteudo, media_type, "inventario", formato)
 
 
-@router.get("/conformidade", response_model=AlertasResponse)
+@router.get("/conformidade", response_model=AlertasResponse, responses=_ARQUIVOS)
 def conformidade(
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(get_current_user),
