@@ -1,4 +1,5 @@
 from functools import lru_cache
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -28,6 +29,9 @@ class Settings(BaseSettings):
     janela_alerta_licenca_dias: int = 30  # CP-03, QA-07
     limiar_fim_vida_util_percentual: int = 80  # AC-038
     meses_sem_movimentacao_alerta: int = 12  # KPI-06
+    # Fuso da data de referência do domínio ("hoje"): `utils/datas.hoje()`. Só ela muda; os carimbos
+    # de tempo seguem em UTC (NFR-AUD-03).
+    fuso_horario: str = "America/Recife"
 
 
 def validar_configuracao(configuracao: Settings) -> None:
@@ -36,6 +40,13 @@ def validar_configuracao(configuracao: Settings) -> None:
     É uma checagem à parte do validador do Pydantic de propósito: um erro de validação do
     Pydantic traz os valores de entrada na mensagem, e a chave nunca pode aparecer.
     """
+    try:
+        ZoneInfo(configuracao.fuso_horario)
+    except (ZoneInfoNotFoundError, ValueError) as erro:
+        raise ConfiguracaoInvalidaError(
+            f"FUSO_HORARIO {configuracao.fuso_horario!r} não é um fuso da base IANA "
+            "(por exemplo America/Recife ou UTC)."
+        ) from erro
     ambiente = configuracao.environment.strip().lower()
     if ambiente != "local" and configuracao.secret_key.strip() in _CHAVES_RECUSADAS:
         raise ConfiguracaoInvalidaError(
