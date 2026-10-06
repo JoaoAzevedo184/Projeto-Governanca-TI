@@ -144,3 +144,16 @@ Consequência prática: qualquer extensão futura que substitua o Mockaroo por u
 ## 11. O que ainda não existe no código
 
 Os componentes citados neste documento e no `README.md` — `python/collectors/`, `python/etl/`, `python/collectors/config.yaml`, `python/etl/gerar_sinteticos.py`, `scripts/collect.sh`, `dataset/raw/`, `dataset/processed/`, `dataset/synthetic/`, `tests/fixtures/` — descrevem a arquitetura de dados **decidida**, não o estado atual do repositório. Ver a lista completa de pendências no resumo desta atualização de documentação.
+
+---
+
+## 11. Origens oficiais de `data_source`
+
+| Origem | Definição |
+|---|---|
+| `compras_gov` | Dado de coleta pública (Compras.gov.br), ou planilha gerada dela. |
+| `importacao` | Registro vindo de arquivo enviado por um operador (`POST /importacoes`). |
+| `manual` | Registro cadastrado pela API (`POST` das rotas de cadastro). É o padrão dos services. |
+| `sintetico` | Registro criado só para demonstração, teste ou simulação. |
+
+Dado público alimenta o inventário sempre que existe. O sintético representa apenas pessoas, vínculos e eventos internos que nenhuma fonte pública tem, e é sempre marcado `sintetico`: o ETL e o seed de demonstração (`python -m app.seed_demo`, ver [`docs/guia/demonstracao.md`](guia/demonstracao.md)) criam só `sintetico`. `setor`, `categoria` e `usuario` não têm a coluna; os setores `DEMO-` são sintéticos. `endoflife` e `nvd` (seções 2 e 3) são origens previstas para tabelas que ainda não existem e passam a valer quando os coletores D.3 e D.4 forem implementados.
