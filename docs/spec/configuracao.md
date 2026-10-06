@@ -30,12 +30,17 @@ LIMIAR_FIM_VIDA_UTIL_PERCENTUAL=80
 DIAS_MANUTENCAO_ALERTA=90
 MESES_SEM_MOVIMENTACAO_ALERTA=12
 
+# Data de referência do domínio ("hoje"), em fuso da base IANA
+FUSO_HORARIO=America/Recife
+
 # Importação
 IMPORTACAO_TAMANHO_MAX_MB=5
 IMPORTACAO_LINHAS_MAX=5000
 ```
 
 *SQLite revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):* `DATABASE_URL` em SQLite serve só para executar a aplicação sem Docker. A suíte de testes ignora `DATABASE_URL` e usa `TEST_DATABASE_URL`, que precisa apontar para um banco PostgreSQL `*_test` (`tests/conftest.py`).
+
+**Data de referência.** "Hoje" nas regras de negócio (data futura, licença vencida, janela de alerta, depreciação, indicadores, baixa) vem de `app/utils/datas.hoje()`, que usa o fuso `FUSO_HORARIO` (padrão `America/Recife`, sem horário de verão). Em UTC o dia virava às 21h de Recife. Um fuso desconhecido é recusado na inicialização (`ConfiguracaoInvalidaError`). Só a data de referência muda: os carimbos de tempo (`criado_em`, auditoria) seguem em UTC (NFR-AUD-03), e o fuso da base de dados não é alterado. A imagem `python:3.12-slim` já traz a base de fusos (`/usr/share/zoneinfo`); em Windows, sem Docker, é preciso o pacote `tzdata`.
 
 Nenhum valor padrão de `SECRET_KEY` é aceito quando `ENVIRONMENT != local`: a aplicação deve **recusar a inicialização**, não apenas emitir aviso. Implementado em `core/config.py` (`validar_configuracao`, chamada por `get_settings`): vale para a chave vazia, `troque-esta-chave` e `troque-esta-chave-em-qualquer-ambiente-real`, compara `ENVIRONMENT` sem diferenciar maiúsculas, e a mensagem diz o que fazer (gerar uma chave e pôr no `.env`) sem nunca mostrar a chave. A exceção é uma `ConfiguracaoInvalidaError` própria, não um erro de validação do Pydantic, porque este traz os valores de entrada na mensagem. No Compose a chave vem do `.env` (`SECRET_KEY: ${SECRET_KEY:-}`), sem valor fixo no `docker-compose.yml`.
 
