@@ -27,7 +27,76 @@ compras_gov:
     - 237    # ROTEADOR                    -> Roteador
     - 15287  # IMPRESSORA MONOCROMATICA    -> Impressora
     - 19246  # TABLET                      -> Tablet
+# D.3: ciclos de vida do endoflife.date. Referencia para o ETL (dataset/processed/); nao entra no
+# banco. Oito produtos de software corporativo comuns, todos conferidos na API em 2026-10-06.
+# O slug "apache" redireciona (HTTP 301) e o coletor nao segue redirecionamento: o Tomcat o
+# substitui. Troque um produto so por um que exista na fonte (GET /api/<produto>.json = 200).
 endoflife:
-  produtos: []
+  base_url: https://endoflife.date
+  endpoint: /api/{produto}.json
+  intervalo_segundos: 1.0      # pausa entre requisicoes
+  timeout_segundos: 30
+  tentativas: 4                # por requisicao, com espera crescente entre elas
+  espera_inicial_segundos: 2.0 # 2, 4, 8... ate espera_maxima_segundos
+  espera_maxima_segundos: 60
+  produtos:
+    - postgresql
+    - mysql
+    - nginx
+    - mongodb
+    - tomcat
+    - redis
+    - windows-server
+    - office
+# D.4: contagem de CVEs do NVD por produto, ciclo e severidade CVSS v3. Referencia para o ETL;
+# nao entra no banco. Cada consulta pede UMA pagina de UM registro (resultsPerPage=1): so o
+# totalResults interessa, entao cada resposta tem poucos KB e nao ha consulta generica.
+# Por ciclo: 4 severidades (LOW, MEDIUM, HIGH, CRITICAL) e o total sem filtro (CVEs sem CVSS v3
+# aparecem so no total). O cruzamento e conservador e explicito: o CPE e a faixa de versao de cada
+# ciclo estao escritos aqui, nunca deduzidos por semelhanca de nome. Produto sem entrada aqui
+# (Office: nenhum CPE foi escolhido para os ciclos por ano e por canal) fica "nao cruzado".
+# Limites do NVD: 5 requisicoes por 30 s sem chave e 50 com chave (NVD_API_KEY, opcional, lida do
+# ambiente, enviada no cabecalho apiKey e nunca gravada nem impressa).
 nvd:
-  produtos: []
+  base_url: https://services.nvd.nist.gov
+  endpoint: /rest/json/cves/2.0
+  tamanho_pagina: 1
+  intervalo_segundos: 6.5            # sem chave: 30 s / 5 requisicoes = 6 s, com folga
+  intervalo_com_chave_segundos: 0.7  # com chave: 30 s / 50 requisicoes = 0,6 s, com folga
+  timeout_segundos: 60
+  tentativas: 4
+  espera_inicial_segundos: 2.0
+  espera_maxima_segundos: 60
+  produtos:
+    postgresql:
+      - {ciclo: "16", cpe: "cpe:2.3:a:postgresql:postgresql", de: "16.0", ate: "17.0"}
+      - {ciclo: "13", cpe: "cpe:2.3:a:postgresql:postgresql", de: "13.0", ate: "14.0"}
+    mysql:
+      - {ciclo: "8.4", cpe: "cpe:2.3:a:oracle:mysql", de: "8.4.0", ate: "8.5.0"}
+      - {ciclo: "8.0", cpe: "cpe:2.3:a:oracle:mysql", de: "8.0.0", ate: "8.1.0"}
+    nginx:
+      - {ciclo: "1.30", cpe: "cpe:2.3:a:f5:nginx", de: "1.30.0", ate: "1.31.0"}
+      - {ciclo: "1.28", cpe: "cpe:2.3:a:f5:nginx", de: "1.28.0", ate: "1.29.0"}
+    mongodb:
+      - {ciclo: "8.0", cpe: "cpe:2.3:a:mongodb:mongodb", de: "8.0.0", ate: "8.1.0"}
+      - {ciclo: "6.0", cpe: "cpe:2.3:a:mongodb:mongodb", de: "6.0.0", ate: "6.1.0"}
+    tomcat:
+      - {ciclo: "10.1", cpe: "cpe:2.3:a:apache:tomcat", de: "10.1.0", ate: "10.2.0"}
+      - {ciclo: "9.0", cpe: "cpe:2.3:a:apache:tomcat", de: "9.0.0", ate: "9.1.0"}
+    redis:
+      - {ciclo: "7.2", cpe: "cpe:2.3:a:redis:redis", de: "7.2.0", ate: "7.3.0"}
+      - {ciclo: "6.2", cpe: "cpe:2.3:a:redis:redis", de: "6.2.0", ate: "6.3.0"}
+    windows-server:
+      - {ciclo: "2022", cpe: "cpe:2.3:o:microsoft:windows_server_2022"}
+      - {ciclo: "2019", cpe: "cpe:2.3:o:microsoft:windows_server_2019"}
+# Coletas de REFERENCIA: os arquivos versionados de dataset/demo/ e dataset/processed/ sao o retrato
+# destas coletas (pastas dataset/raw/<fonte>/<data>/, com copia em tests/fixtures/<fonte>/coleta_<data>/).
+# O exportador de demonstracao e o normalizador usam estas datas por padrao, mesmo que exista coleta
+# mais recente em dataset/raw/: a fonte muda entre coletas, e uma coleta nova nao reproduz os arquivos
+# versionados. Usar outra coleta exige parametro explicito e uma saida que nao seja a versionada.
+# Para atualizar a referencia de proposito, siga docs/guia/coleta-de-dados.md ("Atualizando a
+# referencia").
+referencia:
+  compras_gov: "2026-10-05"
+  endoflife: "2026-10-06"
+  nvd: "2026-10-06"

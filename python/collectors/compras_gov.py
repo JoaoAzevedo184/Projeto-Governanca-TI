@@ -24,6 +24,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
+from typing import Protocol
 
 import httpx
 import yaml  # type: ignore[import-untyped]
@@ -37,6 +38,22 @@ STATUS_REPETIVEIS = {429, 500, 502, 503, 504}
 
 class ErroColeta(Exception):
     """Falha ao coletar um código; a mensagem não leva dados da resposta além do necessário."""
+
+
+class PoliticaHTTP(Protocol):
+    """O que `_pedir` e `_espera` leem da configuração; os coletores `endoflife` e `nvd` reusam."""
+
+    @property
+    def endpoint(self) -> str: ...
+
+    @property
+    def tentativas(self) -> int: ...
+
+    @property
+    def espera_inicial_segundos(self) -> float: ...
+
+    @property
+    def espera_maxima_segundos(self) -> float: ...
 
 
 @dataclass(frozen=True)
@@ -91,7 +108,7 @@ def gravar_atomico(destino: Path, conteudo: bytes) -> None:
         temporario.unlink(missing_ok=True)
 
 
-def _espera(configuracao: Configuracao, tentativa: int, resposta: httpx.Response | None) -> float:
+def _espera(configuracao: PoliticaHTTP, tentativa: int, resposta: httpx.Response | None) -> float:
     espera = configuracao.espera_inicial_segundos * 2**tentativa
     pedida = resposta.headers.get("Retry-After", "") if resposta is not None else ""
     if pedida.isdigit():
@@ -101,7 +118,7 @@ def _espera(configuracao: Configuracao, tentativa: int, resposta: httpx.Response
 
 def _pedir(
     cliente: httpx.Client,
-    configuracao: Configuracao,
+    configuracao: PoliticaHTTP,
     parametros: dict[str, str | int],
     dormir: Callable[[float], None],
 ) -> bytes:
