@@ -84,9 +84,12 @@ def listar_alertas(db: Session, data_referencia: date | None = None) -> AlertasR
     )
 
 
-def licencas_nao_conformes_por_motivo(db: Session) -> dict[str, int]:
-    """Gauge `itam_licencas_nao_conformes{motivo}`: CP-01 (vencida) e CP-02 (acima do uso)."""
-    alertas = apurar_alertas(db)
+def licencas_nao_conformes_por_motivo(
+    db: Session, alertas: list[AlertaResponse] | None = None
+) -> dict[str, int]:
+    """Gauge `itam_licencas_nao_conformes{motivo}`: CP-01 (vencida) e CP-02 (acima do uso). Quem já
+    apurou os alertas os passa, para não consultar o banco duas vezes."""
+    alertas = apurar_alertas(db) if alertas is None else alertas
     return {
         "vencida": sum(1 for a in alertas if a.codigo == "CP-01"),
         "acima_do_contratado": sum(1 for a in alertas if a.codigo == "CP-02"),

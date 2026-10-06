@@ -151,11 +151,11 @@ Implementada em 2026-10-02. Ambiente completo (API, banco, Prometheus, Grafana) 
 - [x] `/health` com banco e ambiente, `/metrics` no formato Prometheus (AC-053, AC-054); `core/metrics.py` com as métricas `itam_*` e o middleware HTTP
 - [x] Contador `itam_regras_violadas_total` num único ponto, `registrar_auditoria`
 - [x] Log estruturado JSON com `request_id`, sem dado sensível (`core/logging.py`)
-- [x] Grafana provisionado: dashboard `itam-tecnico` na pasta **Governança de TI** (`infra/grafana/dashboards/`)
+- [x] Grafana provisionado: dashboard `itam-tecnico` na pasta **Governança de TI** (`infra/grafana/dashboards/`); o dashboard gerencial `itam-gestao` foi acrescentado no Gate 4 (ver abaixo)
 - [x] Pendências da sessão anterior: BR-038 (responsável e setor ativos, AC-065) e BR-037 ampliada para a criação de licença perpétua (AC-066)
 - **Fora do MVP** (marcado nos docs, com o motivo de cada um): `/relatorios/depreciacao`, `/relatorios/baixas`, `/relatorios/historico-responsaveis` e o termo de responsabilidade (contrato §6.5, dashboard-relatorios §16.3); CP-05 a CP-09 (FR-007); KPI-01, KPI-04 e KPI-05 (visao-geral §4.3)
 - Fora do MVP: CP-05, CP-06 e CP-08 (deriváveis, sem AC); CP-07 e CP-09 não disparam com o modelo atual; alertas MEDIO/BAIXO do FR-004 sem código CP. Ver FR-007 no PRD
-- Fora do MVP: gráficos do painel gerencial (FR-014, PRD §16.2) e a evolução do valor residual no tempo: o contrato não tem endpoint para eles
+- **Painel gerencial (FR-014, PRD §16.2): feito no Gate 4 como dashboard Grafana**, não como tela da API. O dashboard **ITAM - Gestão** (`infra/grafana/dashboards/itam-gestao.json`, uid `itam-gestao`, pasta **Governança de TI**) lê métricas de negócio de `/metrics` (`itam_ativos_por_tipo`, `itam_patrimonio_reais`, `itam_licencas_por_conformidade`, `itam_compliance_alertas`, `itam_ativos_sem_responsavel`, além de `itam_ativos_total`), sem endpoint novo e sem mudar o contrato. A evolução do valor residual no tempo vem do histórico do Prometheus (a série `itam_patrimonio_reais{base="residual"}`), não de um endpoint. **Segue fora do MVP:** gráficos servidos pela própria API e atalhos para os relatórios (FR-006) numa tela; ver [`observabilidade.md`](spec/observabilidade.md)
 - Fora do MVP: KPI-01, KPI-04 e KPI-05 do PRD, que não são calculáveis só com o banco (precisam de estimativa do parque, cronometragem e dado contábil)
 - [x] `docker compose up` migra o banco ao iniciar o contêiner da API (`python/entrypoint.sh`); o seed segue separado
 - [x] Recusa de inicialização com `SECRET_KEY` padrão fora de `local` (configuracao.md §13.1), em `core/config.py`; a chave do Compose vem do `.env`

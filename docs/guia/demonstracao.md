@@ -135,7 +135,11 @@ A história é uma só: a licença `DEMO-Antivírus corporativo` está vencida e
 
     Indicador e cenário não têm registro próprio (são calculados), por isso levam o valor no momento do registro em vez de `referencia_id` (FR-013).
 14. **`/health` e `/metrics` (AC-053, AC-054).** `GET /health`: `{"status": "UP", ..., "database": {"status": "UP"}}`. `GET /metrics`: formato de exposição Prometheus, com as séries `itam_`.
-15. **Grafana (FR-014).** http://localhost:3000 (usuário e senha de `GRAFANA_USER` e `GRAFANA_PASSWORD` do `.env`), pasta **Governança de TI**, dashboard **ITAM — Observabilidade**, provisionado com o Prometheus como fonte.
+15. **Grafana (FR-014).** http://localhost:3000 (usuário e senha de `GRAFANA_USER` e `GRAFANA_PASSWORD` do `.env`), pasta **Governança de TI**, com dois dashboards provisionados e o Prometheus como fonte:
+    - **ITAM — Observabilidade** (técnico): disponibilidade, banco, requisições, latência e operações bloqueadas por regra;
+    - **ITAM - Gestão** (gerencial): com o cenário da demonstração, esperado **96 ativos** (95 `ATIVO` e 1 `BAIXADO`; 95 hardware e 1 software), **3 sem responsável**, valor de compra e residual em reais, licenças **1 conforme, 1 em alerta e 1 não conforme**, alertas **1 crítico e 4 altos** e o estado do cálculo em `OK`. São os mesmos números do passo 4 (alertas), do passo 8 (KPI-03: 2 de 3 conformes) e da API. O Prometheus lê a cada 15 s e o dashboard atualiza a cada 30 s: depois do seed, espere cerca de um minuto.
+
+    Os valores do dashboard saem de `GET /metrics` (`itam_patrimonio_reais`, `itam_compliance_alertas` e as demais séries de negócio, descritas em [`observabilidade.md`](../spec/observabilidade.md)). A defesa pode mostrar a mesma conta nos dois lugares: abra `GET /compliance/alertas` e depois o painel "Alertas de compliance por severidade".
 
 ## Refazer a demonstração
 

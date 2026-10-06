@@ -25,6 +25,27 @@ ATIVOS_TOTAL = Gauge("itam_ativos_total", "Ativos por status.", ["status"])
 LICENCAS_NAO_CONFORMES = Gauge(
     "itam_licencas_nao_conformes", "Licenças não conformes (CP-01, CP-02).", ["motivo"]
 )
+ATIVOS_POR_TIPO = Gauge("itam_ativos_por_tipo", "Ativos por tipo.", ["tipo"])
+PATRIMONIO_REAIS = Gauge(
+    "itam_patrimonio_reais",
+    "Valor patrimonial dos ativos não baixados, em reais (`base`: compra ou residual).",
+    ["base"],
+)
+LICENCAS_POR_CONFORMIDADE = Gauge(
+    "itam_licencas_por_conformidade", "Licenças por status de conformidade.", ["status"]
+)
+COMPLIANCE_ALERTAS = Gauge(
+    "itam_compliance_alertas", "Alertas de compliance abertos por severidade.", ["severidade"]
+)
+ATIVOS_SEM_RESPONSAVEL = Gauge(
+    "itam_ativos_sem_responsavel", "Ativos em operação sem responsável (CP-04)."
+)
+METRICAS_NEGOCIO_UP = Gauge(
+    "itam_metricas_negocio_up", "1 quando o último cálculo das métricas de negócio funcionou."
+)
+METRICAS_NEGOCIO_DURACAO = Gauge(
+    "itam_metricas_negocio_duracao_segundos", "Duração do último cálculo das métricas de negócio."
+)
 IMPORTACOES_TOTAL = Counter("itam_importacoes_total", "Importações de inventário.", ["resultado"])
 REGRAS_VIOLADAS = Counter(
     "itam_regras_violadas_total", "Operações recusadas por regra de negócio.", ["regra"]
