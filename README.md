@@ -35,11 +35,19 @@ Ele resolve cinco problemas concretos:
 
 ## Origem dos dados
 
-A base de demonstração privilegia **fontes públicas e oficiais** — Compras.gov.br, endoflife.date e NVD — e usa dado sintético apenas onde não existe, e não deveria existir, dado público: pessoas e eventos internos da organização fictícia (LGPD). Toda tabela principal carrega `data_source`, tornando a fronteira real × sintético consultável. As origens oficiais são quatro: `compras_gov` (coleta pública), `importacao` (arquivo enviado por operador), `manual` (cadastro pela API) e `sintetico` (registro criado só para demonstração, teste ou simulação). `endoflife` e `nvd` entram quando os coletores D.3 e D.4 existirem. `setor`, `categoria` e `usuario` não têm a coluna. O seed de demonstração dos Gates 2 e 3 (`scripts/seed_demo.sh`, roteiro em [`docs/guia/demonstracao.md`](docs/guia/demonstracao.md)) cria só registros `sintetico` com identificadores `DEMO-`:
+A base de demonstração privilegia **fontes públicas e oficiais** — Compras.gov.br, endoflife.date e NVD — e usa dado sintético apenas onde não existe, e não deveria existir, dado público: pessoas e eventos internos da organização fictícia (LGPD). Toda tabela principal carrega `data_source`, tornando a fronteira real × sintético consultável. As origens oficiais são quatro: `compras_gov` (coleta pública), `importacao` (arquivo enviado por operador), `manual` (cadastro pela API) e `sintetico` (registro criado só para demonstração, teste ou simulação). `endoflife` e `nvd` não são origem de registro do banco (ver o papel de cada fonte abaixo). `setor`, `categoria` e `usuario` não têm a coluna. O seed de demonstração dos Gates 2, 3 e 4 (`scripts/seed_demo.sh`, roteiro em [`docs/guia/demonstracao.md`](docs/guia/demonstracao.md)) cria só registros `sintetico` com identificadores `DEMO-`.
 
 ```sql
 SELECT data_source, COUNT(*) FROM ativos GROUP BY data_source;
 ```
+
+**Papel de cada fonte pública:**
+
+- **Compras.gov.br:** fonte do dataset de demonstração (`dataset/demo/`) e dos dados de hardware do projeto (`dataset/processed/hardware_compras_gov.csv`). É a única fonte carregada no banco.
+- **endoflife.date:** coletada e processada como referência de ciclo de vida (`dataset/processed/software_ciclos_cves.csv`).
+- **NVD:** coletado e processado como referência de vulnerabilidades (contagem de CVEs por ciclo e severidade, no mesmo arquivo).
+
+endoflife e NVD não são carregados no banco, não aparecem nas telas do ITAM e não geram alertas na versão atual.
 
 Detalhamento fonte a fonte, regras de uso e conformidade com a LGPD em [`docs/FONTES_DE_DADOS.md`](docs/FONTES_DE_DADOS.md).
 
@@ -81,7 +89,7 @@ Detalhamento fonte a fonte, regras de uso e conformidade com a LGPD em [`docs/FO
 - Acesso à internet
 - Chave de API do NVD (gratuita, recomendada — sem ela o NVD aplica limite de requisições mais restrito). Solicite em https://nvd.nist.gov/developers/request-an-api-key e defina `NVD_API_KEY` no `.env`.
 
-> A coleta **não é necessária** para executar o projeto. `dataset/processed/` está vazio (só `.gitkeep`): a normalização e a carga do pipeline ainda não existem (D.6, D.8 e D.9 do [`ROADMAP.md`](docs/ROADMAP.md)), e o seed cria só os usuários de demonstração e as categorias. O que o repositório inclui é o arquivo de demonstração do Gate 1, `dataset/demo/inventario_demo.csv`: 100 linhas reais do Compras.gov.br (92 válidas e 8 inválidas de propósito), com `dataset/demo/fornecedores_demo.csv` e a metodologia em `dataset/demo/inventario_demo.LEIAME.md`. Para usá-lo: seed, `python -m etl.carregar_fornecedores` e `POST /api/v1/importacoes` ([guia de importação](docs/guia/importacao.md)).
+> A coleta **não é necessária** para executar o projeto. `dataset/processed/` traz a normalização D.6 (hardware do Compras.gov.br, ciclo de vida e CVEs, e o `LEIAME.md` com a metodologia), versionada e só de referência: **não é carregada no banco**. A carga do pipeline (D.5, D.7, D.8 e D.9 do [`ROADMAP.md`](docs/ROADMAP.md)) foi encerrada em 2026-10-06, substituída pelo seed de demonstração; o seed básico cria só os usuários de demonstração e as categorias. O que o repositório inclui é o arquivo de demonstração do Gate 1, `dataset/demo/inventario_demo.csv`: 100 linhas reais do Compras.gov.br (92 válidas e 8 inválidas de propósito), com `dataset/demo/fornecedores_demo.csv` e a metodologia em `dataset/demo/inventario_demo.LEIAME.md`. Para usá-lo: seed, `python -m etl.carregar_fornecedores` e `POST /api/v1/importacoes` ([guia de importação](docs/guia/importacao.md)).
 
 ---
 
@@ -163,7 +171,7 @@ python/
 │   ├── api/v1/routers/   # endpoints
 │   └── utils/            # cálculos puros (depreciação, exportação)
 ├── python/collectors/           # um coletor por fonte pública (compras_gov, endoflife, nvd)
-├── python/etl/                  # normalização e carga no banco
+├── python/etl/                  # exportador de demonstração, normalização (D.6) e carregador de fornecedores; sem carga do pipeline no banco
 ├── alembic/              # migrações versionadas
 ├── tests/                # unit, integration, contract, fixtures das APIs
 └── api/openapi.yaml      # contrato congelado, usado nos testes de contrato
@@ -171,7 +179,7 @@ python/
 dataset/
 ├── demo/             # inventario_demo.csv (Gate 1), fornecedores_demo.csv e o LEIAME com a metodologia
 ├── raw/              # respostas originais das APIs, por fonte e data (imutável)
-├── processed/        # dados normalizados (vazio por enquanto: D.6)
+├── processed/        # referência normalizada (D.6): hardware, ciclo de vida e CVEs; não vai ao banco
 └── synthetic/        # CSVs e esquemas do Mockaroo (versionados)
 
 scripts/              # operação do ambiente
