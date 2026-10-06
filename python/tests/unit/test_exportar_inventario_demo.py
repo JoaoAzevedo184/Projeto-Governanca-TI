@@ -1,7 +1,7 @@
 """Exportador do arquivo do Gate 1 (D.2): regras puras e geração a partir da coleta real.
 
 Sem rede. As regras puras usam registros mínimos montados no teste (só os campos que a regra
-lê); a geração de ponta a ponta usa a cópia byte a byte da coleta real em
+lê); a geração de ponta a ponta usa a coleta real sanitizada (ver `ORIGEM.md`) em
 `tests/fixtures/compras_gov/coleta_2026-10-05/` e compara com o que está versionado em
 `dataset/demo/`.
 """
@@ -93,8 +93,8 @@ def test_nome_passa_no_maximo_120_caracteres_e_nao_termina_em_espaco():
     [
         ("64.956.713 IAGO BARROS NOOBLATH", True),  # MEI: prefixo do CNPJ + nome da pessoa
         ("49.981.448 FERNANDA SOUSA CAMPOS", True),
-        ("JONES MARTINS LOPES 85611670920", True),  # formato antigo: nome + 11 dígitos
-        ("EDNA TODAO GONCALVES 03854793952", True),
+        ("FULANO DE TAL 00000000000", True),  # formato antigo: nome + 11 dígitos
+        ("BELTRANO DA SILVA 00000000000", True),
         ("1 BIT GESTAO E CONSULTORIA LTDA", False),  # dígito no nome da empresa não conta
         ("AF3 COMERCIAL LTDA", False),
         ("7LAN COMERCIO E SERVICOS LTDA", False),

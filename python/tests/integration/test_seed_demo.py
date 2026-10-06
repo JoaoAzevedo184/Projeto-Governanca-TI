@@ -18,6 +18,7 @@ import pytest
 from sqlalchemy import func, select, text
 
 from app import seed, seed_demo
+from app.core.config import get_settings
 from app.core.exceptions import RegraNegocioError
 from app.models.ativo import Ativo
 from app.models.auditoria import AuditLog
@@ -468,7 +469,7 @@ def test_roda_sozinho_como_modulo_e_cria_o_cenario(importado, db):
     seed importa (o mapeamento dos modelos precisa estar completo, o que o `conftest.py`
     mascara, e só aparece quando o seed cria um ativo)."""
     ambiente = {k: v for k, v in os.environ.items() if k != "ENVIRONMENT"}
-    ambiente["DATABASE_URL"] = os.environ["TEST_DATABASE_URL"]
+    ambiente["DATABASE_URL"] = get_settings().database_url
 
     saida = subprocess.run(
         [sys.executable, "-m", "app.seed_demo"],
