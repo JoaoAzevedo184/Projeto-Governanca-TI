@@ -33,16 +33,21 @@ Descartes em sequência, sobre os federais (o que se repete é medido sobre todo
 | Filtro | Descartados |
 |---|---|
 | identificador de fornecedor estrangeiro | 1 |
-| CNPJ com mais de uma razão social | 19 |
+| razão social de pessoa física (microempreendedor) | 61 |
+| CNPJ com mais de uma razão social | 15 |
 | razão social com mais de um CNPJ | 26 |
 | item com (idCompra, idCompraItem) repetido | 8 |
-| preço fora da faixa P10-P90 do PDM | 136 |
-| **Elegíveis** | **512** |
+| preço fora da faixa P10-P90 do PDM | 124 |
+| **Elegíveis** | **467** |
+
+Fornecedores cuja razão social é o nome de uma pessoa física (microempreendedor individual:
+`64.956.713 NOME DA PESSOA`, ou o nome seguido de 11 dígitos) **não entram** no arquivo, por
+decisão da equipe. O filtro é só do exportador: a coleta bruta e as fixtures não são alteradas.
 
 Seleção determinística: o menor conjunto de fornecedores (pela ordem de volume, CNPJ como
-desempate) que cobre os 9 PDMs e reúne os registros necessários, **16
-fornecedores escolhidos** (16 aparecem nas 92 linhas válidas). Com ~10
-fornecedores só saem 73 linhas, então a equipe aceitou o mínimo possível. Dentro do conjunto, as
+desempate) que cobre os 9 PDMs e reúne os registros necessários, **17
+fornecedores escolhidos** (17 aparecem nas 92 linhas válidas). Com ~10
+fornecedores não saem as 92 linhas válidas, então a equipe aceitou o mínimo possível. Dentro do conjunto, as
 linhas vêm em rodízio entre os PDMs (cobertura antes de volume). Utilizados: 100 registros (92
 válidos e 8 bases das inválidas).
 
@@ -53,15 +58,15 @@ linhas válidas.
 
 | PDM | CATMAT | Categoria | Federais | Mín. original | Máx. original | P10 | P90 | Válidas | Mín. usado | Máx. usado |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 8435 | NOTEBOOK | Notebook | 85 | 1669.00 | 68000.00 | 3075.60 | 14744.52 | 9 | 3250.00 | 6592.10 |
-| 6661 | MICROCOMPUTADOR | Desktop | 93 | 900.00 | 33000.00 | 2256.00 | 8430.19 | 16 | 2780.00 | 8042.00 |
+| 8435 | NOTEBOOK | Notebook | 85 | 1669.00 | 68000.00 | 3075.60 | 14744.52 | 13 | 3250.00 | 9950.00 |
+| 6661 | MICROCOMPUTADOR | Desktop | 93 | 900.00 | 33000.00 | 2256.00 | 8430.19 | 15 | 2780.00 | 8042.00 |
 | 6484 | MICROCOMPUTADOR ALL IN ONE | Desktop | 55 | 1497.90 | 1213940.00 | 2071.20 | 19990.00 | 7 | 3170.00 | 5208.00 |
-| 10293 | SERVIDOR | Servidor | 110 | 11.83 | 7010980.00 | 9474.67 | 617428.60 | 21 | 13980.00 | 372400.00 |
-| 6669 | MONITOR COMPUTADOR | Monitor | 87 | 265.00 | 77140.00 | 406.48 | 4964.00 | 6 | 500.00 | 1040.00 |
-| 5522 | SWITCH | Switch | 124 | 60.99 | 347203.00 | 158.30 | 38950.00 | 21 | 279.10 | 28155.00 |
-| 237 | ROTEADOR | Roteador | 62 | 96.49 | 230000.00 | 172.50 | 55293.19 | 5 | 450.00 | 685.00 |
+| 10293 | SERVIDOR | Servidor | 110 | 11.83 | 7010980.00 | 9474.67 | 617428.60 | 19 | 11580.00 | 372400.00 |
+| 6669 | MONITOR COMPUTADOR | Monitor | 87 | 265.00 | 77140.00 | 406.48 | 4964.00 | 7 | 715.00 | 1065.00 |
+| 5522 | SWITCH | Switch | 124 | 60.99 | 347203.00 | 158.30 | 38950.00 | 18 | 850.00 | 28155.00 |
+| 237 | ROTEADOR | Roteador | 62 | 96.49 | 230000.00 | 172.50 | 55293.19 | 4 | 450.00 | 650.00 |
 | 15287 | IMPRESSORA MONOCROMÁTICA | Impressora | 20 | 772.58 | 28899.00 | 970.20 | 5040.00 | 1 | 2290.00 | 2290.00 |
-| 19246 | TABLET | Tablet | 66 | 33.51 | 14775.00 | 961.50 | 5449.31 | 6 | 1254.42 | 5200.00 |
+| 19246 | TABLET | Tablet | 66 | 33.51 | 14775.00 | 961.50 | 5449.31 | 8 | 1254.42 | 5200.00 |
 
 ## As 8 linhas inválidas (propositais)
 
