@@ -8,6 +8,7 @@ Passo a passo operacional que não cabe no [README da raiz](../../README.md) (qu
 | [`coleta-de-dados.md`](coleta-de-dados.md) | Coletando dados reais — `python/collectors/`, `python/etl/` |
 | [`verificacao.md`](verificacao.md) | Verificando a instalação (smoke test e verificação manual) |
 | [`importacao.md`](importacao.md) | Importando seu próprio inventário via API |
+| [`demonstracao.md`](demonstracao.md) | Roteiro da demonstração dos Gates 2 e 3 (seed de demonstração) |
 | [`testes.md`](testes.md) | Rodando a suíte de testes |
 | [`scripts-operacionais.md`](scripts-operacionais.md) | Scripts operacionais (`start.sh`, `stop.sh`, `reset.sh` etc.) |
 | [`solucao-de-problemas.md`](solucao-de-problemas.md) | Solução de problemas comuns |
