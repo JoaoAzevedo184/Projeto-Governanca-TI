@@ -17,7 +17,9 @@ from app.utils.depreciacao import calcular
 JUSTIFICATIVA_MINIMA = 10
 
 
-def registrar_baixa(db: Session, ativo_id: int, dados: BaixaCreate, usuario: Usuario) -> BaixaAtivo:
+def registrar_baixa(
+    db: Session, ativo_id: int, dados: BaixaCreate, usuario: Usuario, *, origem: str = "manual"
+) -> BaixaAtivo:
     """Baixa do ativo em transação única (FR-005, AC-027): status BAIXADO, vínculo de
     responsável aberto encerrado (BR-012), vínculos de licença do ativo encerrados (BR-031,
     BR-036) e valor residual congelado (BR-015)."""
@@ -76,7 +78,7 @@ def registrar_baixa(db: Session, ativo_id: int, dados: BaixaCreate, usuario: Usu
         destinacao=dados.destinacao,
         valor_residual_baixa=residual,
         registrado_por_id=usuario.id,
-        data_source="manual",
+        data_source=origem,
     )
     # Savepoint: se o UNIQUE (ativo_id) recusar, só o que foi feito aqui é desfeito e a recusa
     # ainda é gravada na auditoria antes do 409 (NFR-AUD-05).

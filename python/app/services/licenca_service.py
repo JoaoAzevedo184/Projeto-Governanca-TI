@@ -73,7 +73,9 @@ def _obter(db: Session, licenca_id: int, *, travar: bool = False) -> Licenca:
     return licenca
 
 
-def criar_licenca(db: Session, dados: LicencaCreate, usuario: Usuario) -> LicencaResponse:
+def criar_licenca(
+    db: Session, dados: LicencaCreate, usuario: Usuario, *, origem: str = "manual"
+) -> LicencaResponse:
     def recusar(regra: str, mensagem: str) -> None:
         recusar_operacao(
             db,
@@ -99,7 +101,7 @@ def criar_licenca(db: Session, dados: LicencaCreate, usuario: Usuario) -> Licenc
     if dados.data_expiracao <= dados.data_inicio_vigencia:
         recusar("BR-019", "A data de expiração deve ser posterior ao início da vigência.")
 
-    licenca = Licenca(**dados.model_dump(), data_source="manual")
+    licenca = Licenca(**dados.model_dump(), data_source=origem)
     db.add(licenca)
     db.flush()
     registrar_auditoria(
@@ -192,7 +194,12 @@ def listar_vinculos(db: Session, licenca_id: int) -> list[LicencaVinculo]:
 
 
 def vincular(
-    db: Session, licenca_id: int, dados: VinculoLicencaCreate, usuario: Usuario
+    db: Session,
+    licenca_id: int,
+    dados: VinculoLicencaCreate,
+    usuario: Usuario,
+    *,
+    origem: str = "manual",
 ) -> LicencaVinculo:
     """Instala a licença numa máquina (FR-004, AC-021, AC-025). Recusa excedente (BR-018),
     licença vencida (BR-020), máquina baixada (BR-032), licença de software baixado (BR-037),
@@ -264,7 +271,7 @@ def vincular(
         ativo_id=dados.ativo_id,
         data_vinculo=dados.data_vinculo or hoje(),
         ativo_vinculo=True,
-        data_source="manual",
+        data_source=origem,
     )
     try:
         with db.begin_nested():

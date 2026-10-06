@@ -8,6 +8,7 @@ from app.models.ativo import Ativo
 from app.models.enums import StatusAtivo
 from app.schemas.depreciacao import DepreciacaoResponse
 from app.services.ativo_service import obter_ativo
+from app.utils.datas import hoje
 from app.utils.depreciacao import CENTAVO, calcular
 
 
@@ -19,7 +20,7 @@ def calcular_para_ativo(ativo: Ativo, data_referencia: date | None = None) -> De
     saem dele. `data_referencia` é ignorada nesse caso.
     """
     baixa = ativo.baixa if ativo.status == StatusAtivo.BAIXADO else None
-    referencia = baixa.data_baixa if baixa is not None else data_referencia or date.today()
+    referencia = baixa.data_baixa if baixa is not None else data_referencia or hoje()
     resultado = calcular(
         ativo.valor_compra, ativo.data_aquisicao, ativo.vida_util_meses, referencia
     )

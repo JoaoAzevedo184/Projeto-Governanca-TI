@@ -74,7 +74,9 @@ def _recusar_corrida(db: Session, usuario: Usuario, regra: str, dados: AtivoCrea
     )
 
 
-def criar_ativo(db: Session, dados: AtivoCreate, usuario: Usuario) -> Ativo:
+def criar_ativo(
+    db: Session, dados: AtivoCreate, usuario: Usuario, *, origem: str = "manual"
+) -> Ativo:
     categoria = _obter_categoria(db, dados.categoria_id)
     _obter_fornecedor(db, dados.fornecedor_id)
 
@@ -113,7 +115,7 @@ def criar_ativo(db: Session, dados: AtivoCreate, usuario: Usuario) -> Ativo:
         vida_util_meses=dados.vida_util_meses or categoria.vida_util_meses,
         localizacao=dados.localizacao,
         observacoes=dados.observacoes,
-        data_source="manual",
+        data_source=origem,
     )
     regra_da_corrida = None
     try:

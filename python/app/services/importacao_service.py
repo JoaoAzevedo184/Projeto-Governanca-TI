@@ -15,6 +15,7 @@ from app.models.categoria import Categoria
 from app.models.fornecedor import Fornecedor
 from app.models.importacao import ErroImportacao, LoteImportacao
 from app.models.usuario import Usuario
+from app.utils.datas import hoje
 from app.utils.mascaramento import mascarar_chave
 
 COLUNAS_OBRIGATORIAS = ["nome", "tipo", "categoria", "fornecedor", "data_aquisicao", "valor_compra"]
@@ -161,7 +162,7 @@ def _validar_linha(
     data_aquisicao: date | None = None
     try:
         data_aquisicao = datetime.strptime(valor_data_aquisicao, "%Y-%m-%d").date()
-        if data_aquisicao > date.today():
+        if data_aquisicao > hoje():
             registrar_erro("data_aquisicao", valor_data_aquisicao, "Não pode ser futura (BR-003).")
     except ValueError:
         registrar_erro("data_aquisicao", valor_data_aquisicao, "Formato esperado AAAA-MM-DD.")

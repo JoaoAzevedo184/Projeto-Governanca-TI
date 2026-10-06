@@ -18,8 +18,11 @@ from app.schemas.responsavel import ResponsavelCreate
 from app.services.ativo_service import obter_ativo
 
 
-def criar_responsavel(db: Session, dados: ResponsavelCreate, usuario: Usuario) -> Responsavel:
-    responsavel = Responsavel(**dados.model_dump())
+def criar_responsavel(
+    db: Session, dados: ResponsavelCreate, usuario: Usuario, *, origem: str = "sintetico"
+) -> Responsavel:
+    # O responsável é sempre sintético (PRD FR-002): o padrão preserva o que a rota já gravava.
+    responsavel = Responsavel(**dados.model_dump(), data_source=origem)
     db.add(responsavel)
     flush_ou_conflito(db, f"Responsável com matrícula '{responsavel.matricula}' já cadastrado.")
     registrar_auditoria(
@@ -51,7 +54,7 @@ def _recusar(db: Session, usuario: Usuario, ativo_id: int, regra: str, detalhe: 
 
 
 def atribuir_responsavel(
-    db: Session, ativo_id: int, dados: VinculoCreate, usuario: Usuario
+    db: Session, ativo_id: int, dados: VinculoCreate, usuario: Usuario, *, origem: str = "manual"
 ) -> HistoricoTransferencia:
     """Atribuição inicial ou transferência (FR-002): encerra o vínculo aberto, se houver,
     e cria o novo na mesma transação (BR-007, BR-008, AC-009, AC-010)."""
@@ -103,7 +106,7 @@ def atribuir_responsavel(
         data_inicio=dados.data_inicio,
         motivo=dados.motivo,
         registrado_por_id=usuario.id,
-        data_source="manual",
+        data_source=origem,
     )
     # Savepoint: no conflito desfaz só o encerramento e a inserção, e a recusa ainda é gravada
     # na auditoria antes do 409 (NFR-AUD-05).
