@@ -99,6 +99,16 @@ Relatório esperado de `GET /importacoes/{id}/erros`:
 - linha 84, campo `data_aquisicao`
 - linha 97, campo `valor_compra`
 
+## Reprodutibilidade: um retrato das coletas de referência
+
+Estes arquivos correspondem às **coletas de referência** fixadas no bloco `referencia` de `python/collectors/config.yaml`: Compras.gov.br de 2026-10-05, endoflife de 2026-10-06 e NVD de 2026-10-06.
+
+A fonte muda entre coletas: medido em 2026-10-06, entre as coletas do Compras.gov.br de 2026-10-05 e de 2026-10-06, **14 dos 1705 registros** mudaram (1691 ficaram iguais) e só 5 das 18 páginas ficaram idênticas byte a byte. Por isso uma coleta nova não reproduz estes arquivos.
+
+O exportador de demonstração e o normalizador usam por padrão a coleta de referência, mesmo que `dataset/raw/` tenha uma mais recente. Usar outra coleta exige parâmetro explícito e `--saida` com um diretório que não seja o versionado.
+
+Para atualizar a referência de propósito (nova coleta, sanitização, fixtures, regeneração e testes), siga a seção "Atualizando a referência" de `docs/guia/coleta-de-dados.md`.
+
 ## Como usar
 
 ```bash

@@ -1,0 +1,9 @@
+produto,no_endoflife,no_nvd,cruzado,ciclos_endoflife,ciclos_nvd,motivo
+postgresql,SIM,SIM,SIM,29,2,
+mysql,SIM,SIM,SIM,16,2,
+nginx,SIM,SIM,SIM,23,2,
+mongodb,SIM,SIM,SIM,33,2,
+tomcat,SIM,SIM,SIM,9,2,
+redis,SIM,SIM,SIM,12,2,
+windows-server,SIM,SIM,SIM,20,2,
+office,SIM,NAO,NAO,10,0,NVD: produto sem CPE configurado em collectors/config.yaml

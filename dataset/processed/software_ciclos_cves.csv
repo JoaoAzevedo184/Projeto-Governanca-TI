@@ -1,0 +1,153 @@
+produto,versao,data_lancamento,data_fim_suporte,situacao_na_coleta,data_coleta_endoflife,cruzamento_nvd,cves_baixa,cves_media,cves_alta,cves_critica,cves_sem_cvss_v3,cves_total,motivo_nao_cruzado
+postgresql,18,2025-09-25,2030-11-14,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,17,2024-09-26,2029-11-08,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,16,2023-09-14,2028-11-09,EM_SUPORTE,2026-10-06,CRUZADO,1,5,4,0,40,50,
+postgresql,15,2022-10-13,2027-11-11,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,14,2021-09-30,2026-11-12,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,13,2020-09-24,2025-11-13,FORA_DE_SUPORTE,2026-10-06,CRUZADO,2,13,14,0,38,67,
+postgresql,12,2019-10-03,2024-11-21,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,11,2018-10-18,2023-11-09,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,10,2017-10-05,2022-11-10,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,9.6,2016-09-29,2021-11-11,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,9.5,2016-01-07,2021-02-11,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,9.4,2014-12-18,2020-02-13,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,9.3,2013-09-09,2018-11-08,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,9.2,2012-09-10,2017-11-09,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,9.1,2011-09-12,2016-10-27,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,9.0,2010-09-20,2015-10-08,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,8.4,2009-07-01,2014-07-24,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,8.3,2008-02-04,2013-02-07,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,8.2,2006-12-05,2011-12-05,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,8.1,2005-11-08,2010-11-08,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,8.0,2005-01-19,2010-10-01,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,7.4,2003-11-17,2010-10-01,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,7.3,2002-11-27,2007-11-27,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,7.2,2002-02-04,2007-02-04,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,7.1,2001-04-13,2006-04-13,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,7.0,2000-05-08,2005-05-08,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,6.5,1999-06-09,2004-06-09,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,6.4,1998-10-30,2003-10-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+postgresql,6.3,1998-03-01,2003-03-01,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,9.7,2026-04-21,2034-04-30,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,9.6,2026-01-20,2026-04-21,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,9.5,2025-10-21,2026-01-20,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,9.4,2025-07-22,2025-10-21,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,9.3,2025-04-15,2025-07-22,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,9.2,2025-01-21,2025-04-15,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,9.1,2024-10-15,2025-01-21,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,9.0,2024-07-01,2024-10-15,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,8.4,2024-04-30,2032-04-30,EM_SUPORTE,2026-10-06,CRUZADO,0,3,0,0,63,66,
+mysql,8.3,2024-01-16,2024-04-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,8.2,2023-10-25,2024-01-16,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,8.1,2023-07-18,2023-10-25,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,8.0,2018-04-19,2026-04-30,FORA_DE_SUPORTE,2026-10-06,CRUZADO,14,254,15,4,408,695,
+mysql,5.7,2015-10-09,2023-10-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,5.6,2013-02-01,2021-02-28,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mysql,5.5,2010-12-03,2018-12-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.31,2026-05-13,,SEM_DATA_DE_FIM,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.30,2026-04-14,,SEM_DATA_DE_FIM,2026-10-06,CRUZADO,0,0,0,0,0,0,
+nginx,1.29,2025-06-24,2026-05-13,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.28,2025-04-23,2026-04-14,FORA_DE_SUPORTE,2026-10-06,CRUZADO,0,0,0,0,0,0,
+nginx,1.27,2024-05-28,2025-06-24,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.26,2024-04-23,2025-04-23,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.25,2023-05-23,2024-05-29,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.24,2023-04-11,2024-04-23,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.23,2022-06-21,2023-05-23,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.22,2022-05-24,2023-04-11,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.21,2021-05-25,2022-06-21,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.20,2021-04-20,2022-05-24,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.19,2020-05-26,2021-05-25,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.18,2020-04-21,2021-04-20,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.16,2019-04-23,2020-04-20,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.14,2018-04-17,2019-04-23,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.12,2017-04-12,2018-04-17,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.10,2016-04-26,2017-04-12,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.8,2015-04-21,2016-04-26,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.6,2014-04-24,2015-04-21,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.4,2013-04-24,2014-04-24,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.2,2012-04-23,2013-04-24,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+nginx,1.0,2011-04-12,2012-04-23,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,9.0,2026-09-30,2031-10-31,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,8.3,2026-05-31,2029-10-31,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,8.2,2025-09-30,2026-07-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,8.1,2025-06-30,2025-09-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,8.0,2024-10-31,2029-10-31,EM_SUPORTE,2026-10-06,CRUZADO,0,18,13,1,83,115,
+mongodb,7.3,2024-03-31,2024-10-02,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,7.2,2024-01-31,2024-03-27,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,7.1,2023-10-31,2024-01-23,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,7.0,2023-08-31,2027-08-31,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,6.3,2023-04-30,2023-08-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,6.2,2023-02-28,2023-04-24,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,6.1,2022-10-31,2023-02-09,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,6.0,2022-07-31,2025-07-31,FORA_DE_SUPORTE,2026-10-06,CRUZADO,0,9,6,3,12,30,
+mongodb,5.3,2022-03-31,2022-07-19,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,5.2,2022-01-31,2022-03-23,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,5.1,2021-11-30,2022-01-19,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,5.0,2021-07-31,2024-10-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,4.4,2020-07-31,2024-02-29,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,4.2,2019-08-31,2023-04-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,4.0,2018-06-30,2022-04-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,3.6,2017-11-30,2021-04-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,3.4,2016-11-30,2020-01-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,3.2,2015-12-31,2018-09-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,3.0,2015-03-31,2018-02-28,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,2.6,2014-04-07,2016-10-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,2.4,2013-03-18,2013-03-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,2.2,2012-08-28,2014-02-28,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,2.0,2011-09-11,2013-03-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,1.8,2011-03-16,2012-09-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,1.6,2010-08-05,2012-02-28,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,1.4,2010-03-25,2012-09-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,1.2,2009-12-10,2011-06-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+mongodb,1.0,2009-08-27,2010-08-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+tomcat,11.0,2024-10-03,,SEM_DATA_DE_FIM,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+tomcat,10.1,2022-09-23,,SEM_DATA_DE_FIM,2026-10-06,CRUZADO,2,6,12,3,56,79,
+tomcat,10.0,2020-12-03,2022-10-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+tomcat,9.0,2017-09-27,2027-03-31,EM_SUPORTE,2026-10-06,CRUZADO,2,27,45,9,57,140,
+tomcat,8.5,2016-03-17,2024-03-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+tomcat,8.0,2014-01-29,2018-06-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+tomcat,7,2010-06-13,2021-03-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+tomcat,6,2006-10-21,2016-12-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+tomcat,5,2003-09-06,2012-09-30,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,8.10,2026-07-29,,SEM_DATA_DE_FIM,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,8.8,2026-05-25,,SEM_DATA_DE_FIM,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,8.6,2026-02-11,,SEM_DATA_DE_FIM,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,8.4,2025-11-18,,SEM_DATA_DE_FIM,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,8.2,2025-08-04,2030-09-01,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,8.0,2025-05-02,2026-12-01,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,7.4,2024-07-29,2029-12-01,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,7.2,2023-08-15,2029-12-01,EM_SUPORTE,2026-10-06,CRUZADO,2,1,9,3,4,19,
+redis,7.0,2022-04-27,2024-07-29,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,6.2,2021-02-22,2027-04-01,EM_SUPORTE,2026-10-06,CRUZADO,2,9,16,2,2,31,
+redis,6.0,2020-04-30,2022-05-31,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+redis,5.0,2018-10-17,2022-04-27,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2025,2024-11-01,2034-11-14,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,23h2-ac,2023-10-24,2026-05-12,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2022,2021-08-18,2031-10-14,EM_SUPORTE,2026-10-06,CRUZADO,2,97,240,28,3666,4033,
+windows-server,20h2-sac,2020-10-20,2022-08-09,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2004-sac,2020-05-27,2021-12-14,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,1909-sac,2019-11-12,2021-05-11,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,1903-sac,2019-05-21,2020-12-08,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2019,2018-11-13,2029-01-09,EM_SUPORTE,2026-10-06,CRUZADO,7,377,1083,52,4382,5901,
+windows-server,1809-sac,2018-11-13,2020-11-10,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,1803-sac,2018-04-30,2019-11-12,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,1709-sac,2017-10-17,2019-04-09,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2016,2016-10-15,2027-01-12,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2012-r2,2013-11-25,2023-10-10,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2012,2012-10-30,2023-10-10,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2008-r2-sp1,2011-02-22,2020-01-14,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2008-sp2,2009-04-29,2020-01-14,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2003-sp2,2007-03-13,2015-07-14,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2003-sp1,2005-03-30,2009-04-14,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2003,2003-04-24,2007-04-10,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+windows-server,2000,2000-02-17,2010-07-13,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: ciclo fora da lista consultada em collectors/config.yaml
+office,2024,2024-10-01,2029-10-09,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
+office,2024-ltsc,2024-09-18,2029-10-09,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
+office,2021,2021-10-05,2026-10-13,EM_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
+office,2019,2018-09-24,2025-10-14,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
+office,2016,2015-09-22,2025-10-14,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
+office,2013,2013-01-09,2023-04-11,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
+office,2011-for-mac,2010-12-09,2017-10-10,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
+office,2010,2010-07-15,2020-10-13,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
+office,2008-for-mac,2008-01-15,2013-04-09,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
+office,2007,2007-01-27,2017-10-10,FORA_DE_SUPORTE,2026-10-06,NAO_CRUZADO,,,,,,,NVD: produto sem CPE configurado em collectors/config.yaml
