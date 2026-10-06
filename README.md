@@ -35,7 +35,7 @@ Ele resolve cinco problemas concretos:
 
 ## Origem dos dados
 
-A base de demonstração privilegia **fontes públicas e oficiais** — Compras.gov.br, endoflife.date e NVD — e usa dado sintético apenas onde não existe, e não deveria existir, dado público: pessoas e eventos internos da organização fictícia (LGPD). Toda tabela principal carrega `data_source` (`compras_gov`, `endoflife`, `nvd`, `sintetico`, `importacao`), tornando a fronteira real × sintético consultável:
+A base de demonstração privilegia **fontes públicas e oficiais** — Compras.gov.br, endoflife.date e NVD — e usa dado sintético apenas onde não existe, e não deveria existir, dado público: pessoas e eventos internos da organização fictícia (LGPD). Toda tabela principal carrega `data_source`, tornando a fronteira real × sintético consultável. As origens oficiais são quatro: `compras_gov` (coleta pública), `importacao` (arquivo enviado por operador), `manual` (cadastro pela API) e `sintetico` (registro criado só para demonstração, teste ou simulação). `endoflife` e `nvd` entram quando os coletores D.3 e D.4 existirem. `setor`, `categoria` e `usuario` não têm a coluna. O seed de demonstração dos Gates 2 e 3 (`scripts/seed_demo.sh`, roteiro em [`docs/guia/demonstracao.md`](docs/guia/demonstracao.md)) cria só registros `sintetico` com identificadores `DEMO-`:
 
 ```sql
 SELECT data_source, COUNT(*) FROM ativos GROUP BY data_source;
@@ -118,6 +118,17 @@ python3 -c "import secrets; print(secrets.token_urlsafe(64))"   # copie a saída
 | Métricas | http://localhost:8000/metrics |
 | Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3000 |
+
+### Autenticar no Swagger
+
+As rotas protegidas usam **HTTP Bearer**. No Swagger (`/docs`):
+
+1. Em `POST /api/v1/auth/login` use **Try it out** com o corpo `{"login": "admin", "senha": "..."}` e **Execute**.
+2. Copie só o valor de `access_token` da resposta (sem aspas).
+3. Clique em **Authorize** (cadeado, no alto da página), cole o token no campo **Value**, clique em **Authorize** e depois em **Close**.
+4. Chame qualquer rota protegida (por exemplo `GET /api/v1/auth/me`): o Swagger envia `Authorization: Bearer <token>`.
+
+O token expira em cerca de uma hora; repita o passo 1 quando uma rota passar a responder 401. Sem token, ou com token inválido, a API responde 401 no formato de erro do projeto.
 
 **Credenciais didáticas do Grafana:** definidas em `.env` (`GRAFANA_USER` / `GRAFANA_PASSWORD`). Altere-as em qualquer ambiente que não seja exclusivamente laboratorial.
 
