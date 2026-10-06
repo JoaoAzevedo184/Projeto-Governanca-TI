@@ -57,7 +57,7 @@ ITAM_API_LOGIN=admin ITAM_API_SENHA='SUA_SENHA' python -m etl.carregar_fornecedo
 cd ..
 ```
 
-Esperado: `Fornecedores: 16 criados, 0 já existiam.` (o número acompanha o arquivo `dataset/demo/fornecedores_demo.csv`).
+Esperado: `Fornecedores: 17 criados, 0 já existiam.` (o número acompanha o arquivo `dataset/demo/fornecedores_demo.csv`).
 
 ## 5. Fazer login e guardar o token
 
