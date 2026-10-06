@@ -118,7 +118,7 @@
     },
     {
       "id": 3,
-      "title": "Valor patrimonial de compra",
+      "title": "Valor de compra (R$)",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -143,7 +143,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "currencyBRL",
+          "unit": "locale",
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
@@ -165,11 +165,11 @@
           "values": false
         }
       },
-      "description": "Soma do valor de compra dos ativos não baixados."
+      "description": "Valor patrimonial de compra, em reais: soma do valor de compra dos ativos não baixados."
     },
     {
       "id": 4,
-      "title": "Valor residual",
+      "title": "Valor residual (R$)",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -194,7 +194,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "currencyBRL",
+          "unit": "locale",
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
@@ -216,7 +216,7 @@
           "values": false
         }
       },
-      "description": "Soma do valor residual dos ativos não baixados."
+      "description": "Valor residual, em reais: soma do valor residual dos ativos não baixados."
     },
     {
       "id": 5,
@@ -272,7 +272,7 @@
     },
     {
       "id": 6,
-      "title": "Cálculo das métricas de negócio",
+      "title": "Métricas de negócio",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
@@ -336,7 +336,7 @@
           "values": false
         }
       },
-      "description": "0 quando o último cálculo dos indicadores de negócio falhou; os valores acima ficam desatualizados."
+      "description": "Estado do cálculo das métricas de negócio: OK, ou FALHA quando o último cálculo falhou; nesse caso os valores acima ficam desatualizados (itam_metricas_negocio_up)."
     },
     {
       "id": 7,
@@ -633,7 +633,7 @@
     },
     {
       "id": 11,
-      "title": "Valor patrimonial no tempo",
+      "title": "Valor patrimonial no tempo (R$)",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -658,8 +658,8 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "currencyBRL",
-          "decimals": 2
+          "unit": "locale",
+          "decimals": 0
         },
         "overrides": []
       },

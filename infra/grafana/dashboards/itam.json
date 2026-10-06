@@ -181,7 +181,21 @@
           "expr": "itam_ativos_total",
           "legendFormat": "{{status}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
     },
     {
       "id": 5,
@@ -306,10 +320,16 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum by (regra) (itam_regras_violadas_total)",
+          "expr": "sum by (regra) (itam_regras_violadas_total) or on() label_replace(vector(0), \"regra\", \"nenhuma\", \"\", \"\")",
           "legendFormat": "{{regra}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "0"
+        },
+        "overrides": []
+      }
     }
   ],
   "editable": true

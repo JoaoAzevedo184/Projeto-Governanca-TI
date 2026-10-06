@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Smoke test do ambiente completo (docker compose up + scripts/seed.sh): API, banco, painel de
-# compliance, indicadores, /metrics, alvo do Prometheus e dashboard do Grafana.
+# compliance, indicadores, /metrics, alvo do Prometheus e os dois dashboards do Grafana.
 # URLs e credenciais vêm do ambiente ou do .env (mesmos nomes do .env.example).
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -55,5 +55,7 @@ usuario="$(valor GRAFANA_USER)"; usuario="${usuario:-admin}"
 senha_grafana="$(valor GRAFANA_PASSWORD)"; senha_grafana="${senha_grafana:-admin}"
 esperar "Grafana: dashboard itam-tecnico provisionado" \
   bash -c "curl -sf -u '$usuario:$senha_grafana' '$GRAFANA/api/search?query=ITAM' | grep -q itam-tecnico"
+esperar "Grafana: dashboard itam-gestao provisionado" \
+  bash -c "curl -sf -u '$usuario:$senha_grafana' '$GRAFANA/api/search?query=ITAM' | grep -q itam-gestao"
 
 echo "smoke test OK"
