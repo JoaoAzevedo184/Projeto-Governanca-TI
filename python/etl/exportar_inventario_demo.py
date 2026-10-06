@@ -375,9 +375,10 @@ def gerar_leiame(pasta_origem: str, filtrado: dict, escolha: dict) -> str:
 Gerado por `python -m etl.exportar_inventario_demo` (`python/etl/exportar_inventario_demo.py`) a
 partir de `{pasta_origem}/`, a coleta real do Compras.gov.br de **{data}** (coletor D.1). A data
 de geração é a da coleta: o gerador não grava a data de execução, para duas execuções darem
-arquivos idênticos. Uma cópia byte a byte da coleta está em
-`python/tests/fixtures/compras_gov/coleta_{data}/`, e o teste `test_exportar_inventario_demo.py`
-confere que este arquivo é exatamente o que a coleta gera.
+arquivos idênticos. A coleta sanitizada está em `python/tests/fixtures/compras_gov/coleta_{data}/`:
+é a coleta real, só com o CPF que segue o nome do microempreendedor na razão social trocado por
+zeros (seção "Sanitização" de `python/tests/fixtures/compras_gov/ORIGEM.md`). O teste
+`test_exportar_inventario_demo.py` confere que este arquivo é exatamente o que ela gera.
 
 Critério de liberação do Gate 1 (`docs/BACKLOG_E_GATES.md`): **100 linhas processadas, 92 ativos
 aceitos e 8 linhas rejeitadas**, com relatório de erros linha a linha.
