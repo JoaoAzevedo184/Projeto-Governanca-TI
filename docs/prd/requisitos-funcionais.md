@@ -28,6 +28,17 @@ Parte de [PRD — ITAM](README.md).
 
 > **Nota de origem dos dados.** Onde um requisito ou critério de aceite depende de um dado concreto para ser demonstrado, a origem desse dado (real, coletado, ou sintético) está indicada junto ao requisito. Detalhamento fonte a fonte em [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md); a decisão de combinar dado real e sintético está registrada em [ADR-011](../adr/0011-estrategia-dados-reais-demonstracao.md).
 
+**Origens de dados (`data_source`).** Quatro valores oficiais:
+
+| Origem | Definição |
+|---|---|
+| `compras_gov` | Dado de coleta pública (Compras.gov.br), ou planilha gerada dela. |
+| `importacao` | Registro vindo de arquivo enviado por um operador (`POST /importacoes`). |
+| `manual` | Registro cadastrado pela API (`POST` das rotas de cadastro). É o padrão dos services. |
+| `sintetico` | Registro criado só para demonstração, teste ou simulação. |
+
+Dado público alimenta o inventário sempre que existe; o sintético representa apenas pessoas, vínculos e eventos internos que nenhuma fonte pública tem, e é sempre marcado `sintetico`. A origem é um parâmetro interno dos services (padrão `manual`) e **não** faz parte dos schemas nem do contrato HTTP, exceto na coluna opcional `data_source` do arquivo de importação (FR-008, AC-071). As tabelas `setor`, `categoria` e `usuario` não têm `data_source`; os setores do seed de demonstração levam o prefixo `DEMO-` no nome. Ver [`docs/guia/demonstracao.md`](../guia/demonstracao.md).
+
 ---
 
 ### FR-001 — Cadastro de Ativos

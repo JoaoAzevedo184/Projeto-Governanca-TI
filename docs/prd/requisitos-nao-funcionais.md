@@ -32,7 +32,7 @@ Parte de [PRD — ITAM](README.md).
 |---|---|---|
 | NFR-AUD-01 | Histórico de alterações imutável: registros de vínculo, baixa e auditoria não admitem UPDATE nem DELETE | Tentativa de exclusão retorna erro; teste automatizado. *Estado atual:* verificado para vínculo (AC-013), auditoria e baixa, com teste direto no PostgreSQL |
 | NFR-AUD-02 | Toda operação de escrita grava usuário autor, operação, entidade, identificador e carimbo de tempo | Trilha consultável por entidade e por período |
-| NFR-AUD-03 | Carimbos de tempo em UTC, com fuso apresentado na interface | Verificado na resposta da API |
+| NFR-AUD-03 | Carimbos de tempo em UTC, com fuso apresentado na interface. A **data de referência do domínio** ("hoje": data futura, licença vencida, janela de alerta, depreciação) é a data do fuso configurado, padrão `America/Recife`; ver [`docs/spec/configuracao.md`](../spec/configuracao.md) §13.1 | Verificado na resposta da API; `tests/integration/test_data_de_referencia.py` |
 | NFR-AUD-04 | Relatórios exportados identificam data, hora e usuário gerador | Cabeçalho do arquivo exportado |
 | NFR-AUD-05 | Operações bloqueadas por regra de negócio (ex.: excedente de licença) também são registradas | Trilha contém tentativas recusadas |
 
