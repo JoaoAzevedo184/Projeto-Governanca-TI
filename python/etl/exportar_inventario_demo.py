@@ -26,9 +26,14 @@ from collections import Counter, defaultdict
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
-from etl.paths import DATASET_DIR
+from etl.paths import (
+    DATASET_DIR,
+    ErroReferencia,
+    coleta_de_referencia,
+    escolher_saida,
+    texto_reprodutibilidade,
+)
 
-DATA_COLETA = "2026-10-05"
 FONTE = "compras_gov"
 # PDM do CATMAT -> categoria do seed (DIAGNOSTICO_D2.md, seção 4). A ordem é a do arquivo.
 CATEGORIA_POR_PDM = {
@@ -444,6 +449,7 @@ Relatório esperado de `GET /importacoes/{{id}}/erros`:
 
 {relatorio}
 
+{texto_reprodutibilidade()}
 ## Como usar
 
 ```bash
@@ -480,16 +486,31 @@ def gerar(pasta_origem: Path, saida: Path) -> dict:
 
 def main() -> int:
     analisador = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    analisador.add_argument("--raw", type=Path, default=DATASET_DIR / "raw" / FONTE / DATA_COLETA)
-    analisador.add_argument("--saida", type=Path, default=DATASET_DIR / "demo")
+    analisador.add_argument(
+        "--raw",
+        type=Path,
+        help="outra coleta que não a de referência do config.yaml (exige --saida)",
+    )
+    analisador.add_argument("--saida", type=Path, help="padrão: dataset/demo/ (a versionada)")
     argumentos = analisador.parse_args()
     try:
-        resultado = gerar(argumentos.raw, argumentos.saida)
-    except ErroExportacao as erro:
+        saida = escolher_saida(
+            {FONTE: argumentos.raw} if argumentos.raw else {},
+            argumentos.saida,
+            DATASET_DIR / "demo",
+        )
+        raw = argumentos.raw or DATASET_DIR / "raw" / FONTE / coleta_de_referencia(FONTE)
+        if not raw.is_dir():
+            raise ErroExportacao(
+                f"coleta de referência ausente: {raw} (colete de novo, ou informe outra com --raw "
+                "e --saida; ver docs/guia/coleta-de-dados.md)"
+            )
+        resultado = gerar(raw, saida)
+    except (ErroExportacao, ErroReferencia) as erro:
         print(f"Exportação recusada: {erro}", file=sys.stderr)
         return 1
     print(
-        f"{len(resultado['linhas'])} linhas em {argumentos.saida} "
+        f"{len(resultado['linhas'])} linhas em {saida} "
         f"({len(resultado['escolha']['fornecedores_das_validas'])} fornecedores nas válidas)"
     )
     return 0
