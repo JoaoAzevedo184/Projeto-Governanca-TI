@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from app.models.enums import StatusAtivo, TipoAtivo
 from app.schemas.depreciacao import DepreciacaoResponse
+from app.utils.datas import hoje
 
 
 class AtivoCreate(BaseModel):
@@ -30,7 +31,7 @@ class AtivoCreate(BaseModel):
 
     @model_validator(mode="after")
     def _validar_data_aquisicao_nao_futura(self) -> "AtivoCreate":
-        if self.data_aquisicao > date.today():
+        if self.data_aquisicao > hoje():
             raise ValueError("data_aquisicao não pode ser posterior à data corrente (BR-003).")
         return self
 

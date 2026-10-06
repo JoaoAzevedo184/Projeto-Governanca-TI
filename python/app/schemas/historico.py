@@ -2,6 +2,8 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, Field, model_validator
 
+from app.utils.datas import hoje
+
 
 class VinculoCreate(BaseModel):
     """Corpo de `POST /ativos/{id}/responsavel` — atribuição inicial ou transferência (FR-002)."""
@@ -13,7 +15,7 @@ class VinculoCreate(BaseModel):
 
     @model_validator(mode="after")
     def _validar_data_inicio_nao_futura(self) -> "VinculoCreate":
-        if self.data_inicio > date.today():
+        if self.data_inicio > hoje():
             raise ValueError("data_inicio não pode ser posterior à data corrente (FR-002).")
         return self
 

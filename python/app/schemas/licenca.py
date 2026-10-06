@@ -4,10 +4,11 @@ from decimal import Decimal
 from pydantic import BaseModel, Field, model_validator
 
 from app.models.enums import TipoLicenciamento
+from app.utils.datas import hoje
 
 
 def _validar_nao_futura(valor: date | None) -> date | None:
-    if valor is not None and valor > date.today():
+    if valor is not None and valor > hoje():
         raise ValueError("data_inicio_vigencia não pode ser posterior à data corrente (FR-004).")
     return valor
 
@@ -116,7 +117,7 @@ class VinculoLicencaCreate(BaseModel):
 
     @model_validator(mode="after")
     def _validar_data_nao_futura(self) -> "VinculoLicencaCreate":
-        if self.data_vinculo is not None and self.data_vinculo > date.today():
+        if self.data_vinculo is not None and self.data_vinculo > hoje():
             raise ValueError("data_vinculo não pode ser posterior à data corrente (FR-004).")
         return self
 

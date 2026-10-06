@@ -3,6 +3,7 @@ from datetime import date, datetime
 from pydantic import BaseModel, Field, model_validator
 
 from app.models.enums import EVIDENCIAS_SEM_REFERENCIA, StatusRecomendacao, TipoEvidencia
+from app.utils.datas import hoje
 
 
 class EvidenciaCreate(BaseModel):
@@ -45,7 +46,7 @@ class RecomendacaoCreate(BaseModel):
 
     @model_validator(mode="after")
     def _validar_data_nao_futura(self) -> "RecomendacaoCreate":
-        if self.data is not None and self.data > date.today():
+        if self.data is not None and self.data > hoje():
             raise ValueError("data não pode ser posterior à data corrente.")
         return self
 
