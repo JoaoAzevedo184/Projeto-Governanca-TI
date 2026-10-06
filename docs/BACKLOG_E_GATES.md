@@ -161,7 +161,7 @@ Cada gate é um ponto de verificação com entrega obrigatória. Não se avança
 | D.8 | Carga no banco — `dataset/processed/` + `dataset/synthetic/` → tabelas via ORM | — | Banco populado com `data_source` correto |
 | D.9 | Integração do `scripts/seed.sh` com `dataset/processed/` e `dataset/synthetic/` | — | `./scripts/seed.sh` carrega tudo, não só a migração |
 
-> `numero_serie` de itens de compras públicas é derivado e determinístico (`CG-<id_compra>-<id_compra_item>-<sequencial>`, expansão limitada por item); fornecedor vem direto da API (`nome_fornecedor`/`cnpj_fornecedor`). Ver decisão na [ADR-011](adr/0011-estrategia-dados-reais-demonstracao.md).
+> `numero_serie` de itens de compras públicas é derivado e determinístico: `CG-{idItemCompra}-{seq}` (no arquivo de demonstração, `seq` = `001`, uma linha por item de compra). É um **identificador técnico sintético**, não número de série de fábrica: a fonte pública não traz número de série. O fornecedor vem direto da API (`nomeFornecedor`/`niFornecedor`, do endpoint `/modulo-pesquisa-preco/1_consultarMaterial`). A fórmula antiga (`CG-<id_compra>-<id_compra_item>-<sequencial>`) colidia em 13 itens e foi substituída: ver a atualização de 2026-10-05 da [ADR-011](adr/0011-estrategia-dados-reais-demonstracao.md).
 
 ### Sprint 2 — Responsabilidade e depreciação
 

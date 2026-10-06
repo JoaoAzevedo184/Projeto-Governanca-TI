@@ -4,6 +4,18 @@ Detalha, fonte a fonte, o que o `README.md` resume na seção "Origem dos dados"
 
 ---
 
+## Papel de cada fonte (estado em 2026-10-06)
+
+| Fonte | Papel | Onde chega |
+|---|---|---|
+| Compras.gov.br | Fonte do dataset de demonstração e dos dados de hardware do projeto | `dataset/demo/` (carregado no banco pelo seed e pela importação) e `dataset/processed/hardware_compras_gov.csv` (referência) |
+| endoflife.date | Coletada e processada como referência de ciclo de vida | `dataset/processed/software_ciclos_cves.csv` (referência) |
+| NVD | Coletado e processado como referência de vulnerabilidades (contagem de CVEs por ciclo e severidade) | `dataset/processed/software_ciclos_cves.csv` (referência) |
+
+**endoflife e NVD não são carregados no banco, não aparecem nas telas do ITAM e não geram alertas na versão atual.** Só o dataset do Compras.gov.br usado na demonstração é carregado no banco. O que cada seção abaixo diz de tabelas `produto_software` e `vulnerabilidade`, de `data_source = endoflife` ou `nvd` e de alertas de ciclo de vida ou de CVE descreve o que a ADR-011 previu, **não** o que existe: a decisão de 2026-10-06 foi manter as duas fontes só como arquivos de referência. A normalização está em `python/etl/normalizar.py`, e a metodologia e as contagens em `dataset/processed/LEIAME.md`.
+
+---
+
 ## 1. Compras.gov.br — Dados Abertos
 
 | Campo | Valor |
@@ -31,14 +43,14 @@ Detalha, fonte a fonte, o que o `README.md` resume na seção "Origem dos dados"
 | **URL base** | `https://endoflife.date/api/` |
 | **Documentação** | `https://endoflife.date/docs/api` |
 | **Autenticação** | Nenhuma — API pública, sem chave |
-| **Endpoints usados** | `GET /api/<produto>.json` (lista de ciclos do produto) e/ou `GET /api/<produto>/<versao>.json` (ciclo específico) para os produtos configurados em `python/collectors/config.yaml` |
+| **Endpoints usados** | `GET /api/<produto>.json` (lista de ciclos do produto) para os 8 produtos configurados em `python/collectors/config.yaml` (`postgresql`, `mysql`, `nginx`, `mongodb`, `tomcat`, `redis`, `windows-server`, `office`; todos conferidos na API em 2026-10-06, e o slug `apache`, que redireciona com HTTP 301, foi trocado pelo Tomcat). Coletor: `python/collectors/endoflife.py` (D.3), que grava a resposta sem transformação em `dataset/raw/endoflife/<data>/<produto>.json` |
 | **Campos aproveitados** | `cycle` (versão), `releaseDate`, `eol` (data de fim de suporte ou `false`), `latest` |
-| **Mapeamento** | Tabela de ciclo de vida de software (ver [`docs/modelo-de-dados/dicionario-de-dados.md`](modelo-de-dados/dicionario-de-dados.md#produto_software) — nova, `data_source = endoflife`); referenciada pela associação ativo × software instalado |
-| **Requisitos atendidos** | FR-004, FR-007 (CP-03 e correlatos de ciclo de vida) |
-| **Limites de uso** | <!-- TODO: confirmar --> política de rate limit publicada pelo projeto |
+| **Mapeamento** | **Referência, sem tabela no banco:** `dataset/processed/software_ciclos_cves.csv` (uma linha por ciclo, com data de fim de suporte e situação na data da coleta) e `produtos_cruzamento.csv`, gerados por `python -m etl.normalizar`. A tabela `produto_software` e o `data_source = endoflife`, previstos na ADR-011, **não existem** (decisão de 2026-10-06) |
+| **Requisitos atendidos** | Nenhum requisito funcional depende deste dado na versão atual: é referência. Os alertas de ciclo de vida (CP-05 e correlatos, ver FR-007) seguem fora do MVP |
+| **Limites de uso** | <!-- TODO: confirmar --> política de rate limit publicada pelo projeto. O coletor espera 1 s entre requisições (8 requisições por coleta) e repete 429 e 5xx com espera crescente |
 | **Licença** | MIT |
 
-**Uso pelo ETL sintético.** O ETL sorteia qual software está instalado em cada ativo, mas somente entre produtos e versões que existem nesta tabela — nunca inventa um produto ou uma versão de software.
+**Uso.** O seed de demonstração não usa esta fonte: não há ETL que sorteie software instalado (D.7 encerrado em 2026-10-06). A tabela de ciclos é só consulta de referência para quem quiser cruzar versões por conta própria.
 
 ---
 
@@ -50,11 +62,12 @@ Detalha, fonte a fonte, o que o `README.md` resume na seção "Origem dos dados"
 | **URL base** | `https://services.nvd.nist.gov/rest/json/cves/2.0` |
 | **Documentação** | `https://nvd.nist.gov/developers/vulnerabilities` |
 | **Autenticação** | Opcional via `NVD_API_KEY` (cabeçalho `apiKey`), solicitada em `https://nvd.nist.gov/developers/request-an-api-key`; sem a chave, o limite de requisições é mais restrito (ver `README.md`, seção "Pré-requisitos") |
-| **Endpoints usados** | `GET /rest/json/cves/2.0?keywordSearch=<produto>` ou parâmetro equivalente por CPE <!-- TODO: confirmar --> parâmetro exato de busca por produto/versão usado pelo coletor |
-| **Campos aproveitados** | `id` (CVE), `descriptions`, `metrics` (score CVSS), `published`, `cpeMatch`/CPE do produto afetado |
-| **Mapeamento** | Tabela de vulnerabilidades (ver [`docs/modelo-de-dados/dicionario-de-dados.md`](modelo-de-dados/dicionario-de-dados.md#vulnerabilidade) — nova, `data_source = nvd`), vinculada ao mesmo produto/versão de software da tabela de ciclo de vida |
-| **Requisitos atendidos** | FR-007 (compliance de segurança), FR-012 (insumo para registro de riscos) |
-| **Limites de uso** | <!-- TODO: confirmar valores vigentes --> historicamente 5 requisições por janela de 30s sem chave e 50 por janela de 30s com chave |
+| **Endpoints usados** | `GET /rest/json/cves/2.0` com `virtualMatchString` (CPE do produto), `versionStart` e `versionEnd` (faixa do ciclo, escrita em `python/collectors/config.yaml`), `cvssV3Severity` e `resultsPerPage=1`. Por ciclo, cinco consultas: uma por severidade (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`) e o total sem filtro; só o `totalResults` interessa, então cada resposta traz um registro e o volume é de poucos KB por arquivo. Não há consulta genérica por palavra-chave. Coletor: `python/collectors/nvd.py` (D.4), em `dataset/raw/nvd/<data>/<produto>_<ciclo>_<severidade ou total>.json` |
+| **Campos aproveitados** | `totalResults` (contagem de CVEs por produto, ciclo e severidade CVSS v3). O restante do registro devolvido fica no arquivo bruto e não é usado |
+| **Mapeamento** | **Referência, sem tabela no banco:** colunas `cves_*` de `dataset/processed/software_ciclos_cves.csv`, só para os ciclos que o `config.yaml` lista (cruzamento conservador, sem aproximação de nomes). A tabela `vulnerabilidade` e o `data_source = nvd`, previstos na ADR-011, **não existem** (decisão de 2026-10-06) |
+| **Requisitos atendidos** | Nenhum requisito funcional depende deste dado na versão atual: é referência. Não há alerta de CVE nem insumo automático para o registro de riscos (FR-012) |
+| **Limites de uso** | O NVD publica 5 requisições por janela de 30 s sem chave e 50 com chave (<!-- TODO: confirmar valores vigentes -->). O coletor espera 6,5 s entre consultas sem chave e 0,7 s com chave, e não repete 403 (o que o NVD devolve ao passar do limite) |
+| **Segredo** | `NVD_API_KEY` é lida só do ambiente (o `scripts/collect.sh` não carrega o `.env`: exporte a variável), vai no cabeçalho `apiKey` e nunca é gravada em arquivo, log, mensagem de erro, fixture nem arquivo gerado (`tests/unit/test_nvd.py` e `tests/unit/test_fixtures_sem_segredos.py` conferem) |
 | **Licença** | Domínio público (obra do governo dos EUA) |
 
 ---
@@ -84,7 +97,7 @@ Vale repetir aqui porque é a regra que mais gera confusão: o banco **não guar
 | **O que fornece** | Apenas entidades: colaboradores (nome, matrícula, e-mail, setor, cargo, localização) |
 | **Autenticação** | N/A — ferramenta usada offline na geração; não é chamada em runtime |
 | **Esquemas** | `dataset/synthetic/schemas/` |
-| **CSVs gerados** | `dataset/synthetic/`, versionados no repositório para reprodutibilidade |
+| **CSVs gerados** | **Não gerados nem versionados** (D.5 encerrado em 2026-10-06: substituído pelo seed de demonstração, que cria os responsáveis `DEMO-`). Só os esquemas estão em `dataset/synthetic/schemas/` |
 | **Gerador** | `python/etl/gerar_sinteticos.py` |
 | **Mapeamento** | Tabela `responsavel` (ver [`docs/modelo-de-dados/dicionario-de-dados.md`](modelo-de-dados/dicionario-de-dados.md#33-setor-e-responsavel)), `data_source = sintetico` |
 | **Requisitos atendidos** | FR-002 |
@@ -97,14 +110,9 @@ Vale repetir aqui porque é a regra que mais gera confusão: o banco **não guar
 
 ## 7. ETL — eventos sintéticos
 
-| Campo | Valor |
-|---|---|
-| **O que fornece** | Eventos: transferências (`historico_transferencia`), baixas/descartes (`baixa_ativo`) e a associação ativo × software instalado (`licenca_vinculo` ou tabela equivalente de software instalado) |
-| **Semente** | Fixa, via variável de ambiente `SYNTHETIC_SEED` — reprodutível entre execuções |
-| **Regras de negócio respeitadas** | Nenhum evento anterior à `data_aquisicao` do ativo (BR-010); nenhuma transferência após a baixa (BR-009); baixa preferencialmente atribuída a ativos com vida útil encerrada; software sorteado apenas entre produtos/versões presentes na tabela de ciclo de vida do endoflife.date (seção 2) |
-| **`data_source`** | `sintetico` |
-| **Requisitos atendidos** | FR-002, FR-004, FR-005, FR-007 |
-| **Onde vive** | `python/etl/`, fora de `app/` — a API nunca invoca o ETL durante uma requisição |
+**Encerrado em 2026-10-06 (D.7): substituído pelo seed de demonstração.** Não existe ETL de eventos sintéticos com `SYNTHETIC_SEED`. Os eventos que o projeto previa (transferências, baixas e instalações) são criados pelo seed de demonstração (`python -m app.seed_demo`, `python/app/seed_demo.py`), que chama os services (regras de negócio, trigger e auditoria valem), grava só `sintetico` e é idempotente. A associação ativo × software instalado não existe: o seed cria um software com licença e vínculos de licença, não "software sorteado por ciclo de vida".
+
+Requisitos atendidos pelo seed: FR-002, FR-004, FR-005 (nos Gates 2 e 3) e FR-009 a FR-013 (no Gate 4).
 
 ---
 
@@ -119,11 +127,11 @@ Registrada aqui apenas por completude de `data_source`: planilhas CSV/XLSX envia
 | Real (coletado de fonte pública, verificável) | Sintético (gerado, não representa fato real) |
 |---|---|
 | Item de TI, fabricante, modelo, preço, data de aquisição (Compras.gov.br) | Identidade do colaborador responsável (Mockaroo) |
-| Ciclo de vida e fim de suporte de software (endoflife.date) | Data exata de uma transferência ou baixa específica (ETL) |
-| Existência e severidade de uma CVE (NVD) | Qual ativo específico está vinculado a qual colaborador em um dado momento (ETL) |
+| Ciclo de vida e fim de suporte de software (endoflife.date, só em `dataset/processed/`) | Data exata de uma transferência ou baixa específica (seed de demonstração) |
+| Existência e severidade de uma CVE (NVD, só em `dataset/processed/`) | Qual ativo específico está vinculado a qual colaborador em um dado momento (seed de demonstração) |
 | Vida útil e taxa de depreciação por categoria (IN RFB 1.700/2017 — norma, não coleta) | — |
 
-A combinação é o que sustenta o alerta: **o fato de que o produto está fora de suporte, ou que a CVE existe, é real — apenas a atribuição de "este ativo específico tem esta versão instalada" é sintética.** Isso é intencional (ver ADR-011): o alerta de compliance gerado a partir dela continua sendo uma demonstração verdadeira da regra de negócio, não uma simulação vazia.
+A ADR-011 previu combinar as duas coisas num alerta de ciclo de vida ou de CVE. **Isso não existe na versão atual:** endoflife e NVD são só referência em `dataset/processed/`, não se ligam a nenhum ativo e não geram alerta. Os alertas de compliance do sistema (CP-01 a CP-04) usam licenças e responsáveis, não ciclo de vida nem CVE.
 
 Consulta de verificação (já citada no `README.md`):
 
@@ -141,9 +149,16 @@ Consequência prática: qualquer extensão futura que substitua o Mockaroo por u
 
 ---
 
-## 11. O que ainda não existe no código
+## 11. Estado do pipeline (2026-10-06)
 
-Os componentes citados neste documento e no `README.md` — `python/collectors/`, `python/etl/`, `python/collectors/config.yaml`, `python/etl/gerar_sinteticos.py`, `scripts/collect.sh`, `dataset/raw/`, `dataset/processed/`, `dataset/synthetic/`, `tests/fixtures/` — descrevem a arquitetura de dados **decidida**, não o estado atual do repositório. Ver a lista completa de pendências no resumo desta atualização de documentação.
+| Etapa | Estado |
+|---|---|
+| D.1 `compras_gov` | Coletor implementado (`python/collectors/compras_gov.py`) |
+| D.2 arquivo do Gate 1 | `python/etl/exportar_inventario_demo.py` e `dataset/demo/` |
+| D.3 `endoflife` | Coletor implementado (`python/collectors/endoflife.py`), fixtures reais, testes sem rede |
+| D.4 `nvd` | Coletor implementado (`python/collectors/nvd.py`), fixtures reais, testes sem rede |
+| D.5, D.7, D.8, D.9 | Encerrados: substituídos pelo seed de demonstração (decisão de 2026-10-06). Não há carga do pipeline no banco |
+| D.6 normalização | `python/etl/normalizar.py` gera `dataset/processed/` (hardware, software × ciclo de vida × CVEs, cruzamento e `LEIAME.md`), sem rede e sem banco |
 
 ---
 
@@ -156,4 +171,4 @@ Os componentes citados neste documento e no `README.md` — `python/collectors/`
 | `manual` | Registro cadastrado pela API (`POST` das rotas de cadastro). É o padrão dos services. |
 | `sintetico` | Registro criado só para demonstração, teste ou simulação. |
 
-Dado público alimenta o inventário sempre que existe. O sintético representa apenas pessoas, vínculos e eventos internos que nenhuma fonte pública tem, e é sempre marcado `sintetico`: o ETL e o seed de demonstração (`python -m app.seed_demo`, ver [`docs/guia/demonstracao.md`](guia/demonstracao.md)) criam só `sintetico`. `setor`, `categoria` e `usuario` não têm a coluna; os setores `DEMO-` são sintéticos. `endoflife` e `nvd` (seções 2 e 3) são origens previstas para tabelas que ainda não existem e passam a valer quando os coletores D.3 e D.4 forem implementados.
+Dado público alimenta o inventário sempre que existe. O sintético representa apenas pessoas, vínculos e eventos internos que nenhuma fonte pública tem, e é sempre marcado `sintetico`: o ETL e o seed de demonstração (`python -m app.seed_demo`, ver [`docs/guia/demonstracao.md`](guia/demonstracao.md)) criam só `sintetico`. `setor`, `categoria` e `usuario` não têm a coluna; os setores `DEMO-` são sintéticos. `endoflife` e `nvd` (seções 2 e 3) **não são origens de registro do banco**: os coletores existem (D.3 e D.4), mas os dados ficam só em `dataset/raw/` e `dataset/processed/` como referência, e nenhuma tabela os recebe.
