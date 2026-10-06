@@ -1,0 +1,22 @@
+{
+  "cenarios": [
+    {
+      "nome": "MANTER",
+      "capex": "0",
+      "opex_anual": "4000",
+      "riscos_ids": [1, 2]
+    },
+    {
+      "nome": "RENOVAR",
+      "capex": "12000",
+      "opex_anual": "6000",
+      "riscos_ids": [2]
+    },
+    {
+      "nome": "MIGRAR_ASSINATURA",
+      "capex": "3000",
+      "opex_anual": "9600",
+      "riscos_ids": []
+    }
+  ]
+}

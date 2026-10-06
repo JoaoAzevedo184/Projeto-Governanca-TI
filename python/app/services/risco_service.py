@@ -47,9 +47,11 @@ def _obter(db: Session, risco_id: int) -> Risco:
     return risco
 
 
-def criar_risco(db: Session, dados: RiscoCreate, usuario: Usuario) -> RiscoResponse:
+def criar_risco(
+    db: Session, dados: RiscoCreate, usuario: Usuario, *, origem: str = "manual"
+) -> RiscoResponse:
     _validar_responsavel(db, dados.responsavel_id)
-    risco = Risco(**dados.model_dump(), data_source="manual")
+    risco = Risco(**dados.model_dump(), data_source=origem)
     db.add(risco)
     db.flush()
     registrar_auditoria(

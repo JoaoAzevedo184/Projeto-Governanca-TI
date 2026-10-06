@@ -21,7 +21,9 @@ from app.schemas.scorecard import (
 from app.utils.scorecard import CENTAVO, pesos_somam_100, pontuacao, ranking, soma_dos_pesos
 
 
-def registrar_scorecard(db: Session, dados: ScorecardCreate, usuario: Usuario) -> ScorecardResponse:
+def registrar_scorecard(
+    db: Session, dados: ScorecardCreate, usuario: Usuario, *, origem: str = "manual"
+) -> ScorecardResponse:
     ids = [a.fornecedor_id for a in dados.avaliacoes]
     fornecedores = {f.id: f for f in db.scalars(select(Fornecedor).where(Fornecedor.id.in_(ids)))}
     for fornecedor_id in ids:
@@ -55,7 +57,7 @@ def registrar_scorecard(db: Session, dados: ScorecardCreate, usuario: Usuario) -
                 peso=peso,
                 nota=avaliacao.notas[criterio],
                 periodo=dados.periodo,
-                data_source="manual",
+                data_source=origem,
             )
             for criterio, peso in pesos.items()
         ]

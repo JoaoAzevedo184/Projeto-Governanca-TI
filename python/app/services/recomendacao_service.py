@@ -46,7 +46,9 @@ def _validar_referencia(db: Session, evidencia: EvidenciaCreate) -> None:
         raise RecursoNaoEncontradoError(f"{nome} {ref} não encontrado.")
 
 
-def criar_recomendacao(db: Session, dados: RecomendacaoCreate, usuario: Usuario) -> Recomendacao:
+def criar_recomendacao(
+    db: Session, dados: RecomendacaoCreate, usuario: Usuario, *, origem: str = "manual"
+) -> Recomendacao:
     if db.get(Responsavel, dados.responsavel_id) is None:
         raise RecursoNaoEncontradoError(f"Responsável {dados.responsavel_id} não encontrado.")
 
@@ -72,7 +74,7 @@ def criar_recomendacao(db: Session, dados: RecomendacaoCreate, usuario: Usuario)
         responsavel_id=dados.responsavel_id,
         data=dados.data or hoje(),
         status=dados.status.value,
-        data_source="manual",
+        data_source=origem,
         evidencias=[
             Evidencia(tipo=e.tipo.value, referencia_id=e.referencia_id, descricao=e.descricao)
             for e in dados.evidencias

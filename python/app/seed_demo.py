@@ -1,4 +1,4 @@
-"""Seed de demonstração dos Gates 2 e 3 (docs/guia/demonstracao.md).
+"""Seed de demonstração dos Gates 2, 3 e 4 (docs/guia/demonstracao.md).
 
 Uso: `python -m app.seed_demo` (ou `scripts/seed_demo.sh`), depois do seed básico e da importação
 dos 92 ativos de `dataset/demo/inventario_demo.csv`. Roda dentro da aplicação e chama os
@@ -7,12 +7,16 @@ auditoria valem como em qualquer cadastro.
 
 O que cria (tudo `sintetico`, com identificadores `DEMO-`; o setor não tem `data_source`, então
 os três setores só levam o prefixo `DEMO-`):
-- 3 setores, 6 responsáveis e 1 fornecedor fictícios;
+- 3 setores, 6 responsáveis e 1 fornecedor fictícios (mais 2 de software no Gate 4);
 - responsável para os 92 ativos reais (`compras_gov`), menos 3 deixados sem de propósito;
 - Gate 2: um notebook com atribuição inicial e 3 transferências, e um notebook para o AC-015
   (R$ 6.000,00, 60 meses, 12 decorridos, residual R$ 4.800,00);
 - Gate 3: um software com licença de 50 unidades e 50 vínculos em máquinas reais (o 51º fica para
-  a demonstração ao vivo), uma licença vencida há 40 dias, uma perto de vencer e um ativo baixado.
+  a demonstração ao vivo), uma licença vencida há 40 dias, uma perto de vencer e um ativo baixado;
+- Gate 4: a história da regularização do licenciamento (partindo da licença vencida e da de
+  escritório em 50 de 50): 2 fornecedores de software a mais, 2 riscos (um crítico, 4 x 5), o
+  scorecard dos 3 fornecedores e a recomendação "Regularizar o licenciamento de software", com 4
+  evidências (risco, scorecard do vencedor, indicador de conformidade e cenário comparado).
 
 Idempotente: cada passo confere se o registro `DEMO-` já existe e só cria o que falta, então a
 segunda execução não cria nem altera nada. As datas dos ativos `DEMO-` saem do dia da primeira
@@ -32,33 +36,49 @@ from app.models.ativo import Ativo
 from app.models.baixa import BaixaAtivo
 from app.models.categoria import Categoria
 from app.models.enums import (
+    CategoriaRisco,
     DestinacaoBaixa,
     MotivoBaixa,
+    NomeCenario,
+    RespostaRisco,
     StatusAtivo,
     TipoAtivo,
+    TipoEvidencia,
     TipoLicenciamento,
 )
-from app.models.fornecedor import Fornecedor
+from app.models.fornecedor import Fornecedor, FornecedorAvaliacao
 from app.models.historico import HistoricoTransferencia
 from app.models.importacao import LoteImportacao  # noqa: F401  (registra a FK de ativo)
 from app.models.licenca import Licenca, LicencaVinculo
+from app.models.recomendacao import Recomendacao
 from app.models.responsavel import Responsavel
+from app.models.risco import Risco
 from app.models.setor import Setor
 from app.models.usuario import Usuario
 from app.schemas.ativo import AtivoCreate
 from app.schemas.baixa import BaixaCreate
+from app.schemas.cenario import CompararCenariosCreate, EntradaCenarioCreate
 from app.schemas.fornecedor import FornecedorCreate
 from app.schemas.historico import VinculoCreate
 from app.schemas.licenca import LicencaCreate, VinculoLicencaCreate
+from app.schemas.recomendacao import EvidenciaCreate, RecomendacaoCreate
 from app.schemas.responsavel import ResponsavelCreate
+from app.schemas.risco import RiscoCreate
+from app.schemas.scorecard import AvaliacaoFornecedor, CriterioScorecard, ScorecardCreate
 from app.schemas.setor import SetorCreate
 from app.services.ativo_service import criar_ativo
 from app.services.baixa_service import registrar_baixa
+from app.services.cenario_service import comparar_cenarios
 from app.services.fornecedor_service import criar_fornecedor
+from app.services.indicador_service import calcular_indicadores
 from app.services.licenca_service import criar_licenca, vincular
+from app.services.recomendacao_service import criar_recomendacao
 from app.services.responsavel_service import atribuir_responsavel, criar_responsavel
+from app.services.risco_service import criar_risco
+from app.services.scorecard_service import registrar_scorecard
 from app.services.setor_service import criar_setor
 from app.utils.datas import hoje
+from app.utils.scorecard import pontuacao, ranking
 
 ORIGEM = "sintetico"
 AUTOR = "admin"  # criado pelo seed básico
@@ -82,7 +102,7 @@ RESPONSAVEIS = [
     ("DEMO-005", "Isadora Valente Prado", "Coordenadora de operações", 2),
     ("DEMO-006", "Caio Menezes Tavares", "Assistente de operações", 2),
 ]
-FORNECEDOR = ("DEMO-Fornecedor de Demonstração LTDA", "00.000.000/0001-91")
+FORNECEDOR_DEMO = "DEMO-Fornecedor de Demonstração LTDA"  # sem CNPJ: o nome DEMO- é a chave
 
 SERIE_TRANSFERENCIAS = "DEMO-HW-TRANSF"
 SERIE_AC015 = "DEMO-HW-AC015"
@@ -95,6 +115,36 @@ CHAVE_A_VENCER = "DEMO-LIC-A-VENCER-0025"
 # transferências, em datas sucessivas e posteriores à aquisição.
 PASSOS_TRANSFERENCIA = (30, 120, 210, 300)
 RESPONSAVEIS_TRANSFERENCIA = (0, 2, 4, 1)
+
+# Gate 4. O responsável pelos riscos e pela recomendação é DEMO-004 (administrador de sistemas).
+RESPONSAVEL_DECISAO = 3
+FORNECEDORES_SOFTWARE = ("DEMO-Software Alfa LTDA", "DEMO-Software Beta LTDA")
+PERIODO_SCORECARD = "DEMO-LICENCIAMENTO"
+# Critérios sugeridos no FR-011; o PRD não fixa pesos, estes somam 100 (BR-029).
+PESOS_SCORECARD = {
+    "Preço": Decimal("30"),
+    "Prazo de entrega": Decimal("15"),
+    "Qualidade do suporte": Decimal("25"),
+    "Taxa de defeitos": Decimal("15"),
+    "Aderência contratual": Decimal("15"),
+}
+# Notas de 0 a 10 (maior é melhor), na ordem dos pesos acima. Pontuações: Alfa 8,55, o fornecedor
+# de demonstração 7,00 e Beta 5,90: um vencedor claro, sem empate.
+NOTAS_SCORECARD = {
+    FORNECEDOR_DEMO: ("7", "6", "7", "7", "8"),
+    FORNECEDORES_SOFTWARE[0]: ("8", "9", "9", "8", "9"),
+    FORNECEDORES_SOFTWARE[1]: ("6", "7", "5", "6", "6"),
+}
+TITULO_RISCO_CRITICO = "uso de software sem licença válida"
+TITULO_RISCO_MEDIO = "saturação da licença de escritório"
+TITULO_RECOMENDACAO = "Regularizar o licenciamento de software"
+# (cenário, capex, opex anual, títulos dos riscos vinculados). Os mesmos valores estão em
+# docs/guia/exemplos/cenarios_gate4.json, que o teste confere com o seed.
+CENARIOS = (
+    (NomeCenario.MANTER, Decimal("0"), Decimal("4000"), (TITULO_RISCO_CRITICO, TITULO_RISCO_MEDIO)),
+    (NomeCenario.RENOVAR, Decimal("12000"), Decimal("6000"), (TITULO_RISCO_MEDIO,)),
+    (NomeCenario.MIGRAR_ASSINATURA, Decimal("3000"), Decimal("9600"), ()),
+)
 
 
 class ErroSeedDemo(Exception):
@@ -215,6 +265,14 @@ def _licenca(db: Session, autor: Usuario, contagem: dict[str, int], chave: str, 
 def semear_demo(db: Session) -> dict[str, int]:
     """Cria o que falta do cenário e devolve quantos registros criou de cada tipo."""
     autor = verificar_prerequisitos(db)
+    contagem = _semear_gates_2_e_3(db, autor)
+    decisao = _semear_gate_4(db, autor)
+    contagem["fornecedores"] += decisao.pop("fornecedores")
+    contagem.update(decisao)
+    return contagem
+
+
+def _semear_gates_2_e_3(db: Session, autor: Usuario) -> dict[str, int]:
     dia = hoje()
     contagem = dict.fromkeys(
         (
@@ -230,14 +288,8 @@ def semear_demo(db: Session) -> dict[str, int]:
         0,
     )
 
-    fornecedor = db.scalar(select(Fornecedor).where(Fornecedor.cnpj == FORNECEDOR[1]))
-    if fornecedor is None:
-        fornecedor = criar_fornecedor(
-            db,
-            FornecedorCreate(razao_social=FORNECEDOR[0], cnpj=FORNECEDOR[1], data_source=ORIGEM),
-            autor,
-        )
-        contagem["fornecedores"] += 1
+    fornecedor, criado = _fornecedor_demo(db, autor, FORNECEDOR_DEMO)
+    contagem["fornecedores"] += criado
 
     setores = []
     for nome, sigla in SETORES:
@@ -436,6 +488,181 @@ def semear_demo(db: Session) -> dict[str, int]:
             origem=ORIGEM,
         )
         contagem["baixas"] += 1
+    return contagem
+
+
+def _brl(valor: Decimal) -> str:
+    return "R$ " + f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def _fornecedor_demo(db: Session, autor: Usuario, razao_social: str) -> tuple[Fornecedor, bool]:
+    existente = db.scalar(select(Fornecedor).where(Fornecedor.razao_social == razao_social))
+    if existente is not None:
+        return existente, False
+    criado = criar_fornecedor(
+        db, FornecedorCreate(razao_social=razao_social, data_source=ORIGEM), autor
+    )
+    return criado, True
+
+
+def _risco(
+    db: Session, autor: Usuario, responsavel: Responsavel, dados: dict
+) -> tuple[Risco, bool]:
+    existente = db.scalar(
+        select(Risco).where(Risco.titulo == dados["titulo"], Risco.data_source == ORIGEM)
+    )
+    if existente is not None:
+        return existente, False
+    resposta = criar_risco(
+        db, RiscoCreate(responsavel_id=responsavel.id, **dados), autor, origem=ORIGEM
+    )
+    return db.get(Risco, resposta.id), True  # type: ignore[return-value]
+
+
+def _semear_gate_4(db: Session, autor: Usuario) -> dict[str, int]:
+    """A história da regularização do licenciamento, a partir da licença vencida e da de escritório
+    em 50 de 50. Cada passo confere se já existe, como o resto do seed."""
+    dia = hoje()
+    contagem = dict.fromkeys(("fornecedores", "riscos", "avaliacoes", "recomendacoes"), 0)
+    responsavel = db.scalars(
+        select(Responsavel).where(Responsavel.matricula == RESPONSAVEIS[RESPONSAVEL_DECISAO][0])
+    ).one()
+
+    fornecedores = {}
+    for razao_social in (FORNECEDOR_DEMO, *FORNECEDORES_SOFTWARE):
+        fornecedores[razao_social], criado = _fornecedor_demo(db, autor, razao_social)
+        contagem["fornecedores"] += criado
+
+    critico, novo = _risco(
+        db,
+        autor,
+        responsavel,
+        {
+            "titulo": TITULO_RISCO_CRITICO,
+            "descricao": "DEMO: o antivírus corporativo está vencido; há máquinas sem cobertura.",
+            "categoria": CategoriaRisco.LEGAL,
+            "probabilidade": 4,
+            "impacto": 5,
+            "resposta": RespostaRisco.MITIGAR,
+            "gatilho": f"Licença {CHAVE_VENCIDA} vencida há 40 dias",
+            "data_revisao": dia + timedelta(days=30),
+        },
+    )
+    contagem["riscos"] += novo
+    medio, novo = _risco(
+        db,
+        autor,
+        responsavel,
+        {
+            "titulo": TITULO_RISCO_MEDIO,
+            "descricao": "DEMO: a licença da suíte de escritório está em 50 de 50, sem folga.",
+            "categoria": CategoriaRisco.OPERACIONAL,
+            "probabilidade": 3,
+            "impacto": 3,
+            "resposta": RespostaRisco.MITIGAR,
+            "gatilho": f"Licença {CHAVE_LICENCA_50} com 50 de 50 em uso",
+            "data_revisao": dia + timedelta(days=60),
+        },
+    )
+    contagem["riscos"] += novo
+    riscos = {TITULO_RISCO_CRITICO: critico, TITULO_RISCO_MEDIO: medio}
+
+    # Scorecard dos três fornecedores no mesmo período; uma só gravação (tudo ou nada).
+    ja_avaliado = db.scalar(
+        select(FornecedorAvaliacao.id)
+        .where(
+            FornecedorAvaliacao.periodo == PERIODO_SCORECARD,
+            FornecedorAvaliacao.data_source == ORIGEM,
+        )
+        .limit(1)
+    )
+    if ja_avaliado is None:
+        registrar_scorecard(
+            db,
+            ScorecardCreate(
+                periodo=PERIODO_SCORECARD,
+                criterios=[CriterioScorecard(nome=n, peso=p) for n, p in PESOS_SCORECARD.items()],
+                avaliacoes=[
+                    AvaliacaoFornecedor(
+                        fornecedor_id=fornecedores[razao].id,
+                        notas={c: Decimal(n) for c, n in zip(PESOS_SCORECARD, notas, strict=True)},
+                    )
+                    for razao, notas in NOTAS_SCORECARD.items()
+                ],
+            ),
+            autor,
+            origem=ORIGEM,
+        )
+        contagem["avaliacoes"] += len(NOTAS_SCORECARD)
+
+    if db.scalar(select(Recomendacao.id).where(Recomendacao.titulo == TITULO_RECOMENDACAO)):
+        return contagem
+    pontuacoes = {
+        fornecedores[razao].id: pontuacao(
+            {c: Decimal(n) for c, n in zip(PESOS_SCORECARD, notas, strict=True)}, PESOS_SCORECARD
+        )
+        for razao, notas in NOTAS_SCORECARD.items()
+    }
+    _, vencedor_id, _ = ranking(pontuacoes)[0]
+    vencedor = db.get(Fornecedor, vencedor_id)
+    assert vencedor is not None
+
+    kpi = next(i for i in calcular_indicadores(db).indicadores if i.codigo == "KPI-03")
+    comparacao = comparar_cenarios(
+        db,
+        CompararCenariosCreate(
+            cenarios=[
+                EntradaCenarioCreate(
+                    nome=nome,
+                    capex=capex,
+                    opex_anual=opex,
+                    riscos_ids=[riscos[t].id for t in titulos],
+                )
+                for nome, capex, opex, titulos in CENARIOS
+            ]
+        ),
+    )
+    por_tco = "; ".join(
+        f"{c.nome.value} {_brl(c.tco_5_anos)} (risco {c.score_risco})" for c in comparacao.cenarios
+    )
+    criar_recomendacao(
+        db,
+        RecomendacaoCreate(
+            titulo=TITULO_RECOMENDACAO,
+            contexto=(
+                "DEMO: o antivírus corporativo está vencido há 40 dias e a licença da suíte de "
+                "escritório está em 50 de 50, sem folga para novas instalações."
+            ),
+            recomendacao=(
+                f"Regularizar o licenciamento de software com {vencedor.razao_social}, "
+                "mais bem avaliado no scorecard, renovando o antivírus e ampliando a licença de "
+                "escritório."
+            ),
+            alternativas="Manter como está; renovar com o fornecedor atual; trocar de fornecedor.",
+            responsavel_id=responsavel.id,
+            evidencias=[
+                EvidenciaCreate(tipo=TipoEvidencia.RISCO, referencia_id=critico.id),
+                EvidenciaCreate(tipo=TipoEvidencia.SCORECARD, referencia_id=vencedor.id),
+                EvidenciaCreate(
+                    tipo=TipoEvidencia.INDICADOR,
+                    descricao=(
+                        f"{kpi.codigo} {kpi.nome}: {str(kpi.valor).replace('.', ',')}{kpi.unidade} "
+                        f"(amostra de {kpi.amostra} licenças). Fórmula: {kpi.formula}."
+                    ),
+                ),
+                EvidenciaCreate(
+                    tipo=TipoEvidencia.CENARIO,
+                    descricao=(
+                        f"Cenários em {comparacao.horizonte_anos} anos, por TCO: {por_tco}. "
+                        "Nenhuma alternativa foi escolhida pelo sistema."
+                    ),
+                ),
+            ],
+        ),
+        autor,
+        origem=ORIGEM,
+    )
+    contagem["recomendacoes"] += 1
     return contagem
 
 

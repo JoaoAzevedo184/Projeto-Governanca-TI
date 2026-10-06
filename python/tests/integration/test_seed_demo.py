@@ -1,12 +1,14 @@
-"""Seed de demonstração dos Gates 2 e 3 (`app/seed_demo.py`).
+"""Seed de demonstração dos Gates 2, 3 e 4 (`app/seed_demo.py`).
 
 Parte de um banco com o seed básico, os fornecedores e os 92 ativos de
 `dataset/demo/inventario_demo.csv` importados pelo fluxo real da demonstração, e confere o que o
 seed cria: contagens, origem `sintetico`, auditoria, histórico de transferências, o AC-015, a
-licença em 50 de 50 com o 51º vínculo recusado, os alertas e a idempotência.
+licença em 50 de 50 com o 51º vínculo recusado, os alertas e a idempotência. O cenário de decisão
+do Gate 4 (riscos, scorecard, recomendação e o corpo de exemplo dos cenários) está no fim.
 """
 
 import io
+import json
 import os
 import subprocess
 import sys
@@ -24,10 +26,12 @@ from app.models.ativo import Ativo
 from app.models.auditoria import AuditLog
 from app.models.baixa import BaixaAtivo
 from app.models.categoria import Categoria
-from app.models.fornecedor import Fornecedor
+from app.models.fornecedor import Fornecedor, FornecedorAvaliacao
 from app.models.historico import HistoricoTransferencia
 from app.models.licenca import Licenca, LicencaVinculo
+from app.models.recomendacao import Evidencia, Recomendacao
 from app.models.responsavel import Responsavel
+from app.models.risco import Risco
 from app.models.setor import Setor
 from app.models.usuario import Usuario
 from app.schemas.licenca import VinculoLicencaCreate
@@ -42,13 +46,20 @@ SENHAS = {"admin": "s-admin", "operador": "s-oper", "gestor": "s-gest", "auditor
 ESPERADO = {
     "setores": 3,
     "responsaveis": 6,
-    "fornecedores": 1,
+    "fornecedores": 3,  # o de demonstração e os 2 de software do scorecard
     "ativos_demo": 4,
     "vinculos_responsavel": 95,  # 89 reais + 4 do ativo das transferências + AC-015 + software
     "licencas": 3,
     "vinculos_licenca": 50,
     "baixas": 1,
+    "riscos": 2,
+    "avaliacoes": 3,  # um scorecard, 3 fornecedores avaliados
+    "recomendacoes": 1,
 }
+GATE4 = ("fornecedores", "riscos", "avaliacoes", "recomendacoes")
+EXEMPLO_CENARIOS = (
+    Path(__file__).resolve().parents[3] / "docs" / "guia" / "exemplos" / "cenarios_gate4.json"
+)
 
 
 def _importar_demonstracao(client, db):
@@ -110,7 +121,7 @@ def test_cria_a_quantidade_certa_de_cada_tipo_e_tudo_como_sintetico(cenario, db)
     assert all(r.email.endswith("@demo.invalid") for r in responsaveis)
     demo = db.scalars(select(Ativo).where(Ativo.data_source == "sintetico")).all()
     assert len(demo) == 4 and all(a.nome.startswith("DEMO-") for a in demo)
-    assert _contar(db, Fornecedor, Fornecedor.data_source == "sintetico") == 1
+    assert _contar(db, Fornecedor, Fornecedor.data_source == "sintetico") == 3
     licencas = db.scalars(select(Licenca)).all()
     assert len(licencas) == 3 and {lic.data_source for lic in licencas} == {"sintetico"}
     assert all(lic.chave_licenca.startswith("DEMO-") for lic in licencas)
@@ -149,6 +160,8 @@ def test_cada_escrita_do_seed_tem_linha_na_auditoria(cenario, db):
         "licenca_vinculo": LicencaVinculo,
         "historico_transferencia": HistoricoTransferencia,
         "baixa_ativo": BaixaAtivo,
+        "risco": Risco,
+        "recomendacao": Recomendacao,
     }
     for entidade, modelo in tabelas.items():
         auditados = set(
@@ -284,6 +297,10 @@ def test_segunda_execucao_nao_cria_nem_altera_nada(cenario, db):
         LicencaVinculo,
         HistoricoTransferencia,
         BaixaAtivo,
+        Risco,
+        FornecedorAvaliacao,
+        Recomendacao,
+        Evidencia,
         AuditLog,
     )
 
@@ -483,8 +500,431 @@ def test_roda_sozinho_como_modulo_e_cria_o_cenario(importado, db):
 
     assert saida.returncode == 0, saida.stderr[-600:]
     assert saida.stdout.strip() == (
-        "Seed de demonstração: 3 setores, 6 responsaveis, 1 fornecedores, 4 ativos_demo, "
-        "95 vinculos_responsavel, 3 licencas, 50 vinculos_licenca, 1 baixas"
+        "Seed de demonstração: 3 setores, 6 responsaveis, 3 fornecedores, 4 ativos_demo, "
+        "95 vinculos_responsavel, 3 licencas, 50 vinculos_licenca, 1 baixas, 2 riscos, "
+        "3 avaliacoes, 1 recomendacoes"
     )
     db.expire_all()
     assert _contar(db, Ativo, Ativo.data_source == "sintetico") == 4
+
+
+# ---- Gate 4: regularização do licenciamento (riscos, scorecard, recomendação, cenários) ----
+
+TITULO_CRITICO = "uso de software sem licença válida"
+TITULO_MEDIO = "saturação da licença de escritório"
+TITULO_RECOMENDACAO = "Regularizar o licenciamento de software"
+PERIODO = "DEMO-LICENCIAMENTO"
+# Pesos (somam 100) e notas do scorecard; a pontuação esperada é conta à mão, em 2 casas:
+# Alfa  = 8x.30 + 9x.15 + 9x.25 + 8x.15 + 9x.15 = 2,40 + 1,35 + 2,25 + 1,20 + 1,35 = 8,55
+# Demo  = 7x.30 + 6x.15 + 7x.25 + 7x.15 + 8x.15 = 2,10 + 0,90 + 1,75 + 1,05 + 1,20 = 7,00
+# Beta  = 6x.30 + 7x.15 + 5x.25 + 6x.15 + 6x.15 = 1,80 + 1,05 + 1,25 + 0,90 + 0,90 = 5,90
+PESOS = {
+    "Preço": Decimal("30"),
+    "Prazo de entrega": Decimal("15"),
+    "Qualidade do suporte": Decimal("25"),
+    "Taxa de defeitos": Decimal("15"),
+    "Aderência contratual": Decimal("15"),
+}
+PONTUACAO = {
+    "DEMO-Software Alfa LTDA": Decimal("8.55"),
+    "DEMO-Fornecedor de Demonstração LTDA": Decimal("7.00"),
+    "DEMO-Software Beta LTDA": Decimal("5.90"),
+}
+
+
+def _tabelas_gate4():
+    return (Risco, FornecedorAvaliacao, Recomendacao, Evidencia)
+
+
+def _recomendacao(db) -> Recomendacao:
+    return db.scalars(select(Recomendacao).where(Recomendacao.titulo == TITULO_RECOMENDACAO)).one()
+
+
+def test_gate4_ac050_risco_4_por_5_sai_critico_e_o_de_saturacao_sai_medio(cenario, db, client):
+    critico = db.scalars(select(Risco).where(Risco.titulo == TITULO_CRITICO)).one()
+    medio = db.scalars(select(Risco).where(Risco.titulo == TITULO_MEDIO)).one()
+
+    assert (critico.probabilidade, critico.impacto, critico.score) == (4, 5, 20)  # 4 x 5
+    assert medio.score == medio.probabilidade * medio.impacto and 5 <= medio.score <= 9
+    pelo_sistema = {
+        r["titulo"]: r["classificacao"]
+        for r in client.get("/api/v1/riscos", headers=cenario["headers"]).json()["itens"]
+    }
+    assert pelo_sistema == {TITULO_CRITICO: "CRITICO", TITULO_MEDIO: "MEDIO"}
+    assert critico.id < medio.id  # ids 1 e 2 num banco novo: o exemplo dos cenários depende disso
+
+
+def test_gate4_scorecard_dos_tres_fornecedores_demo_ordenado_com_vencedor_claro(cenario, db):
+    linhas = db.scalars(select(FornecedorAvaliacao)).all()
+    nomes = {f.id: f.razao_social for f in db.scalars(select(Fornecedor))}
+
+    assert {linha.periodo for linha in linhas} == {PERIODO}  # mesmo período para os três
+    assert {linha.data_source for linha in linhas} == {"sintetico"}
+    assert len(linhas) == 3 * len(PESOS)
+    assert {nomes[linha.fornecedor_id] for linha in linhas} == set(PONTUACAO)
+    por_fornecedor: dict[str, list[FornecedorAvaliacao]] = {}
+    for linha in linhas:
+        por_fornecedor.setdefault(nomes[linha.fornecedor_id], []).append(linha)
+    for razao, grupo in por_fornecedor.items():
+        assert {g.criterio: g.peso for g in grupo} == PESOS
+        assert sum(g.peso for g in grupo) == Decimal("100")  # BR-029
+        assert sum(g.nota * g.peso / 100 for g in grupo) == PONTUACAO[razao]
+    ordem = sorted(PONTUACAO, key=PONTUACAO.get, reverse=True)
+    assert ordem == [
+        "DEMO-Software Alfa LTDA",
+        "DEMO-Fornecedor de Demonstração LTDA",
+        "DEMO-Software Beta LTDA",
+    ]
+    assert len(set(PONTUACAO.values())) == 3  # nenhum empate
+
+
+def test_nenhum_fornecedor_demo_tem_cnpj_e_o_seed_nao_usa_o_cnpj_de_empresa_real(cenario, db):
+    demo = db.scalars(select(Fornecedor).where(Fornecedor.razao_social.like("DEMO-%"))).all()
+
+    assert len(demo) == 3
+    assert {f.cnpj for f in demo} == {None}
+    assert "FORNECEDOR_DEMO" in vars(seed_demo)  # identificado pelo nome DEMO-
+    assert "00.000.000/0001-91" not in Path(seed_demo.__file__).read_text(encoding="utf-8")
+
+
+def test_fornecedor_demo_e_identificado_pelo_nome_mesmo_com_cnpj_de_um_banco_antigo(importado, db):
+    """Um banco semeado antes desta mudança tem o fornecedor com CNPJ: o seed o reconhece pelo
+    nome `DEMO-`, não cria outro e não mexe no que já está gravado."""
+    db.add(
+        Fornecedor(
+            razao_social=seed_demo.FORNECEDOR_DEMO,
+            cnpj="00.000.000/0001-91",
+            data_source="sintetico",
+        )
+    )
+    db.commit()
+
+    criados = seed_demo.semear_demo(db)
+
+    assert criados["fornecedores"] == 2  # só os dois de software do Gate 4
+    demo = db.scalars(
+        select(Fornecedor).where(Fornecedor.razao_social == seed_demo.FORNECEDOR_DEMO)
+    )
+    (antigo,) = demo.all()
+    assert antigo.cnpj == "00.000.000/0001-91"
+    assert _contar(db, Fornecedor, Fornecedor.razao_social.like("DEMO-%")) == 3
+    assert seed_demo.semear_demo(db) == dict.fromkeys(ESPERADO, 0)
+
+
+def test_gate4_os_dois_fornecedores_novos_sao_de_software_e_demo(cenario, db):
+    novos = db.scalars(
+        select(Fornecedor).where(Fornecedor.razao_social.like("DEMO-Software%"))
+    ).all()
+
+    assert sorted(f.razao_social for f in novos) == [
+        "DEMO-Software Alfa LTDA",
+        "DEMO-Software Beta LTDA",
+    ]
+    assert {f.data_source for f in novos} == {"sintetico"}
+    assert _contar(db, Fornecedor, Fornecedor.razao_social.like("DEMO-%")) == 3
+
+
+def test_gate4_recomendacao_com_quatro_evidencias_cada_uma_com_o_que_a_sustenta(cenario, db):
+    recomendacao = _recomendacao(db)
+    por_tipo = {e.tipo: e for e in recomendacao.evidencias}
+
+    assert recomendacao.data_source == "sintetico" and recomendacao.status == "PROPOSTA"
+    assert len(recomendacao.evidencias) == 4
+    assert set(por_tipo) == {"RISCO", "SCORECARD", "INDICADOR", "CENARIO"}
+    # as duas que apontam para registro: o risco crítico e o fornecedor mais bem avaliado
+    risco = db.get(Risco, por_tipo["RISCO"].referencia_id)
+    assert risco is not None and risco.titulo == TITULO_CRITICO and risco.score == 20
+    vencedor = db.get(Fornecedor, por_tipo["SCORECARD"].referencia_id)
+    assert vencedor is not None and vencedor.razao_social == "DEMO-Software Alfa LTDA"
+    assert db.scalars(
+        select(FornecedorAvaliacao).where(FornecedorAvaliacao.fornecedor_id == vencedor.id)
+    ).all()  # o scorecard do vencedor existe
+    # indicador e cenário não têm registro (FR-013): levam o valor no momento do registro
+    for tipo in ("INDICADOR", "CENARIO"):
+        assert por_tipo[tipo].referencia_id is None and por_tipo[tipo].descricao
+
+
+def test_gate4_evidencia_de_indicador_traz_o_valor_do_kpi_03_do_sistema(cenario, db, client):
+    """KPI-03 com o seed: a de 50 de 50 e a a vencer estão conformes, a vencida não: 2 de 3."""
+    indicador = next(
+        i
+        for i in client.get("/api/v1/indicadores", headers=cenario["headers"]).json()["indicadores"]
+        if i["codigo"] == "KPI-03"
+    )
+    descricao = {e.tipo: e.descricao for e in _recomendacao(db).evidencias}["INDICADOR"]
+
+    assert indicador["amostra"] == 3
+    assert "KPI-03" in descricao and "Conformidade de licenças" in descricao
+    assert f"{indicador['valor']:.2f}".replace(".", ",") + "%" in descricao
+    assert "3 licenças" in descricao
+
+
+def test_gate4_evidencia_de_cenario_traz_os_tco_do_exemplo(cenario, db):
+    descricao = {e.tipo: e.descricao for e in _recomendacao(db).evidencias}["CENARIO"]
+
+    # TCO de 5 anos: MANTER 0 + 4.000 x 5; RENOVAR 12.000 + 6.000 x 5; MIGRAR 3.000 + 9.600 x 5
+    # score de risco: MANTER 20 + 9, RENOVAR 9 (só a saturação), MIGRAR nenhum
+    for esperado in (
+        "MANTER R$ 20.000,00 (risco 29)",
+        "RENOVAR R$ 42.000,00 (risco 9)",
+        "MIGRAR_ASSINATURA R$ 51.000,00 (risco 0)",
+    ):
+        assert esperado in descricao
+    assert "nenhuma" in descricao.lower()  # a escolha segue humana (BR-028)
+
+
+def test_gate4_corpo_de_exemplo_dos_cenarios_e_aceito_ordenado_por_tco_e_sem_escolha(
+    cenario, client
+):
+    corpo = json.loads(EXEMPLO_CENARIOS.read_text(encoding="utf-8"))
+
+    resposta = client.post("/api/v1/cenarios/comparar", headers=cenario["headers"], json=corpo)
+
+    assert resposta.status_code == 200, resposta.text
+    resultado = resposta.json()
+    assert [c["nome"] for c in corpo["cenarios"]] == ["MANTER", "RENOVAR", "MIGRAR_ASSINATURA"]
+    # TCO de 5 anos à mão: capex + opex x 5
+    assert [(c["nome"], c["tco_5_anos"]) for c in resultado["cenarios"]] == [
+        ("MANTER", "20000.00"),  # 0 + 4.000 x 5
+        ("RENOVAR", "42000.00"),  # 12.000 + 6.000 x 5
+        ("MIGRAR_ASSINATURA", "51000.00"),  # 3.000 + 9.600 x 5
+    ]
+    # score de risco = soma dos scores dos riscos do seed: 20 + 9, 9 e nenhum
+    assert [c["score_risco"] for c in resultado["cenarios"]] == [29, 9, 0]
+    assert resultado["ordenado_por"] == ["tco_5_anos", "score_risco"]
+    assert resultado["baseline"] == "MANTER"
+    texto = json.dumps(resultado).lower()
+    assert "escolhid" not in texto and "selecionad" not in texto  # BR-028
+    assert all(set(c) == set(resultado["cenarios"][0]) for c in resultado["cenarios"])
+
+
+def test_gate4_o_exemplo_dos_cenarios_tem_os_mesmos_valores_do_seed(cenario, db):
+    corpo = json.loads(EXEMPLO_CENARIOS.read_text(encoding="utf-8"))
+    ids = {r.titulo: r.id for r in db.scalars(select(Risco))}
+
+    do_seed = [
+        {
+            "nome": nome.value,
+            "capex": str(capex),
+            "opex_anual": str(opex),
+            "riscos_ids": [ids[t] for t in titulos],
+        }
+        for nome, capex, opex, titulos in seed_demo.CENARIOS
+    ]
+
+    assert corpo["cenarios"] == do_seed
+
+
+def test_gate4_o_exemplo_dos_cenarios_tem_tres_alternativas_com_os_riscos_do_seed(cenario, db):
+    corpo = json.loads(EXEMPLO_CENARIOS.read_text(encoding="utf-8"))
+    ids = {r.titulo: r.id for r in db.scalars(select(Risco))}
+
+    por_nome = {c["nome"]: c["riscos_ids"] for c in corpo["cenarios"]}
+
+    assert por_nome == {
+        "MANTER": [ids[TITULO_CRITICO], ids[TITULO_MEDIO]],
+        "RENOVAR": [ids[TITULO_MEDIO]],
+        "MIGRAR_ASSINATURA": [],
+    }
+
+
+def test_gate4_tudo_o_que_o_gate_criou_e_sintetico_e_tem_auditoria(cenario, db):
+    for modelo in (Risco, Recomendacao, FornecedorAvaliacao):
+        assert {r.data_source for r in db.scalars(select(modelo))} == {"sintetico"}
+    auditados = {
+        entidade: set(
+            db.scalars(
+                select(AuditLog.entidade_id).where(
+                    AuditLog.entidade == entidade,
+                    AuditLog.operacao == "CRIAR",
+                    AuditLog.resultado == "SUCESSO",
+                    AuditLog.usuario_id.is_not(None),
+                )
+            )
+        )
+        for entidade in ("risco", "recomendacao", "fornecedor", "fornecedor_avaliacao")
+    }
+    assert set(db.scalars(select(Risco.id))) <= auditados["risco"]
+    assert set(db.scalars(select(Recomendacao.id))) <= auditados["recomendacao"]
+    assert set(db.scalars(select(Fornecedor.id))) <= auditados["fornecedor"]
+    # uma auditoria por fornecedor avaliado, no id da primeira linha, que lista todas as dele
+    primeiras = {
+        db.scalar(
+            select(func.min(FornecedorAvaliacao.id)).where(
+                FornecedorAvaliacao.fornecedor_id == fornecedor_id
+            )
+        )
+        for fornecedor_id in db.scalars(select(FornecedorAvaliacao.fornecedor_id).distinct())
+    }
+    assert len(primeiras) == 3 and primeiras <= auditados["fornecedor_avaliacao"]
+    evidencias = db.scalars(
+        select(AuditLog.detalhe).where(
+            AuditLog.entidade == "recomendacao", AuditLog.operacao == "CRIAR"
+        )
+    ).one()
+    assert len(evidencias["evidencias"]) == 4
+
+
+def test_gate4_partindo_de_um_banco_so_com_o_seed_anterior_cria_so_o_que_falta(importado, db):
+    autor = seed_demo.verificar_prerequisitos(db)
+    anterior = seed_demo._semear_gates_2_e_3(db, autor)  # o seed como era antes do Gate 4
+    assert _contar(db, Risco) == 0 and _contar(db, Recomendacao) == 0
+    assert anterior["fornecedores"] == 1 and "riscos" not in anterior
+    tabelas = (
+        Setor,
+        Responsavel,
+        Ativo,
+        Licenca,
+        LicencaVinculo,
+        HistoricoTransferencia,
+        BaixaAtivo,
+    )
+    antes = {t.__tablename__: _contar(db, t) for t in tabelas}
+    fornecedores_antes = _contar(db, Fornecedor)
+
+    nova = seed_demo.semear_demo(db)
+
+    assert nova == {
+        **dict.fromkeys(ESPERADO, 0),
+        "fornecedores": 2,
+        "riscos": 2,
+        "avaliacoes": 3,
+        "recomendacoes": 1,
+    }
+    assert {t.__tablename__: _contar(db, t) for t in tabelas} == antes  # nada do anterior mexeu
+    assert _contar(db, Fornecedor) == fornecedores_antes + 2
+    assert _contar(db, Recomendacao) == 1 and _contar(db, Evidencia) == 4
+    assert seed_demo.semear_demo(db) == dict.fromkeys(ESPERADO, 0)  # e a seguinte não cria nada
+
+
+def test_gate4_retoma_a_recomendacao_que_faltou_sem_duplicar_o_resto(cenario, db):
+    db.execute(text("DELETE FROM recomendacao"))  # as evidências saem em cascata
+    db.commit()
+    assert _contar(db, Evidencia) == 0
+
+    reposto = seed_demo.semear_demo(db)
+
+    assert reposto == {**dict.fromkeys(ESPERADO, 0), "recomendacoes": 1}
+    assert _contar(db, Risco) == 2 and _contar(db, FornecedorAvaliacao) == 3 * len(PESOS)
+    assert _contar(db, Evidencia) == 4
+
+
+def test_gate4_retoma_o_que_faltou_depois_de_uma_execucao_interrompida_no_scorecard(cenario, db):
+    db.execute(text("DELETE FROM recomendacao"))
+    db.execute(text("DELETE FROM fornecedor_avaliacao"))
+    db.execute(text("DELETE FROM risco WHERE titulo = :t"), {"t": TITULO_MEDIO})
+    db.commit()
+
+    reposto = seed_demo.semear_demo(db)
+
+    assert reposto == {
+        **dict.fromkeys(ESPERADO, 0),
+        "riscos": 1,
+        "avaliacoes": 3,
+        "recomendacoes": 1,
+    }
+
+
+def test_gate4_o_que_o_gate_cria_nao_altera_os_ativos_e_licencas_do_cenario_anterior(cenario, db):
+    antes = db.execute(select(Ativo.id, Ativo.status, Ativo.atualizado_em).order_by(Ativo.id)).all()
+
+    seed_demo.semear_demo(db)
+
+    assert (
+        db.execute(select(Ativo.id, Ativo.status, Ativo.atualizado_em).order_by(Ativo.id)).all()
+        == antes
+    )
+
+
+def test_gate4_refaz_as_recusas_do_roteiro_ao_vivo_ac048_e_ac051(cenario, db, client):
+    """Corpos de `docs/guia/demonstracao.md`: pesos somando 95% e recomendação sem evidência."""
+    forn = {f.razao_social: f.id for f in db.scalars(select(Fornecedor))}
+    pesos_95 = {**PESOS, "Aderência contratual": Decimal("10")}
+    corpo_scorecard = {
+        "periodo": "DEMO-AO-VIVO",
+        "criterios": [{"nome": n, "peso": str(p)} for n, p in pesos_95.items()],
+        "avaliacoes": [
+            {
+                "fornecedor_id": forn["DEMO-Software Alfa LTDA"],
+                "notas": dict.fromkeys(PESOS, "8"),
+            }
+        ],
+    }
+    responsavel = db.scalars(select(Responsavel).order_by(Responsavel.id)).first()
+    corpo_recomendacao = {
+        "titulo": "Regularizar o licenciamento de software",
+        "contexto": "Antivírus vencido e licença de escritório em 50 de 50.",
+        "recomendacao": "Regularizar o licenciamento.",
+        "responsavel_id": responsavel.id,
+        "evidencias": [],
+    }
+    auditoria_antes = _contar(db, AuditLog, AuditLog.resultado == "RECUSADO")
+
+    sem_peso = client.post(
+        "/api/v1/fornecedores/scorecard", headers=cenario["headers"], json=corpo_scorecard
+    )
+    sem_evidencia = client.post(
+        "/api/v1/recomendacoes", headers=cenario["headers"], json=corpo_recomendacao
+    )
+
+    assert (sem_peso.status_code, sem_peso.json()["regra"]) == (409, "BR-029")
+    assert (sem_evidencia.status_code, sem_evidencia.json()["regra"]) == (409, "BR-027")
+    assert _contar(db, AuditLog, AuditLog.resultado == "RECUSADO") == auditoria_antes + 2
+    assert _contar(db, Recomendacao) == 1 and _contar(db, FornecedorAvaliacao) == 3 * len(PESOS)
+
+
+def test_as_rotas_de_risco_scorecard_e_recomendacao_seguem_manual_a_origem_nao_vira_campo(
+    client, db
+):
+    seed.semear(db, SENHAS)
+    token = client.post(
+        "/api/v1/auth/login", json={"login": "admin", "senha": SENHAS["admin"]}
+    ).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    setor = client.post("/api/v1/setores", headers=headers, json={"nome": "Setor API"}).json()
+    responsavel = client.post(
+        "/api/v1/responsaveis",
+        headers=headers,
+        json={"nome": "Pessoa API", "setor_id": setor["id"]},
+    ).json()
+    forn = client.post(
+        "/api/v1/fornecedores", headers=headers, json={"razao_social": "Forn API"}
+    ).json()
+    risco = client.post(
+        "/api/v1/riscos",
+        headers=headers,
+        json={
+            "titulo": "Risco API",
+            "categoria": "LEGAL",
+            "probabilidade": 2,
+            "impacto": 2,
+            "resposta": "MITIGAR",
+            "data_source": "sintetico",
+        },
+    ).json()
+    client.post(
+        "/api/v1/fornecedores/scorecard",
+        headers=headers,
+        json={
+            "periodo": "API",
+            "criterios": [{"nome": "Preço", "peso": "100"}],
+            "avaliacoes": [{"fornecedor_id": forn["id"], "notas": {"Preço": "7"}}],
+            "data_source": "sintetico",
+        },
+    )
+    recomendacao = client.post(
+        "/api/v1/recomendacoes",
+        headers=headers,
+        json={
+            "titulo": "Recomendação API",
+            "contexto": "c",
+            "recomendacao": "r",
+            "responsavel_id": responsavel["id"],
+            "evidencias": [{"tipo": "RISCO", "referencia_id": risco["id"]}],
+            "data_source": "sintetico",
+        },
+    ).json()
+
+    assert risco["data_source"] == "manual"
+    assert recomendacao["data_source"] == "manual"
+    assert {a.data_source for a in db.scalars(select(FornecedorAvaliacao))} == {"manual"}
