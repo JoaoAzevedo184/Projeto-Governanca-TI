@@ -6,6 +6,8 @@ Parte de [Modelo de Dados — ITAM](README.md).
 
 > **Unicidades de schema.** `categoria.nome`, `fornecedor.cnpj`, `setor.nome` e `responsavel.matricula` são `UNIQUE` como garantia de integridade de cadastro, **sem BR** no PRD (diferente de `ativo.numero_serie`, que é BR-001). A violação responde 409 sem campo `regra`. Decisão no item 11 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md).
 
+> **Origem dos dados (`data_source`).** Quatro origens oficiais: `compras_gov` (coleta pública), `importacao` (arquivo enviado por operador), `manual` (cadastro pela API) e `sintetico` (registro criado só para demonstração, teste ou simulação). **`setor`, `categoria` e `usuario` não têm `data_source`**: os setores do seed de demonstração (`python -m app.seed_demo`) são sintéticos e se reconhecem pelo prefixo `DEMO-` no nome. Os demais registros do seed de demonstração (responsáveis, ativos, licenças, vínculos, baixa e fornecedor) levam `sintetico` e identificadores `DEMO-`. Ver [`docs/guia/demonstracao.md`](../guia/demonstracao.md).
+
 ### 3.1 `categoria`
 
 | Coluna | Tipo | Nulo | Padrão | Descrição |

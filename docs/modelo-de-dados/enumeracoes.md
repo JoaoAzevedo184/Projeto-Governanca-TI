@@ -19,7 +19,7 @@ Parte de [Modelo de Dados — ITAM](README.md).
 | `nome_cenario` | `MANTER`, `RENOVAR`, `MIGRAR_ASSINATURA` | entrada de `/cenarios/comparar`, sem tabela |
 | `status_recomendacao` | `PROPOSTA`, `APROVADA`, `REJEITADA`, `IMPLEMENTADA` | `recomendacao.status` |
 | `tipo_evidencia` | `INDICADOR`, `RISCO`, `ATIVO`, `LICENCA`, `SCORECARD`, `CENARIO`, `PREMISSA` | `evidencia.tipo`. `RISCO`, `ATIVO`, `LICENCA` e `SCORECARD` (id do fornecedor) apontam para um registro (`referencia_id`); `INDICADOR`, `CENARIO` e `PREMISSA` não têm registro e levam só `descricao` |
-| `data_source` | `compras_gov`, `endoflife`, `nvd` (fontes reais, ADR-011); `sintetico` (ETL); `importacao` (planilha via `POST /importacoes`; a planilha pode declarar `compras_gov` na coluna `data_source`); `manual` (cadastro direto pela API) | Coluna presente em toda tabela com origem rastreável — ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md). Ainda sem `CHECK` no schema |
+| `data_source` | `compras_gov` (coleta pública); `importacao` (arquivo enviado por operador via `POST /importacoes`; a planilha pode declarar `compras_gov` na coluna `data_source`); `manual` (cadastro pela API, padrão dos services); `sintetico` (registro criado só para demonstração, teste ou simulação). `endoflife` e `nvd` (ADR-011) entram quando as tabelas de ciclo de vida e de vulnerabilidade e os coletores D.3 e D.4 existirem | Coluna presente em toda tabela com origem rastreável — ver [`docs/FONTES_DE_DADOS.md`](../FONTES_DE_DADOS.md). Ainda sem `CHECK` no schema |
 
 Todos implementados como `VARCHAR` com `CHECK`, nunca como `ENUM` nativo do PostgreSQL (ADR-007): enums nativos exigem migração dedicada para cada valor novo e não existem no SQLite.
 
