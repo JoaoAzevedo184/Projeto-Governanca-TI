@@ -86,3 +86,11 @@ sobre identificador e fornecedor acima. O restante da ADR segue valendo.
 - **Fornecedor.** Vem de `nomeFornecedor` (razão social do vencedor) e `niFornecedor` (CNPJ), com
   `data_source = compras_gov`; o importador o resolve por razão social exata, então os fornecedores
   são carregados antes (`python -m etl.carregar_fornecedores`).
+
+## Atualização de 2026-10-06 (D.3, D.4 e D.6; encerramento de D.5, D.7, D.8 e D.9)
+
+Decisão da equipe sobre o escopo do pipeline. O restante da ADR segue valendo, salvo o que está dito aqui.
+
+- **endoflife e NVD são só referência.** Os coletores `endoflife` (D.3) e `nvd` (D.4) existem e a normalização (D.6, `python/etl/normalizar.py`) gera arquivos em `dataset/processed/`, mas os dados **não são carregados no banco, não aparecem nas telas do ITAM e não geram alertas**. Não há tabela de ciclo de vida nem de vulnerabilidade, e `endoflife` e `nvd` não são valores de `data_source`; a lista de origens da decisão acima e os alertas de ciclo de vida e de CVE (CP-03, CP-05 e correlatos) descritos nas "Consequências" **não existem** na versão atual.
+- **D.5, D.7, D.8 e D.9 estão encerrados:** o seed de demonstração (`python -m app.seed_demo`) cria as pessoas, os eventos e os registros sintéticos pelos services, e o dataset de demonstração do Compras.gov.br entra pela importação. Não há carga do pipeline por ORM, SQL ou endpoint.
+- **O que foi verificado do Compras.gov.br** está na atualização de 2026-10-05, acima: o endpoint `/modulo-pesquisa-preco/1_consultarMaterial`, os campos dele e o identificador `CG-{idItemCompra}-001`. A frase de que a decisão de identificador e fornecedor estava "confirmada contra o schema real da API" não vale para o texto original desta ADR (que apontava `/modulo-legado/2_consultarItemLicitacao`): vale só o que a atualização de 2026-10-05 descreve.
