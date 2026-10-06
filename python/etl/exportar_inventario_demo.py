@@ -60,6 +60,10 @@ TOTAL_VALIDAS = 92
 LIMITE_NOME = 120
 DATA_FUTURA = "2099-12-31"  # distante: o arquivo não deixa de ser inválido com o tempo
 CENTAVO = Decimal("0.01")
+# Razão social que é o nome de uma pessoa física (microempreendedor): "64.956.713 NOME DA PESSOA"
+# (prefixo do CNPJ e o nome) ou o formato antigo, o nome seguido de 11 dígitos. Fora do arquivo.
+PESSOA_FISICA_PREFIXO = re.compile(r"^\d{2}\.\d{3}\.\d{3}\s")
+PESSOA_FISICA_ONZE_DIGITOS = re.compile(r"(?<!\d)\d{11}(?!\d)")
 
 # numero_linha do relatório (cabeçalho = 1), campo, valor/erro inserido, motivo esperado.
 # Um erro por linha: 8 linhas rejeitadas são 8 erros no relatório.
@@ -127,6 +131,10 @@ def nome_do_ativo(registro: dict) -> str:
     return " ".join(f"{registro['nomePdm']} {marca}".split())[:LIMITE_NOME].rstrip()
 
 
+def razao_de_pessoa_fisica(razao: str) -> bool:
+    return bool(PESSOA_FISICA_PREFIXO.match(razao) or PESSOA_FISICA_ONZE_DIGITOS.search(razao))
+
+
 def cnpj_formatado(cnpj: str) -> str:
     return f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"
 
@@ -153,6 +161,10 @@ def filtrar(registros: list[dict]) -> dict:
         (
             "identificador de fornecedor estrangeiro",
             lambda r: len(r["niFornecedor"]) != 14 or not r["niFornecedor"].isdigit(),
+        ),
+        (
+            "razão social de pessoa física (microempreendedor)",
+            lambda r: razao_de_pessoa_fisica(_razao(r)),
         ),
         (
             "CNPJ com mais de uma razão social",
@@ -395,10 +407,14 @@ Descartes em sequência, sobre os federais (o que se repete é medido sobre todo
 {descartes}
 | **Elegíveis** | **{len(filtrado['elegiveis'])}** |
 
+Fornecedores cuja razão social é o nome de uma pessoa física (microempreendedor individual:
+`64.956.713 NOME DA PESSOA`, ou o nome seguido de 11 dígitos) **não entram** no arquivo, por
+decisão da equipe. O filtro é só do exportador: a coleta bruta e as fixtures não são alteradas.
+
 Seleção determinística: o menor conjunto de fornecedores (pela ordem de volume, CNPJ como
 desempate) que cobre os 9 PDMs e reúne os registros necessários, **{escolha['fornecedores_escolhidos']}
 fornecedores escolhidos** ({len(escolha['fornecedores_das_validas'])} aparecem nas 92 linhas válidas). Com ~10
-fornecedores só saem 73 linhas, então a equipe aceitou o mínimo possível. Dentro do conjunto, as
+fornecedores não saem as 92 linhas válidas, então a equipe aceitou o mínimo possível. Dentro do conjunto, as
 linhas vêm em rodízio entre os PDMs (cobertura antes de volume). Utilizados: 100 registros (92
 válidos e 8 bases das inválidas).
 
