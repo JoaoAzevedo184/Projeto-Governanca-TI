@@ -71,6 +71,14 @@ echo $TOKEN
 
 O `echo` deve mostrar um texto longo começando com `eyJ`. Se sair uma linha vazia, o login falhou: rode o `curl` sem a parte depois do `|` para ver o erro.
 
+**Alternativa pelo Swagger** (sem `curl`; serve para o roteiro da [demonstração](demonstracao.md), que é feito no Swagger): abra http://localhost:8000/docs e
+
+1. em `POST /api/v1/auth/login`, clique em **Try it out**, informe `{"login": "admin", "senha": "SUA_SENHA"}` e clique em **Execute**;
+2. copie o valor de `access_token` da resposta, sem aspas;
+3. clique em **Authorize** (cadeado, no alto da página), cole o token no campo **Value**, clique em **Authorize** e depois em **Close**.
+
+As rotas protegidas passam a enviar `Authorization: Bearer <token>`; teste com `GET /api/v1/auth/me`. O passo 6 (importação) usa `curl` com o arquivo e continua precisando da variável `TOKEN`; no Swagger, o mesmo envio é `POST /api/v1/importacoes`, com **Try it out** e o arquivo `dataset/demo/inventario_demo.csv`.
+
 Três cuidados:
 
 - `TOKEN` é uma variável do terminal. Ela não vai no `.env` e some ao fechar a janela.

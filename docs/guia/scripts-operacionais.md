@@ -11,7 +11,7 @@ Parte do [Guia — ITAM](README.md). Ver também o [README da raiz](../../README
 | `./scripts/reset.sh` | Remove contêineres, redes e **volumes** — apaga os dados |
 | `./scripts/seed.sh` | Rode **depois** de a API ficar saudável. Aplica as migrações (já aplicadas pelo start da API; idempotente) e carrega os quatro usuários de demonstração e as 11 categorias (`python -m app.seed`). Roda no contêiner `api` quando ele está no ar, senão no ambiente local (`SEED_MODE=docker\|local` força). Idempotente. **Não** carrega `dataset/processed/` nem `dataset/synthetic/` (pendência D.9) |
 | `./scripts/seed_demo.sh` | Cenário da demonstração dos Gates 2, 3 e 4 (`python -m app.seed_demo`): só registros `sintetico` com identificadores `DEMO-`. Exige o `seed.sh` e os 92 ativos de `dataset/demo/inventario_demo.csv` importados; sem eles encerra com mensagem e não cria nada. Recusa `ENVIRONMENT=producao`. Idempotente. Roteiro em [`demonstracao.md`](demonstracao.md) |
-| `./scripts/collect.sh` | Executa coleta e normalização de todas as fontes públicas |
+| `./scripts/collect.sh` | Coleta as três fontes públicas em `dataset/raw/` e normaliza as coletas de referência. Exige o ambiente virtual Python ativo (senão para com mensagem clara). Ver [`coleta-de-dados.md`](coleta-de-dados.md) |
 | `./scripts/smoke_test.sh` | Verifica se o ambiente subiu corretamente |
 
 > `reset.sh` elimina dados persistidos. Use apenas em ambiente de laboratório.
