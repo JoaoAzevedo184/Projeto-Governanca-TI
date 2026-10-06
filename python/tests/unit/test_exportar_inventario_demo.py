@@ -88,6 +88,27 @@ def test_nome_passa_no_maximo_120_caracteres_e_nao_termina_em_espaco():
     assert nome.startswith("N" * 100 + " MMMMMMMMMM")
 
 
+@pytest.mark.parametrize(
+    ("razao", "pessoa_fisica"),
+    [
+        ("64.956.713 IAGO BARROS NOOBLATH", True),  # MEI: prefixo do CNPJ + nome da pessoa
+        ("49.981.448 FERNANDA SOUSA CAMPOS", True),
+        ("JONES MARTINS LOPES 85611670920", True),  # formato antigo: nome + 11 dígitos
+        ("EDNA TODAO GONCALVES 03854793952", True),
+        ("1 BIT GESTAO E CONSULTORIA LTDA", False),  # dígito no nome da empresa não conta
+        ("AF3 COMERCIAL LTDA", False),
+        ("7LAN COMERCIO E SERVICOS LTDA", False),
+        ("O2 SOLUCOES EM TECNOLOGIA DIGITAL LTDA", False),
+        ("FERREIRA B2G LTDA", False),
+        ("ALFA COMERCIO LTDA", False),
+        ("64.956.713/0001-06 EMPRESA LTDA", False),  # CNPJ completo com barra: não é MEI
+        ("EMPRESA 1234567890123 LTDA", False),  # 13 dígitos não é CPF
+    ],
+)
+def test_reconhece_razao_social_de_pessoa_fisica(razao, pessoa_fisica):
+    assert exportador.razao_de_pessoa_fisica(razao) is pessoa_fisica
+
+
 def test_cnpj_formatado_com_mascara_de_18_caracteres():
     assert exportador.cnpj_formatado("04602789000101") == "04.602.789/0001-01"
 
@@ -219,12 +240,13 @@ def test_os_numeros_do_filtro_na_coleta_real(gerado):
     assert len(filtrado["federais"]) == 702
     assert filtrado["descartes"] == [
         ("identificador de fornecedor estrangeiro", 1),
-        ("CNPJ com mais de uma razão social", 19),
+        ("razão social de pessoa física (microempreendedor)", 61),
+        ("CNPJ com mais de uma razão social", 15),
         ("razão social com mais de um CNPJ", 26),
         ("item com (idCompra, idCompraItem) repetido", 8),
-        ("preço fora da faixa P10-P90 do PDM", 136),
+        ("preço fora da faixa P10-P90 do PDM", 124),
     ]
-    assert len(filtrado["elegiveis"]) == 512
+    assert len(filtrado["elegiveis"]) == 467
 
 
 def test_o_arquivo_tem_100_linhas_92_validas_e_as_8_invalidas_nas_posicoes_decididas(gerado):
@@ -290,9 +312,20 @@ def test_fornecedores_demo_sao_os_das_linhas_validas_com_cnpj_formatado(gerado):
 
     das_validas = {r["fornecedor"] for r in linhas if not r["erro_proposital"]}
     assert {f["razao_social"] for f in fornecedores} == das_validas
-    assert len(fornecedores) == 16
+    assert len(fornecedores) == 17
     assert all(re.fullmatch(r"\d\d\.\d{3}\.\d{3}/\d{4}-\d\d", f["cnpj"]) for f in fornecedores)
-    assert len({f["cnpj"] for f in fornecedores}) == 16
+    assert len({f["cnpj"] for f in fornecedores}) == 17
+
+
+def test_nenhum_fornecedor_do_arquivo_e_pessoa_fisica(gerado):
+    linhas = _linhas(gerado["saida"] / "inventario_demo.csv")
+    fornecedores = _linhas(gerado["saida"] / "fornecedores_demo.csv")
+
+    nomes = {f["razao_social"] for f in fornecedores} | {r["fornecedor"] for r in linhas}
+    assert [n for n in nomes if exportador.razao_de_pessoa_fisica(n)] == []
+    # a coleta tem esses fornecedores: o filtro os tirou do arquivo, não da coleta
+    coletados = {r["nomeFornecedor"].strip() for r in exportador.ler_registros(COLETA)}
+    assert len([n for n in coletados if exportador.razao_de_pessoa_fisica(n)]) > 70
 
 
 def test_duas_geracoes_dao_arquivos_identicos(gerado, tmp_path):
@@ -313,7 +346,7 @@ def test_leiame_traz_a_metodologia_os_numeros_e_as_8_invalidas(gerado):
     texto = (gerado["saida"] / "inventario_demo.LEIAME.md").read_text(encoding="utf-8")
 
     assert "Registros coletados: **1705**" in texto and "Federais (`esfera = F`): **702**" in texto
-    assert "| **Elegíveis** | **512** |" in texto
+    assert "| **Elegíveis** | **467** |" in texto
     assert "identificador técnico sintético" in texto
     assert "dataset/raw/compras_gov/2026-10-05/" in texto
     for pdm in exportador.CATEGORIA_POR_PDM:

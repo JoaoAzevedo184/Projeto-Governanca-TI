@@ -53,7 +53,7 @@ def _importar_arquivo_do_gate(client, db):
 def test_gate1_importa_100_linhas_92_aceitas_e_8_rejeitadas(client, db):
     carga, resposta, headers = _importar_arquivo_do_gate(client, db)
 
-    assert len(carga.criados) == 16 and carga.existentes == []
+    assert len(carga.criados) == 17 and carga.existentes == []
     assert resposta.status_code == 202
     corpo = resposta.json()
     assert (corpo["total_processado"], corpo["total_aceito"], corpo["total_rejeitado"]) == (
@@ -104,7 +104,7 @@ def test_gate1_os_fornecedores_e_as_linhas_validas_sao_do_compras_gov(client, db
 
     assert db.execute(
         select(Fornecedor.data_source, func.count()).group_by(Fornecedor.data_source)
-    ).all() == [("compras_gov", 16)]
+    ).all() == [("compras_gov", 17)]
     ativos = db.scalars(select(Ativo)).all()
     assert len({a.numero_serie for a in ativos}) == 92
     assert all(a.numero_serie.startswith("CG-") and a.numero_serie.endswith("-001") for a in ativos)

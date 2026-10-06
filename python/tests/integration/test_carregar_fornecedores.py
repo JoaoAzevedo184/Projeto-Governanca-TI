@@ -92,5 +92,5 @@ def test_main_sai_com_1_quando_a_api_nao_responde(monkeypatch, capsys):
 def test_le_o_csv_versionado_de_fornecedores_da_demonstracao():
     fornecedores = carregador.ler_fornecedores()
 
-    assert len(fornecedores) == 16
+    assert len(fornecedores) == 17
     assert set(fornecedores[0]) == {"razao_social", "cnpj"}
