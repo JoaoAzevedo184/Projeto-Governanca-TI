@@ -198,6 +198,7 @@ Implementada em 2026-10-03, exceto o roteiro de defesa e o pipeline de dados (fo
 - **Recomendação sem edição:** o contrato não tem `PATCH`; o status é o informado ao registrar. Faltaria um endpoint de transição (proposta → aprovada → implementada) para a decisão avançar no sistema.
 - **Scorecard sem `UNIQUE`:** reavaliar o mesmo período acrescenta linhas. Empate de pontuação desempata pelo menor id.
 - **Doc corrigido:** `0.3 + 0.3 + 0.4 != 1.0` (regras-de-calculo §7.4) é falso em Python; o exemplo passou a `0.1 + 0.2 != 0.3`.
+- **Pesos do scorecard da demonstração (escolha da equipe):** o FR-011 sugere os critérios (preço, prazo de entrega, qualidade do suporte, taxa de defeitos, aderência contratual) mas não fixa pesos. Para a demonstração do Gate 4 a equipe aprovou 30/15/25/15/15 (soma 100, BR-029), em `app/seed_demo.py` (`PESOS_SCORECARD`). Não é regra do sistema: a API aceita quaisquer pesos que somem 100.
 
 ### Achados dos testes de contrato (Sprint 5)
 

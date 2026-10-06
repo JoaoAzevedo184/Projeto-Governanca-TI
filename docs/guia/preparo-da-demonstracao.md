@@ -1,6 +1,6 @@
 # Guia — Preparo do ambiente de demonstração
 
-Passo a passo para sair de um banco vazio e chegar ao cenário dos Gates 1, 2 e 3, usando só o terminal. Todos os comandos foram executados em 2026-10-05 num PC com Linux, Docker e Python 3.
+Passo a passo para sair de um banco vazio e chegar ao cenário dos Gates 1, 2, 3 e 4, usando só o terminal. Todos os comandos foram executados em 2026-10-05 num PC com Linux, Docker e Python 3.
 
 O roteiro do que mostrar em cada gate está em [`demonstracao.md`](demonstracao.md). Este guia cobre só o preparo.
 
@@ -96,13 +96,15 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 
 Se `total_aceito` vier 0 e os erros disserem "Fornecedor não encontrado", o passo 4 não foi feito neste banco. Refaça o passo 4 e importe de novo: nenhum ativo foi criado, então repetir é seguro.
 
-## 7. Criar o cenário dos Gates 2 e 3
+## 7. Criar o cenário dos Gates 2, 3 e 4
 
 ```bash
 ./scripts/seed_demo.sh
 ```
 
-Esperado: `Seed de demonstração: 3 setores, 6 responsaveis, 1 fornecedores, 4 ativos_demo, 95 vinculos_responsavel, 3 licencas, 50 vinculos_licenca, 1 baixas`.
+Esperado: `Seed de demonstração: 3 setores, 6 responsaveis, 3 fornecedores, 4 ativos_demo, 95 vinculos_responsavel, 3 licencas, 50 vinculos_licenca, 1 baixas, 2 riscos, 3 avaliacoes, 1 recomendacoes`.
+
+A segunda execução devolve tudo em `0`. Num banco em que o seed antigo (Gates 2 e 3) já rodou, a execução cria só `2 fornecedores, 2 riscos, 3 avaliacoes, 1 recomendacoes`.
 
 ## 8. Conferir
 
