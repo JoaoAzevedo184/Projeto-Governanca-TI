@@ -121,7 +121,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
   /api/v1/categorias:
     get:
       tags:
@@ -175,7 +175,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
     post:
       tags:
       - categorias
@@ -231,7 +231,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
   /api/v1/categorias/{categoria_id}:
     get:
       tags:
@@ -239,7 +239,7 @@ paths:
       summary: Obter
       operationId: obter_api_v1_categorias__categoria_id__get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: categoria_id
         in: path
@@ -296,7 +296,7 @@ paths:
       summary: Atualizar
       operationId: atualizar_api_v1_categorias__categoria_id__patch
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: categoria_id
         in: path
@@ -406,7 +406,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
     post:
       tags:
       - fornecedores
@@ -462,7 +462,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
   /api/v1/fornecedores/scorecard:
     post:
       tags:
@@ -519,7 +519,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
   /api/v1/setores:
     get:
       tags:
@@ -573,7 +573,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
     post:
       tags:
       - setores
@@ -629,7 +629,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
   /api/v1/responsaveis:
     get:
       tags:
@@ -683,7 +683,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
     post:
       tags:
       - responsaveis
@@ -739,7 +739,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
   /api/v1/ativos:
     post:
       tags:
@@ -747,7 +747,7 @@ paths:
       summary: Criar
       operationId: criar_api_v1_ativos_post
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       requestBody:
         required: true
         content:
@@ -803,7 +803,7 @@ paths:
       summary: Listar
       operationId: listar_api_v1_ativos_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: status
         in: query
@@ -926,7 +926,7 @@ paths:
       summary: Obter
       operationId: obter_api_v1_ativos__ativo_id__get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: ativo_id
         in: path
@@ -983,7 +983,7 @@ paths:
       summary: Atualizar
       operationId: atualizar_api_v1_ativos__ativo_id__patch
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: ativo_id
         in: path
@@ -1047,7 +1047,7 @@ paths:
       summary: Depreciacao
       operationId: depreciacao_api_v1_ativos__ativo_id__depreciacao_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: ativo_id
         in: path
@@ -1105,7 +1105,7 @@ paths:
       summary: Historico
       operationId: historico_api_v1_ativos__ativo_id__historico_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: ativo_id
         in: path
@@ -1166,7 +1166,7 @@ paths:
       summary: Atribuir Responsavel
       operationId: atribuir_responsavel_api_v1_ativos__ativo_id__responsavel_post
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: ativo_id
         in: path
@@ -1230,7 +1230,7 @@ paths:
       summary: Registrar Baixa
       operationId: registrar_baixa_api_v1_ativos__ativo_id__baixa_post
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: ativo_id
         in: path
@@ -1340,7 +1340,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
     post:
       tags:
       - importacoes
@@ -1396,7 +1396,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
   /api/v1/importacoes/{lote_id}:
     get:
       tags:
@@ -1404,7 +1404,7 @@ paths:
       summary: Obter
       operationId: obter_api_v1_importacoes__lote_id__get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: lote_id
         in: path
@@ -1462,7 +1462,7 @@ paths:
       summary: Erros
       operationId: erros_api_v1_importacoes__lote_id__erros_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: lote_id
         in: path
@@ -1523,7 +1523,7 @@ paths:
       summary: Criar
       operationId: criar_api_v1_licencas_post
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       requestBody:
         required: true
         content:
@@ -1579,7 +1579,7 @@ paths:
       summary: Listar
       operationId: listar_api_v1_licencas_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: tipo_licenciamento
         in: query
@@ -1664,7 +1664,7 @@ paths:
       summary: Obter
       operationId: obter_api_v1_licencas__licenca_id__get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: licenca_id
         in: path
@@ -1721,7 +1721,7 @@ paths:
       summary: Atualizar
       operationId: atualizar_api_v1_licencas__licenca_id__patch
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: licenca_id
         in: path
@@ -1785,7 +1785,7 @@ paths:
       summary: Listar Vinculos
       operationId: listar_vinculos_api_v1_licencas__licenca_id__vinculos_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: licenca_id
         in: path
@@ -1846,7 +1846,7 @@ paths:
       summary: Vincular
       operationId: vincular_api_v1_licencas__licenca_id__vinculos_post
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: licenca_id
         in: path
@@ -1910,7 +1910,7 @@ paths:
       summary: Desvincular
       operationId: desvincular_api_v1_licencas__licenca_id__vinculos__ativo_id__delete
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: licenca_id
         in: path
@@ -1970,7 +1970,7 @@ paths:
       summary: Inventario
       operationId: inventario_api_v1_relatorios_inventario_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: formato
         in: query
@@ -2166,7 +2166,7 @@ paths:
       summary: Conformidade
       operationId: conformidade_api_v1_relatorios_conformidade_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: formato
         in: query
@@ -2274,7 +2274,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
   /api/v1/indicadores:
     get:
       tags:
@@ -2282,7 +2282,7 @@ paths:
       summary: Indicadores
       operationId: indicadores_api_v1_indicadores_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: categoria_id
         in: query
@@ -2376,7 +2376,7 @@ paths:
       summary: Criar
       operationId: criar_api_v1_riscos_post
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       requestBody:
         required: true
         content:
@@ -2432,7 +2432,7 @@ paths:
       summary: Listar
       operationId: listar_api_v1_riscos_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: categoria
         in: query
@@ -2525,7 +2525,7 @@ paths:
       summary: Obter
       operationId: obter_api_v1_riscos__risco_id__get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: risco_id
         in: path
@@ -2582,7 +2582,7 @@ paths:
       summary: Atualizar
       operationId: atualizar_api_v1_riscos__risco_id__patch
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: risco_id
         in: path
@@ -2695,7 +2695,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErroResponse'
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
   /api/v1/recomendacoes:
     post:
       tags:
@@ -2703,7 +2703,7 @@ paths:
       summary: Criar
       operationId: criar_api_v1_recomendacoes_post
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       requestBody:
         required: true
         content:
@@ -2759,7 +2759,7 @@ paths:
       summary: Listar
       operationId: listar_api_v1_recomendacoes_get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: status
         in: query
@@ -2836,7 +2836,7 @@ paths:
       summary: Obter
       operationId: obter_api_v1_recomendacoes__recomendacao_id__get
       security:
-      - OAuth2PasswordBearer: []
+      - HTTPBearer: []
       parameters:
       - name: recomendacao_id
         in: path
@@ -5274,9 +5274,8 @@ components:
       - criado_em
       title: VinculoResponse
   securitySchemes:
-    OAuth2PasswordBearer:
-      type: oauth2
-      flows:
-        password:
-          scopes: {}
-          tokenUrl: /api/v1/auth/login
+    HTTPBearer:
+      type: http
+      description: 'Token devolvido por `POST /api/v1/auth/login`: cole só o `access_token`.'
+      scheme: bearer
+      bearerFormat: JWT
