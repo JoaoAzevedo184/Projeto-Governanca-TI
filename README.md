@@ -1,218 +1,288 @@
-# ITAM — Gestão de Ativos de TI
+[PYTHON_BADGE]: https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white
+[FASTAPI_BADGE]: https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white
+[POSTGRES_BADGE]: https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
+[SQLALCHEMY_BADGE]: https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white
+[DOCKER_BADGE]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
+[PROMETHEUS_BADGE]: https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white
+[GRAFANA_BADGE]: https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white
+[ACADEMICO_BADGE]: https://img.shields.io/badge/uso-acad%C3%AAmico-informational?style=for-the-badge
 
-Sistema de apoio à governança do parque tecnológico: inventário de hardware e software, cadeia de responsabilidade, depreciação patrimonial e alertas de conformidade — construído sobre **dados públicos reais** sempre que eles existem.
+<h1 align="center" style="font-weight: bold;">ITAM — Gestão de Ativos de TI 💻</h1>
 
-Projeto da disciplina **Governança de TI** — Bacharelado em Sistemas de Informação, UNINASSAU Olinda.
+<p align="center">
 
-```
-Python 3.12  ·  FastAPI  ·  SQLAlchemy 2.0  ·  PostgreSQL 16  ·  httpx  ·  Docker  ·  Prometheus + Grafana
-```
+![python][PYTHON_BADGE]
+![fastapi][FASTAPI_BADGE]
+![postgresql][POSTGRES_BADGE]
+![sqlalchemy][SQLALCHEMY_BADGE]
+![docker][DOCKER_BADGE]
+![prometheus][PROMETHEUS_BADGE]
+![grafana][GRAFANA_BADGE]
+![uso acadêmico][ACADEMICO_BADGE]
 
----
+</p>
 
-## Sobre o projeto
+<p align="center">
+  <b>Sistema de apoio à governança do parque de TI: inventário, responsáveis, depreciação, licenças, conformidade e apoio à decisão.</b>
+</p>
 
-O ITAM é uma **camada de orquestração, análise e apoio à decisão** sobre os dados de ativos da organização. Não é um sistema de descoberta automática de inventário, nem um ERP patrimonial, nem um substituto de plataformas comerciais de ITAM.
+<p align="center">
+  Projeto da disciplina <b>Governança de TI</b> — Bacharelado em Sistemas de Informação, UNINASSAU Olinda.
+</p>
 
-Ele resolve cinco problemas concretos:
+<details open="open">
+<summary>Sumário</summary>
+
+- [📖 Sobre o projeto](#sobre)
+- [✨ Funcionalidades](#funcionalidades)
+- [🚀 Como executar](#executar)
+  - [Pré-requisitos](#pre-requisitos)
+  - [Clonando](#clonando)
+  - [Variáveis de ambiente](#variaveis)
+  - [Iniciando](#iniciando)
+  - [Ambiente de demonstração](#demonstracao)
+- [📍 Rotas da API](#rotas)
+- [👥 Perfis de acesso](#perfis)
+- [🗂️ Dados](#dados)
+- [📚 Documentação](#documentacao)
+- [🤝 Equipe](#equipe)
+- [📫 Como contribuir](#contribuir)
+- [📄 Licença](#licenca)
+
+</details>
+
+<h2 id="sobre">📖 Sobre o projeto</h2>
+
+O ITAM reúne os dados dos ativos de TI de uma organização e os transforma em indicadores, alertas e recomendações para apoiar decisões. Não é um sistema de descoberta automática de inventário nem um ERP patrimonial.
 
 | Problema | Resposta do sistema |
 |---|---|
-| Inventário espalhado em planilhas divergentes | Base única com importação validada de CSV/XLSX |
-| Equipamentos sem responsável identificado | Vínculo obrigatório com histórico imutável de transferências |
-| Licenças usadas acima do contratado | Bloqueio preventivo e alerta de excedente |
-| Valor patrimonial congelado no valor de compra | Depreciação linear calculada automaticamente |
-| Descarte sem rastreabilidade | Baixa com motivo, data e destinação registrados |
+| Inventário espalhado em planilhas | Base única, com importação validada de CSV e XLSX |
+| Equipamentos sem responsável | Vínculo de responsável com histórico que não pode ser alterado |
+| Licenças usadas acima do contratado | Bloqueio da operação e alerta de conformidade |
+| Valor patrimonial parado no valor de compra | Depreciação linear calculada automaticamente |
+| Descarte sem rastreabilidade | Baixa com motivo, data e destinação |
 
-### Princípios estruturantes
+**Princípios**
 
-1. **Nenhuma recomendação sem evidência.** Uma decisão registrada no sistema exige ao menos um dado verificável que a sustente.
-2. **A decisão é humana.** O sistema ordena alternativas por custo e risco; nunca escolhe por você.
-3. **O histórico não se apaga.** Transferências, baixas e auditoria são *append-only*, garantido no banco. O trigger existe nas três tabelas (transferências, auditoria e baixas).
-4. **Todo dado declara sua origem.** Cada registro carrega o campo `data_source`; a fronteira entre dado real e dado sintético é consultável, nunca implícita.
+1. Nenhuma recomendação sem evidência.
+2. A decisão é humana: o sistema ordena as alternativas e não escolhe.
+3. O histórico não se apaga: transferências, baixas e auditoria só aceitam inclusão.
+4. Todo dado declara a sua origem.
 
----
-
-## Origem dos dados
-
-A base de demonstração privilegia **fontes públicas e oficiais** — Compras.gov.br, endoflife.date e NVD — e usa dado sintético apenas onde não existe, e não deveria existir, dado público: pessoas e eventos internos da organização fictícia (LGPD). Toda tabela principal carrega `data_source`, tornando a fronteira real × sintético consultável. As origens oficiais são quatro: `compras_gov` (coleta pública), `importacao` (arquivo enviado por operador), `manual` (cadastro pela API) e `sintetico` (registro criado só para demonstração, teste ou simulação). `endoflife` e `nvd` não são origem de registro do banco (ver o papel de cada fonte abaixo). `setor`, `categoria` e `usuario` não têm a coluna. O seed de demonstração dos Gates 2, 3 e 4 (`scripts/seed_demo.sh`, roteiro em [`docs/guia/demonstracao.md`](docs/guia/demonstracao.md)) cria só registros `sintetico` com identificadores `DEMO-`.
-
-```sql
-SELECT data_source, COUNT(*) FROM ativos GROUP BY data_source;
-```
-
-**Papel de cada fonte pública:**
-
-- **Compras.gov.br:** fonte do dataset de demonstração (`dataset/demo/`) e dos dados de hardware do projeto (`dataset/processed/hardware_compras_gov.csv`). É a única fonte carregada no banco.
-- **endoflife.date:** coletada e processada como referência de ciclo de vida (`dataset/processed/software_ciclos_cves.csv`).
-- **NVD:** coletado e processado como referência de vulnerabilidades (contagem de CVEs por ciclo e severidade, no mesmo arquivo).
-
-endoflife e NVD não são carregados no banco, não aparecem nas telas do ITAM e não geram alertas na versão atual.
-
-Detalhamento fonte a fonte, regras de uso e conformidade com a LGPD em [`docs/FONTES_DE_DADOS.md`](docs/FONTES_DE_DADOS.md).
-
----
-
-## Funcionalidades
+<h2 id="funcionalidades">✨ Funcionalidades</h2>
 
 | Código | Funcionalidade |
 |---|---|
 | FR-001 | Cadastro de ativos de hardware e software |
 | FR-002 | Vinculação de responsável com histórico de transferências |
-| FR-003 | Cálculo de depreciação linear e valor residual |
+| FR-003 | Depreciação linear e valor residual |
 | FR-004 | Controle de licenças com alerta de excedente e de vencimento |
 | FR-005 | Baixa e descarte com motivo, data e destinação |
-| FR-006 | Relatório de inventário com filtros combináveis e exportação |
-| FR-007 | Painel de alertas de compliance |
-| FR-008 | Importação de inventário em CSV/XLSX com relatório de erros |
+| FR-006 | Relatório de inventário com filtros e exportação |
+| FR-007 | Painel de alertas de conformidade |
+| FR-008 | Importação de inventário em CSV e XLSX com relatório de erros |
 | FR-009 | Indicadores de ITAM |
-| FR-010 | Comparação de cenários com TCO de 5 anos |
+| FR-010 | Comparação de cenários com custo total de 5 anos |
 | FR-011 | Scorecard ponderado de fornecedores |
-| FR-012 | Registro de riscos com score probabilidade × impacto |
-| FR-013 | Recomendações rastreáveis vinculadas a evidências |
-| FR-014 | Dashboard gerencial e observabilidade técnica |
-| FR-015 | Autenticação JWT e controle de acesso por perfil |
+| FR-012 | Registro de riscos com probabilidade e impacto |
+| FR-013 | Recomendações vinculadas a evidências |
+| FR-014 | Painel gerencial e observabilidade técnica |
+| FR-015 | Autenticação e controle de acesso por perfil |
 
----
+O que ficou fora desta versão está descrito no [roadmap](docs/ROADMAP.md).
 
-## Pré-requisitos
+<h2 id="executar">🚀 Como executar</h2>
 
-**Execução com Docker (recomendada):**
-- Docker Engine 24+
-- Docker Compose v2
+<h3 id="pre-requisitos">Pré-requisitos</h3>
 
-**Execução local sem Docker:**
-- Python 3.12+
-- pip e venv
+- [Docker Engine 24+](https://docs.docker.com/engine/install/) e Docker Compose v2
+- [Git](https://git-scm.com/)
+- [Python 3.12+](https://www.python.org/), só para carregar os dados de demonstração
 
-**Coleta de dados (opcional):**
-- Acesso à internet
-- Chave de API do NVD (gratuita, recomendada — sem ela o NVD aplica limite de requisições mais restrito). Solicite em https://nvd.nist.gov/developers/request-an-api-key e defina `NVD_API_KEY` no `.env`.
-
-> A coleta **não é necessária** para executar o projeto. `dataset/processed/` traz a normalização D.6 (hardware do Compras.gov.br, ciclo de vida e CVEs, e o `LEIAME.md` com a metodologia), versionada e só de referência: **não é carregada no banco**. A carga do pipeline (D.5, D.7, D.8 e D.9 do [`ROADMAP.md`](docs/ROADMAP.md)) foi encerrada em 2026-10-06, substituída pelo seed de demonstração; o seed básico cria só os usuários de demonstração e as categorias. O que o repositório inclui é o arquivo de demonstração do Gate 1, `dataset/demo/inventario_demo.csv`: 100 linhas reais do Compras.gov.br (92 válidas e 8 inválidas de propósito), com `dataset/demo/fornecedores_demo.csv` e a metodologia em `dataset/demo/inventario_demo.LEIAME.md`. Para usá-lo: seed, `python -m etl.carregar_fornecedores` e `POST /api/v1/importacoes` ([guia de importação](docs/guia/importacao.md)).
-
----
-
-## Execução rápida com Docker
+<h3 id="clonando">Clonando</h3>
 
 ```bash
 git clone <url-do-repositorio> itam-api
 cd itam-api
-cp .env.example .env
-python3 -c "import secrets; print(secrets.token_urlsafe(64))"   # copie a saída para SECRET_KEY no .env
-./scripts/start.sh                                              # confere a chave e roda docker compose up -d
 ```
 
-**A `SECRET_KEY` é obrigatória no Docker.** O Compose roda a API com `ENVIRONMENT=docker`, e fora de `ENVIRONMENT=local` a aplicação se recusa a iniciar com a chave padrão (`troque-esta-chave`) ou vazia, sem mostrar a chave na mensagem. A chave vem só do `.env`, nunca do `docker-compose.yml`. `./scripts/start.sh` confere antes e explica o que fazer; um `docker compose up` direto com a chave faltando faz o contêiner `api` sair com a mensagem no log (`docker compose logs api`).
+<h3 id="variaveis">Variáveis de ambiente</h3>
 
-**O que o `docker compose up` entrega:** ao iniciar, o contêiner da API aplica as migrações (`alembic upgrade head`, idempotente) e só então sobe o servidor, então o `healthcheck` da API só passa com o banco migrado. Depois de alguns segundos, `/health` responde 200 e o banco está com o esquema pronto, **mas vazio**: sem usuários, sem categorias, sem login possível.
-
-**Quando rodar o seed:** uma vez, depois que a API ficar saudável (`docker compose ps`), para criar os quatro usuários de demonstração e as 11 categorias. O script roda dentro do contêiner `api`, e as senhas vêm das variáveis `SEED_*_PASSWORD` do `.env`. Ele é separado do start de propósito, para o ambiente poder subir vazio, e é idempotente:
+Crie o arquivo `.env` a partir do exemplo:
 
 ```bash
-./scripts/seed.sh
-./scripts/smoke_test.sh      # confere API, banco, métricas, Prometheus e Grafana
+cp .env.example .env
 ```
 
-### Endereços do ambiente
-
-| Serviço | URL |
+| Variável | Para que serve |
 |---|---|
-| API | http://localhost:8000 |
-| Documentação interativa (Swagger) | http://localhost:8000/docs |
-| Documentação alternativa (ReDoc) | http://localhost:8000/redoc |
-| Contrato OpenAPI | http://localhost:8000/openapi.json |
-| Health check | http://localhost:8000/health |
-| Métricas | http://localhost:8000/metrics |
-| Prometheus | http://localhost:9090 |
+| `SECRET_KEY` | Chave de assinatura dos tokens. Obrigatória |
+| `SEED_ADMIN_PASSWORD`, `SEED_OPERADOR_PASSWORD`, `SEED_GESTOR_PASSWORD`, `SEED_AUDITOR_PASSWORD` | Senhas dos quatro usuários de demonstração |
+| `GRAFANA_USER`, `GRAFANA_PASSWORD` | Acesso ao Grafana |
+| `NVD_API_KEY` | Opcional. Só para refazer a coleta de dados públicos |
+
+Para gerar a `SECRET_KEY`:
+
+```bash
+python3 -c "import secrets; print(secrets.token_urlsafe(64))"
+```
+
+O `.env` nunca deve ser enviado ao repositório.
+
+<h3 id="iniciando">Iniciando</h3>
+
+```bash
+./scripts/start.sh        # sobe API, banco, Prometheus e Grafana
+./scripts/seed.sh         # cria os usuários de demonstração e as categorias
+./scripts/smoke_test.sh   # confere se tudo está no ar
+```
+
+| Serviço | Endereço |
+|---|---|
+| API (Swagger) | http://localhost:8000/docs |
 | Grafana | http://localhost:3000 |
+| Prometheus | http://localhost:9090 |
 
-### Autenticar no Swagger
+<h3 id="demonstracao">Ambiente de demonstração</h3>
 
-As rotas protegidas usam **HTTP Bearer**. No Swagger (`/docs`):
+Depois do `seed.sh`, o banco tem usuários e categorias, mas nenhum ativo. Para montar o cenário completo usado nas demonstrações (92 ativos reais, responsáveis, licenças, alertas, riscos e recomendação), siga o passo a passo:
 
-1. Em `POST /api/v1/auth/login` use **Try it out** com o corpo `{"login": "admin", "senha": "..."}` e **Execute**.
-2. Copie só o valor de `access_token` da resposta (sem aspas).
-3. Clique em **Authorize** (cadeado, no alto da página), cole o token no campo **Value**, clique em **Authorize** e depois em **Close**.
-4. Chame qualquer rota protegida (por exemplo `GET /api/v1/auth/me`): o Swagger envia `Authorization: Bearer <token>`.
+- [Preparo do ambiente de demonstração](docs/guia/preparo-da-demonstracao.md)
+- [Roteiro de demonstração por gate](docs/guia/demonstracao.md)
 
-O token expira em cerca de uma hora; repita o passo 1 quando uma rota passar a responder 401. Sem token, ou com token inválido, a API responde 401 no formato de erro do projeto.
+<h2 id="rotas">📍 Rotas da API</h2>
 
-**Credenciais didáticas do Grafana:** definidas em `.env` (`GRAFANA_USER` / `GRAFANA_PASSWORD`). Altere-as em qualquer ambiente que não seja exclusivamente laboratorial.
+Todas as rotas ficam em `/api/v1`. A lista completa, com exemplos, está no Swagger.
 
-**Usuários de demonstração** criados pelo seed — senhas nas variáveis `SEED_ADMIN_PASSWORD`, `SEED_OPERADOR_PASSWORD`, `SEED_GESTOR_PASSWORD` e `SEED_AUDITOR_PASSWORD` do `.env`, para uso apenas em laboratório. O seed é idempotente e roda sobre um banco já migrado (rodar de novo não duplica nem altera o que já existe) e recusa rodar com `ENVIRONMENT=producao`:
+| Rota | Descrição |
+|---|---|
+| <kbd>POST /auth/login</kbd> | Autentica e devolve o token. Ver [detalhes](#login) |
+| <kbd>GET /auth/me</kbd> | Dados do usuário autenticado |
+| <kbd>GET · POST · PATCH /ativos</kbd> | Consulta, cadastro e edição de ativos |
+| <kbd>POST /ativos/{id}/responsavel</kbd> | Atribui ou transfere o responsável |
+| <kbd>GET /ativos/{id}/historico</kbd> | Linha do tempo de responsáveis |
+| <kbd>GET /ativos/{id}/depreciacao</kbd> | Depreciação e valor residual |
+| <kbd>POST /ativos/{id}/baixa</kbd> | Baixa do ativo |
+| <kbd>GET · POST · PATCH /licencas</kbd> | Licenças de software |
+| <kbd>POST /licencas/{id}/vinculos</kbd> | Vincula uma licença a uma máquina |
+| <kbd>POST /importacoes</kbd> | Importa inventário em CSV ou XLSX |
+| <kbd>GET /compliance/alertas</kbd> | Alertas de conformidade por severidade |
+| <kbd>GET /indicadores</kbd> | Indicadores, com fórmula e amostra |
+| <kbd>GET /relatorios/inventario</kbd> | Relatório de inventário (JSON, CSV ou XLSX) |
+| <kbd>POST /cenarios/comparar</kbd> | Compara cenários pelo custo total de 5 anos |
+| <kbd>POST /fornecedores/scorecard</kbd> | Avalia fornecedores com pesos |
+| <kbd>GET · POST /riscos</kbd> | Registro de riscos |
+| <kbd>GET · POST /recomendacoes</kbd> | Recomendações com evidências |
+
+Fora do prefixo: <kbd>GET /health</kbd> e <kbd>GET /metrics</kbd>.
+
+<h3 id="login">POST /auth/login</h3>
+
+**Requisição**
+
+```json
+{
+  "login": "admin",
+  "senha": "sua-senha"
+}
+```
+
+**Resposta**
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "bearer"
+}
+```
+
+**Usando o token no Swagger**
+
+1. Execute o login em <kbd>POST /auth/login</kbd> pelo botão **Try it out**.
+2. Copie o valor de `access_token`.
+3. Clique em **Authorize**, cole o token e confirme.
+
+O token vale por cerca de uma hora.
+
+<h2 id="perfis">👥 Perfis de acesso</h2>
 
 | Login | Perfil | Pode |
 |---|---|---|
-| `admin` | ADMIN | tudo |
-| `operador` | OPERADOR | cadastrar ativos, transferir, registrar manutenção |
-| `gestor` | GESTOR | consultar e comparar cenários |
-| `auditor` | AUDITOR | somente leitura |
+| `admin` | ADMIN | Tudo, inclusive importar inventário |
+| `operador` | OPERADOR | Cadastrar ativos, transferir responsáveis, registrar baixas e editar licenças |
+| `gestor` | GESTOR | Consultar, comparar cenários e registrar riscos, avaliações e recomendações |
+| `auditor` | AUDITOR | Somente leitura |
 
----
+As senhas são as definidas no `.env`.
 
-Execução local sem Docker, coleta de dados reais (`python/collectors/`/`python/etl/`), verificação da instalação, importação de inventário próprio, testes e scripts operacionais estão detalhados em [`docs/guia/`](docs/guia/README.md).
+<h2 id="dados">🗂️ Dados</h2>
 
-Os testes rodam sempre contra PostgreSQL 16: suba o banco com `docker compose up -d db` antes do `pytest` (detalhes em [`docs/guia/testes.md`](docs/guia/testes.md)).
+O projeto usa dados públicos reais sempre que eles existem, e dados sintéticos só para pessoas e eventos internos, que nenhuma fonte pública traz.
 
----
+| Fonte | Uso no projeto |
+|---|---|
+| [Compras.gov.br](https://compras.dados.gov.br/) | Equipamentos do inventário de demonstração. É a única fonte carregada no banco |
+| [endoflife.date](https://endoflife.date/) | Referência de ciclo de vida de software. Não é carregada no banco |
+| [NVD](https://nvd.nist.gov/) | Referência de vulnerabilidades. Não é carregada no banco |
+| Seed de demonstração | Responsáveis, licenças, riscos e demais registros fictícios, marcados como `sintetico` |
 
-## Estrutura do repositório
+Cada registro guarda a sua origem no campo `data_source`. Detalhes em [Fontes de dados](docs/FONTES_DE_DADOS.md).
 
-```
-python/
-├── app/
-│   ├── main.py           # aplicação, routers, handlers, métricas
-│   ├── core/             # config, banco, segurança, exceções, auditoria
-│   ├── models/           # mapeamento SQLAlchemy
-│   ├── schemas/          # contratos Pydantic
-│   ├── repositories/     # vazio (.gitkeep): não há camada de repositório
-│   ├── services/         # regras de negócio (BR-001 a BR-037)
-│   ├── api/v1/routers/   # endpoints
-│   └── utils/            # cálculos puros (depreciação, exportação)
-├── python/collectors/           # um coletor por fonte pública (compras_gov, endoflife, nvd)
-├── python/etl/                  # exportador de demonstração, normalização (D.6) e carregador de fornecedores; sem carga do pipeline no banco
-├── alembic/              # migrações versionadas
-├── tests/                # unit, integration, contract, fixtures das APIs
-└── api/openapi.yaml      # contrato congelado, usado nos testes de contrato
-
-dataset/
-├── demo/             # inventario_demo.csv (Gate 1), fornecedores_demo.csv e o LEIAME com a metodologia
-├── raw/              # respostas originais das APIs, por fonte e data (imutável)
-├── processed/        # referência normalizada (D.6): hardware, ciclo de vida e CVEs; não vai ao banco
-└── synthetic/        # CSVs e esquemas do Mockaroo (versionados)
-
-scripts/              # operação do ambiente
-infra/                # configuração de Prometheus e Grafana
-docs/                 # PRD, arquitetura, modelo de dados, ADRs
-```
-
-A regra de dependência entre camadas é unidirecional: router → serviço → modelo. Não existe camada de repositório: os serviços consultam e gravam pela `Session` do SQLAlchemy, direto nos modelos. Leituras sem regra de negócio também acessam o modelo direto, sem passar por serviço: as listagens de `categorias`, `fornecedores`, `setores` e `responsaveis`, o login (`auth.py`), as consultas de lote e de erros em `importacoes.py` e a dependência `get_current_user` (`api/deps.py`). Regra de negócio (BR) vive em `services/`, nunca em `routers/` nem em `models/`; os únicos desvios nos routers são autenticação, autorização e 404. Os módulos `python/collectors/` e `python/etl/` ficam fora de `app/`: a API nunca chama APIs externas durante uma requisição.
-
----
-
-## Documentação
+<h2 id="documentacao">📚 Documentação</h2>
 
 | Documento | Conteúdo |
 |---|---|
-| [`docs/prd/`](docs/prd/README.md) | Visão de produto, personas, requisitos, regras de negócio, critérios de aceite |
-| [`docs/spec/`](docs/spec/README.md) | Arquitetura, modelo físico, contrato da API, cálculos, testes, ADRs resumidas |
-| [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md) | Visão de arquitetura detalhada |
-| [`docs/modelo-de-dados/`](docs/modelo-de-dados/README.md) | Diagrama e dicionário de dados |
-| [`docs/FONTES_DE_DADOS.md`](docs/FONTES_DE_DADOS.md) | Fontes, endpoints, regras de normalização e fronteira real × sintético |
-| [`docs/adr/`](docs/adr/) | Registros de decisão arquitetural completos (ADR-011 em diante) |
-| [`docs/guia/`](docs/guia/README.md) | Execução local, coleta de dados, verificação, importação, testes, scripts, troubleshooting, contribuição, equipe/IA |
-| [`docs/BACKLOG_E_GATES.md`](docs/BACKLOG_E_GATES.md) | Planejamento de execução por gate |
-| [`docs/CRITERIOS_DE_ACEITE.md`](docs/CRITERIOS_DE_ACEITE.md) | Critérios de avaliação da disciplina |
-| [`docs/REGISTRO_USO_DE_IA.md`](docs/REGISTRO_USO_DE_IA.md) | Registro de uso de ferramentas de IA no projeto |
-| `/docs` (runtime) | Documentação interativa da API, gerada automaticamente |
+| [Requisitos (PRD)](docs/prd/README.md) | Visão do produto, requisitos, regras de negócio e critérios de aceite |
+| [Especificação técnica](docs/spec/README.md) | Arquitetura, modelo de dados, contrato da API e testes |
+| [Guias](docs/guia/README.md) | Execução, demonstração, coleta de dados, importação e testes |
+| [Backlog e gates](docs/BACKLOG_E_GATES.md) | Planejamento das entregas |
+| [Roadmap](docs/ROADMAP.md) | Situação atual de cada entrega |
+| [Critérios de aceite](docs/CRITERIOS_DE_ACEITE.md) | Critérios de avaliação da disciplina |
+| [Decisões de arquitetura](docs/adr/) | Registro das decisões e seus motivos |
+| [Registro de uso de IA](docs/REGISTRO_USO_DE_IA.md) | Como ferramentas de IA foram usadas no projeto |
 
-Todo requisito possui identificador estável (`FR-`, `BR-`, `AC-`, `NFR-`, `US-`, `KPI-`). Esses identificadores aparecem em comentários do código, nomes de testes e no campo `regra` das respostas de erro da API — cada família vive inteira em um único arquivo dentro de `docs/prd/`, para continuar localizável por busca.
+<h2 id="equipe">🤝 Equipe</h2>
 
----
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/JoaoAzevedo184">
+        <img src="https://github.com/JoaoAzevedo184.png" width="100px;" alt="Foto de João Victor Azevedo"/><br>
+        <sub>
+          <b>João Victor Azevedo</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#">
+        <img src="https://github.com/ghost.png" width="100px;" alt="Foto do integrante"/><br>
+        <sub>
+          <b>Nome do integrante</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="#">
+        <img src="https://github.com/ghost.png" width="100px;" alt="Foto do integrante"/><br>
+        <sub>
+          <b>Nome do integrante</b>
+        </sub>
+      </a>
+    </td>
+  </tr>
+</table>
 
-## Licença
+<h2 id="contribuir">📫 Como contribuir</h2>
 
-Projeto acadêmico, sem fins comerciais. Uso educacional.
+1. Crie uma branch: `git checkout -b feat/nome-da-mudanca`
+2. Siga o padrão de commits do projeto, por exemplo `feat(importacao): ...` ou `fix(auth): ...`
+3. Rode os testes antes de enviar (veja o [guia de testes](docs/guia/testes.md))
+4. Se usou ferramenta de IA, registre em [`docs/REGISTRO_USO_DE_IA.md`](docs/REGISTRO_USO_DE_IA.md)
+5. Abra um Pull Request explicando o que mudou e por quê
 
-Os dados coletados pertencem às respectivas fontes: Compras.gov.br (dados abertos do Governo Federal), endoflife.date (licença MIT) e NVD/NIST (domínio público). Dados sintéticos gerados com Mockaroo não representam pessoas reais.
+<h2 id="licenca">📄 Licença</h2>
+
+Projeto acadêmico, sem fins comerciais, para uso educacional.
+
+Os dados públicos pertencem às respectivas fontes: Compras.gov.br (dados abertos do Governo Federal), endoflife.date (licença MIT) e NVD/NIST (domínio público). Os dados sintéticos não representam pessoas reais.
