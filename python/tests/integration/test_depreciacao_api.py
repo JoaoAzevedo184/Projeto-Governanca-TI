@@ -7,6 +7,7 @@ import pytest
 
 from app.models.ativo import Ativo
 from app.services import depreciacao_service
+from app.utils import datas
 
 CAMPOS_CONTRATO = {
     "ativo_id",
@@ -51,7 +52,7 @@ def test_ac018_ativo_recem_cadastrado_ja_traz_depreciacao_calculada(
     assert set(criado["depreciacao"]) == CAMPOS_CONTRATO
     assert criado["depreciacao"]["ativo_id"] == criado["id"]
     assert criado["depreciacao"]["metodo"] == "LINEAR"
-    assert criado["depreciacao"]["data_referencia"] == date.today().isoformat()
+    assert criado["depreciacao"]["data_referencia"] == datas.hoje().isoformat()
 
     detalhe = client.get(f"/api/v1/ativos/{criado['id']}", headers=_headers(token_admin)).json()
     listagem = client.get("/api/v1/ativos", headers=_headers(token_admin)).json()

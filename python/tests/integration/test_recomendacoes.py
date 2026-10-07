@@ -2,7 +2,7 @@
 
 BR-027 é do serviço (invariantes.md): recomendação e evidências nascem na mesma transação."""
 
-from datetime import date, timedelta
+from datetime import timedelta
 
 import pytest
 from prometheus_client import REGISTRY
@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.models.auditoria import AuditLog
 from app.models.recomendacao import Evidencia, Recomendacao
+from app.utils import datas
 
 
 def _headers(token):
@@ -75,7 +76,7 @@ def test_com_uma_evidencia_a_recomendacao_e_gravada_junto_com_ela(
     assert resposta.status_code == 201, resposta.text
     corpo = resposta.json()
     assert corpo["status"] == "PROPOSTA" and corpo["data_source"] == "manual"
-    assert corpo["data"] == date.today().isoformat() and corpo["responsavel_id"] == responsavel.id
+    assert corpo["data"] == datas.hoje().isoformat() and corpo["responsavel_id"] == responsavel.id
     assert [(e["tipo"], e["referencia_id"], e["descricao"]) for e in corpo["evidencias"]] == [
         ("PREMISSA", None, "Orçamento aprovado para 2026")
     ]
@@ -199,7 +200,7 @@ def test_evidencia_malformada_e_422(client, db, token_admin, responsavel, eviden
         {"contexto": ""},
         {"recomendacao": ""},
         {"status": "ENVIADA"},
-        {"data": (date.today() + timedelta(days=1)).isoformat()},
+        {"data": (datas.hoje() + timedelta(days=1)).isoformat()},
         {"responsavel_id": ...},
         {"titulo": ...},
     ],

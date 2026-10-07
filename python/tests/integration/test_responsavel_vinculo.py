@@ -11,6 +11,7 @@ from app.core.database import engine
 from app.models.auditoria import AuditLog
 from app.models.historico import HistoricoTransferencia
 from app.models.responsavel import Responsavel
+from app.utils import datas
 
 AQUISICAO = "2025-01-10"
 
@@ -226,7 +227,7 @@ def test_recusa_transferencia_com_inicio_anterior_ao_vinculo_vigente(
 
 
 def test_recusa_data_inicio_futura(client, db, token_admin, ativo_id, responsavel, setor):
-    amanha = (date.today() + timedelta(days=1)).isoformat()
+    amanha = (datas.hoje() + timedelta(days=1)).isoformat()
     resposta = _vincular(client, token_admin, ativo_id, responsavel.id, setor.id, amanha)
     assert resposta.status_code == 422
     assert _abertos(db, ativo_id) == []

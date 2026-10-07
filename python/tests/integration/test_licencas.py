@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 
 from app.models.auditoria import AuditLog
 from app.models.licenca import Licenca, LicencaVinculo
+from app.utils import datas
 
 VALIDA = "2099-12-31"
 INICIO = "2025-01-01"
@@ -117,7 +118,7 @@ def test_cria_licenca_subscricao_com_bloco_derivado(client, token_admin, fornece
     assert corpo["quantidade_contratada"] == 2
     assert corpo["quantidade_em_uso"] == 0
     assert corpo["saldo"] == 2
-    assert corpo["dias_para_expiracao"] == (date(2099, 12, 31) - date.today()).days
+    assert corpo["dias_para_expiracao"] == (date(2099, 12, 31) - datas.hoje()).days
     assert corpo["data_source"] == "manual"
     assert corpo["status_conformidade"] == "CONFORME"  # FR-007: derivado, nada armazenado
     assert corpo["alertas"] == []
@@ -183,7 +184,7 @@ def test_ac062_perpetua_apontando_para_hardware_e_recusada(
         {"quantidade_contratada": 0},
         {"valor_total": "0"},
         {"chave_licenca": ""},
-        {"data_inicio_vigencia": (date.today() + timedelta(days=1)).isoformat()},
+        {"data_inicio_vigencia": (datas.hoje() + timedelta(days=1)).isoformat()},
         {"data_expiracao": "ontem"},
     ],
 )
@@ -229,7 +230,7 @@ def test_vincula_licenca_a_maquina_e_deriva_quantidade_em_uso(
     assert primeira.status_code == 201, primeira.text
     assert primeira.json()["ativo_id"] == maquinas[0]
     assert primeira.json()["ativo_vinculo"] is True
-    assert primeira.json()["data_vinculo"] == date.today().isoformat()
+    assert primeira.json()["data_vinculo"] == datas.hoje().isoformat()
     assert primeira.json()["data_source"] == "manual"
     licenca = _obter(client, token_admin, licenca_id)
     assert (licenca["quantidade_em_uso"], licenca["saldo"]) == (1, 1)
@@ -285,7 +286,7 @@ def test_br020_licenca_que_vence_hoje_ainda_recebe_vinculo(
     client, token_admin, fornecedor, maquinas
 ):
     licenca = _criar(
-        client, token_admin, fornecedor, data_expiracao=date.today().isoformat()
+        client, token_admin, fornecedor, data_expiracao=datas.hoje().isoformat()
     ).json()
 
     assert licenca["dias_para_expiracao"] == 0
@@ -458,7 +459,7 @@ def test_referencias_inexistentes_nos_vinculos_retornam_404(
 
 
 def test_data_de_vinculo_futura_retorna_422(client, token_admin, licenca_id, maquinas):
-    amanha = (date.today() + timedelta(days=1)).isoformat()
+    amanha = (datas.hoje() + timedelta(days=1)).isoformat()
 
     resposta = _vincular(client, token_admin, licenca_id, maquinas[0], data_vinculo=amanha)
 

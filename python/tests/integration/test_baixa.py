@@ -12,6 +12,7 @@ from app.models.baixa import BaixaAtivo
 from app.models.enums import StatusAtivo
 from app.models.historico import HistoricoTransferencia
 from app.models.responsavel import Responsavel
+from app.utils import datas
 
 AQUISICAO = "2025-01-10"
 BAIXA = {
@@ -137,7 +138,7 @@ def test_motivo_outro_com_justificativa_de_10_caracteres_e_aceito(client, token_
 
 
 def test_ac029_data_de_baixa_futura_e_recusada(client, db, token_admin, ativo_id):
-    amanha = (date.today() + timedelta(days=1)).isoformat()
+    amanha = (datas.hoje() + timedelta(days=1)).isoformat()
 
     resposta = _baixar(client, token_admin, ativo_id, data_baixa=amanha)
 
@@ -232,7 +233,7 @@ def test_ac019_depreciacao_do_baixado_usa_a_data_da_baixa_e_o_valor_congelado(
     client, db, token_admin, ativo_id
 ):
     antes = client.get(f"/api/v1/ativos/{ativo_id}/depreciacao", headers=_headers(token_admin))
-    assert antes.json()["data_referencia"] == date.today().isoformat()
+    assert antes.json()["data_referencia"] == datas.hoje().isoformat()
 
     baixa = _baixar(client, token_admin, ativo_id).json()  # 2025-07-10: 6 meses de 60
 

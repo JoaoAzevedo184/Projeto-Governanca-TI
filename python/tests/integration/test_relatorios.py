@@ -14,6 +14,7 @@ from openpyxl import load_workbook
 
 from app.models.ativo import Ativo
 from app.models.categoria import Categoria
+from app.utils import datas
 
 
 def _headers(token):
@@ -21,7 +22,7 @@ def _headers(token):
 
 
 def _meses_atras(meses: int) -> str:
-    hoje = date.today()
+    hoje = datas.hoje()
     ano, mes = divmod(hoje.year * 12 + hoje.month - 1 - meses, 12)
     return date(ano, mes + 1, min(hoje.day, monthrange(ano, mes + 1)[1])).isoformat()
 
@@ -287,7 +288,7 @@ def test_relatorio_de_conformidade_datado_em_json_csv_e_xlsx(
 
     assert json_["total"] == 2
     linhas = csv_.text.splitlines()
-    assert linhas[0] == f"Relatório: Conformidade em {date.today().isoformat()}"
+    assert linhas[0] == f"Relatório: Conformidade em {datas.hoje().isoformat()}"
     assert linhas[2] == "Solicitante: admin_teste"
     assert linhas[4] == "codigo,severidade,regra,mensagem,entidade,entidade_id,recurso"
     assert {linha.split(",")[0] for linha in linhas[5:]} == {"CP-01", "CP-04"}

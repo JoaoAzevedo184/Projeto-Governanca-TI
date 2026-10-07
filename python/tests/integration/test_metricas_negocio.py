@@ -7,7 +7,7 @@ valor depois de uma leitura de `/metrics`. Valores esperados calculados à mão 
 
 import json
 import re
-from datetime import date, timedelta
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -17,6 +17,7 @@ from sqlalchemy import text
 from app.core.database import engine
 from app.seed_demo import menos_meses
 from app.services import observabilidade_service
+from app.utils import datas
 
 
 def _headers(token):
@@ -35,7 +36,7 @@ def parque(client, token_admin, novo_ativo, nova_licenca, responsavel, setor):
     C  software R$ 500,00 comprado hoje: residual 500,00
     D  hardware R$ 3.000,00 baixado: fora do patrimônio
     Licenças: uma conforme, uma vencida (CP-01) e uma que vence em 10 dias (CP-03)."""
-    hoje = date.today()
+    hoje = datas.hoje()
     novo_ativo(valor="6000.00", data_aquisicao=menos_meses(hoje, 12).isoformat())
     b = novo_ativo(valor="1000.00", data_aquisicao=hoje.isoformat())
     novo_ativo(tipo="SOFTWARE", valor="500.00", data_aquisicao=hoje.isoformat())
@@ -113,7 +114,7 @@ def test_o_valor_muda_com_o_banco_a_cada_leitura(client, parque, token_admin):
         headers=_headers(token_admin),
         json={
             "motivo": "DEFEITO",
-            "data_baixa": date.today().isoformat(),
+            "data_baixa": datas.hoje().isoformat(),
             "destinacao": "DESCARTE",
         },
     )

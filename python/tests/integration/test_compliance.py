@@ -4,7 +4,7 @@ Datas relativas a hoje: a API lê o relógio de `hoje()`, então o esperado é c
 da mesma data, e os limites exatos ficam em `tests/unit/test_conformidade.py`.
 """
 
-from datetime import date, timedelta
+from datetime import timedelta
 
 import pytest
 from sqlalchemy import update
@@ -13,6 +13,7 @@ from app.core.config import get_settings
 from app.models.ativo import Ativo
 from app.models.enums import StatusAtivo
 from app.models.licenca import LicencaVinculo
+from app.utils import datas
 
 
 def _headers(token):
@@ -20,7 +21,7 @@ def _headers(token):
 
 
 def _em(dias: int) -> str:
-    return (date.today() + timedelta(days=dias)).isoformat()
+    return (datas.hoje() + timedelta(days=dias)).isoformat()
 
 
 def _alertas(client, token, **params):
@@ -45,7 +46,7 @@ def _vincular_direto(db, licenca_id, ativo_id):
         LicencaVinculo(
             licenca_id=licenca_id,
             ativo_id=ativo_id,
-            data_vinculo=date.today(),
+            data_vinculo=datas.hoje(),
             ativo_vinculo=True,
             data_source="manual",
         )
