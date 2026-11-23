@@ -27,7 +27,7 @@ Parte de [SPEC — ITAM](README.md).
               PostgreSQL 16  /  SQLite (local)
 ```
 
-*SQLite revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):* a aplicação continua rodando em SQLite para execução local sem Docker (`DATABASE_URL`), mas os testes rodam só em PostgreSQL 16. A migração `c8365ce7e5e4` só cria o trigger `permitir_apenas_encerramento` quando o dialeto é PostgreSQL (`_postgres()`); o índice único parcial `ux_vinculo_aberto` é criado nos dois bancos.
+*SQLite revisado (item 13 da resolução de pendências da Sprint 2, de 2026-09-30, que levou a suíte inteira para PostgreSQL 16, local e no CI; resumo em [`ROADMAP.md`](../ROADMAP.md#sprint-2--responsabilidade-e-depreciação)):* a aplicação continua rodando em SQLite para execução local sem Docker (`DATABASE_URL`), mas os testes rodam só em PostgreSQL 16. A migração `c8365ce7e5e4` só cria o trigger `permitir_apenas_encerramento` quando o dialeto é PostgreSQL (`_postgres()`); o índice único parcial `ux_vinculo_aberto` é criado nos dois bancos.
 
 **Regras de dependência:** a seta aponta em um sentido só. Router importa serviço; serviço importa modelo e usa a `Session` do SQLAlchemy direto. Nunca o inverso: um serviço nunca importa router, um modelo nunca importa serviço.
 

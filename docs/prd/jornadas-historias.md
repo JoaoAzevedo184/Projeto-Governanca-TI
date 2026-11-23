@@ -35,7 +35,7 @@ Parte de [PRD — ITAM](README.md).
 8. Ao atingir 50 de 50, o sistema exibe aviso de saturação. Na tentativa de vincular a 51ª, o sistema bloqueia e registra um alerta de excedente.
 9. A licença passa a ser monitorada: quando faltarem 30 dias para a expiração, entra no painel de alertas.
 
-> **Subscrição e OEM** não são ativo (item 2 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)). Numa renovação anual de subscrição, Marcos cadastra só a licença (passos 3 a 9), informando o nome do software e o valor da subscrição.
+> **Subscrição e OEM** não são ativo (decisão do item 2 da resolução de pendências da Sprint 2, de 2026-09-30; resumo em [`ROADMAP.md`](../ROADMAP.md#sprint-2--responsabilidade-e-depreciação)). Numa renovação anual de subscrição, Marcos cadastra só a licença (passos 3 a 9), informando o nome do software e o valor da subscrição.
 
 **Resultado:** licença sob controle quantitativo e temporal, com bloqueio preventivo de uso irregular.
 

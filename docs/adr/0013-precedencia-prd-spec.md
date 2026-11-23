@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Aceita |
 | **Data** | 2026-09-30 |
-| **Origem** | Item 0 de [`docs/RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md) |
+| **Origem** | Item 0 da resolução de pendências da Sprint 2, aprovada em 2026-09-30: o PRD prevalece em regra de negócio, o SPEC em implementação (resumo em [`ROADMAP.md`](../ROADMAP.md#sprint-2--responsabilidade-e-depreciação)) |
 | **Relacionado a** | FR-003, BR-014, BR-017, [`docs/prd/`](../prd/README.md), [`docs/spec/`](../spec/README.md) |
 
 ## Contexto

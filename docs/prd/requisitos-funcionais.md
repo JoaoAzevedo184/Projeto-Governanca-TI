@@ -132,7 +132,7 @@ percentual_depreciado = (depreciacao_acumulada / valor_compra) × 100
 | Nobreak | 60 | 20% |
 | Software (licença perpétua) | 60 | 20% |
 
-- **Software por tipo de licenciamento** ([ADR-012](../adr/0012-software-como-ativo.md), item 2 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):
+- **Software por tipo de licenciamento** ([ADR-012](../adr/0012-software-como-ativo.md), item 2 da resolução de pendências da Sprint 2, de 2026-09-30: só a licença perpétua é ativo, subscrição e OEM não; resumo em [`ROADMAP.md`](../ROADMAP.md#sprint-2--responsabilidade-e-depreciação)):
   - **Licença perpétua** é ativo (`tipo = SOFTWARE`) e deprecia pela vida útil da categoria "Software perpétuo" (60 meses).
   - **Subscrição** não é ativo: é despesa recorrente, registrada só como licença com vigência (início e fim), sem depreciação.
   - **OEM** não é ativo separado: o valor já está incorporado ao hardware em que veio instalado.

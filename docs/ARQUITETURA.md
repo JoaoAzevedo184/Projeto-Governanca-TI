@@ -13,7 +13,7 @@ A arquitetura responde a cinco forças, em ordem de peso:
 | D1 | O histórico é evidência de auditoria e não pode ser alterado | NFR-AUD-01, Persona Diego | Tabelas *append-only* com garantia no banco, não em convenção de código. *Estado atual:* trigger nas três tabelas: `historico_transferencia`, `audit_log` e `baixa_ativo` |
 | D2 | O valor residual precisa conciliar com a contabilidade | KPI-05, Persona Rosângela | `Decimal` em toda cadeia, cálculo determinístico e auditável |
 | D3 | Nenhuma decisão sem evidência verificável | BR-027, princípio da disciplina | Recomendação e evidência criadas na mesma transação |
-| D4 | O ambiente precisa subir em qualquer máquina, sem dependência externa | Avaliação, RI-10 | Perfil local com SQLite, perfil orquestrado com PostgreSQL. *Revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](RESOLUCAO_PENDENCIAS_SPRINT2.md)):* SQLite só para executar a aplicação; testes só em PostgreSQL 16 |
+| D4 | O ambiente precisa subir em qualquer máquina, sem dependência externa | Avaliação, RI-10 | Perfil local com SQLite, perfil orquestrado com PostgreSQL. *Revisado (item 13 da resolução de pendências da Sprint 2, de 2026-09-30, que levou a suíte inteira para PostgreSQL 16, local e no CI; resumo em [`ROADMAP.md`](ROADMAP.md#sprint-2--responsabilidade-e-depreciação)):* SQLite só para executar a aplicação; testes só em PostgreSQL 16 |
 | D5 | A API é o contrato, independentemente da linguagem | NFR-MAN-01 | OpenAPI congelado e testes de contrato separados dos de integração |
 
 ---
@@ -72,7 +72,7 @@ graph TB
 | `prometheus` | Coleta e retenção de métricas | Volume próprio, descartável |
 | `grafana` | Visualização técnica | Provisionamento declarativo em `infra/grafana/` |
 
-**Perfis de execução.** O `docker-compose.yml` não define perfis: `docker compose up` sobe os quatro contêineres, com a API em PostgreSQL. Para desenvolvimento sem Docker e para a hipótese de o ambiente da apresentação falhar (RI-10), a API roda direto na máquina com `DATABASE_URL` em SQLite ([`guia/execucao-local.md`](guia/execucao-local.md)). *Revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](RESOLUCAO_PENDENCIAS_SPRINT2.md)):* os testes rodam só em PostgreSQL 16; no SQLite não há trigger de imutabilidade, lock de linha nem verificação de FK.
+**Perfis de execução.** O `docker-compose.yml` não define perfis: `docker compose up` sobe os quatro contêineres, com a API em PostgreSQL. Para desenvolvimento sem Docker e para a hipótese de o ambiente da apresentação falhar (RI-10), a API roda direto na máquina com `DATABASE_URL` em SQLite ([`guia/execucao-local.md`](guia/execucao-local.md)). *Revisado (item 13 da resolução de pendências da Sprint 2, de 2026-09-30, que levou a suíte inteira para PostgreSQL 16, local e no CI; resumo em [`ROADMAP.md`](ROADMAP.md#sprint-2--responsabilidade-e-depreciação)):* os testes rodam só em PostgreSQL 16; no SQLite não há trigger de imutabilidade, lock de linha nem verificação de FK.
 
 ---
 

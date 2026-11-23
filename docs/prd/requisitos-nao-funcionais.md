@@ -63,7 +63,7 @@ Parte de [PRD — ITAM](README.md).
 | NFR-MAN-02 | Documentação OpenAPI gerada automaticamente e acessível | `/docs` e `/swagger-ui` disponíveis |
 | NFR-MAN-03 | Cobertura de testes automatizados ≥ 70% nas regras de negócio | Relatório de cobertura |
 | NFR-MAN-04 | Execução via Docker Compose com um único comando | `docker compose up` sobe o ambiente completo |
-| NFR-MAN-05 | Banco de dados local simplificado (SQLite/H2) e definitivo (PostgreSQL) selecionáveis por variável de ambiente | Ambos os perfis executam os mesmos testes. *Revisado (item 13 de [`RESOLUCAO_PENDENCIAS_SPRINT2.md`](../RESOLUCAO_PENDENCIAS_SPRINT2.md)):* a aplicação continua rodando em SQLite para execução local sem Docker (`DATABASE_URL`), mas os testes rodam só em PostgreSQL 16, local e no CI |
+| NFR-MAN-05 | Banco de dados local simplificado (SQLite/H2) e definitivo (PostgreSQL) selecionáveis por variável de ambiente | Ambos os perfis executam os mesmos testes. *Revisado (item 13 da resolução de pendências da Sprint 2, de 2026-09-30, que levou a suíte inteira para PostgreSQL 16, local e no CI; resumo em [`ROADMAP.md`](../ROADMAP.md#sprint-2--responsabilidade-e-depreciação)):* a aplicação continua rodando em SQLite para execução local sem Docker (`DATABASE_URL`), mas os testes rodam só em PostgreSQL 16, local e no CI |
 | NFR-MAN-06 | Migrações de banco versionadas | Base criada do zero por script |
 
 ### 13.7 Observabilidade
