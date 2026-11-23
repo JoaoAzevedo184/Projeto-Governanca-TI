@@ -117,10 +117,22 @@ A segunda execução devolve tudo em `0`. Num banco em que o seed antigo (Gates 
 ## 8. Conferir
 
 ```bash
+./scripts/verificar_demo.sh
 ./scripts/smoke_test.sh
 curl -s -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/compliance/alertas" | python3 -m json.tool | head -12
 ```
+
+O `verificar_demo.sh` faz login como `admin` (senha `SEED_ADMIN_PASSWORD`, do ambiente ou do `.env`), consulta a API (`API_PORT` do `.env`, ou `API_URL`) e confere os 6 números do cenário, com `✓` ou `✗` por item:
+
+- residual R$ 4.800,00 no ativo do AC-015 (`DEMO-HW-AC015`);
+- 1 licença vencida há 40 dias;
+- 1 licença a vencer em 25 dias;
+- 1 licença em 50 de 50;
+- 3 ativos sem responsável (alertas CP-04);
+- 1 ativo baixado.
+
+Esperado: `verificação da demonstração OK`. Se algum item divergir, o script sai com código 1 e mostra o valor medido. A causa mais comum é um banco semeado em outro dia: recrie o banco (`scripts/reset.sh`) e refaça os passos.
 
 Esperado nos alertas: `"total": 5`, com 1 `CRITICO` e 4 `ALTO`.
 
@@ -148,4 +160,4 @@ Com isso o ambiente está pronto para o roteiro de [`demonstracao.md`](demonstra
 
 ## Antes de uma apresentação
 
-As datas dos registros de demonstração são relativas ao dia em que o `seed_demo` roda pela primeira vez. Para o valor residual do ativo `DEMO-HW-AC015` continuar em R$ 4.800,00, refaça todos os passos num banco novo perto da data da apresentação.
+As datas dos registros de demonstração são relativas ao dia em que o `seed_demo` roda pela primeira vez. Para o valor residual do ativo `DEMO-HW-AC015` continuar em R$ 4.800,00, refaça todos os passos num banco novo **no dia** da apresentação e termine com `./scripts/verificar_demo.sh`.
