@@ -2,7 +2,7 @@
 
 Snapshot de progresso contra os gates e sprints definidos em [`BACKLOG_E_GATES.md`](BACKLOG_E_GATES.md). Atualizar a cada gate liberado.
 
-_Última atualização: 2026-10-06_
+_Última atualização: 2026-11-23 (estado atual na última seção, "Estado em 2026-11-23")_
 
 > Legenda: `[x]` concluído · `[ ]` pendente ou aguardando verificação. Observações após o travessão indicam o que ainda falta.
 
@@ -35,8 +35,8 @@ _Última atualização: 2026-10-06_
 
 ## Itens do backlog e dos gates sem registro neste roadmap
 
-- [ ] 5.8 Documentação final e checklist de entrega
-- [ ] Gate 4: deploy funcionando (confirmar com o professor o que conta como deploy)
+- [ ] 5.8 Documentação final e checklist de entrega — escritos em 2026-11-23 (`RELATORIO_TECNICO_AV1.md`, `RELATORIO_TECNICO_AV2.md`, `CHECKLIST_ENTREGA.md`); falta revisão da equipe e commit
+- [x] Gate 4: deploy funcionando — o professor confirmou que o deploy local com Docker Compose conta; `smoke test OK` em 2026-11-23
 - [ ] Datasets liberados por gate: definir como entram no sistema (a importação só carrega ativos)
 - [ ] Gate 3: preparação para o evento surpresa
 - [ ] 4.4 Relatórios de depreciação, baixas e histórico (fora do MVP)
@@ -95,7 +95,7 @@ _Última atualização: 2026-10-06_
 - [x] Migração `c8365ce7e5e4` (tabela, índice parcial e trigger) — `upgrade` → `downgrade` → `upgrade` e `alembic check` testados em SQLite e em PostgreSQL 16
 - [x] `api/openapi.yaml` regenerado a partir do app (também cobre as rotas do Sprint 1, que ainda estavam em `paths: {}`)
 - [x] Testes AC-009 a AC-020 — AC-013 testado no banco (trigger) e na API (nenhuma rota de edição/exclusão)
-- [x] **Resolução de pendências** ,  aprovada em 2026-09-30 — itens 0 a 15 aplicados:
+- [x] **Resolução de pendências**, aprovada em 2026-09-30 — itens 0 a 15 aplicados. O documento original (`RESOLUCAO_PENDENCIAS_SPRINT2.md`) nunca foi versionado; este resumo é o registro que os demais documentos citam:
   - ADR-013: PRD prevalece em regra de negócio, SPEC em implementação (item 0);
   - depreciação arredonda só no resultado final, `valor × meses ÷ vida_útil`; a mensal é informativa (item 1, AC-020 passa a 2.000,00);
   - subscrição e OEM não são ativo; nota de amortização no glossário (itens 2 e 3);
@@ -185,7 +185,7 @@ Implementada em 2026-10-03, exceto o roteiro de defesa e o pipeline de dados (fo
 - [x] Testes de contrato: schemathesis 4.10.2 sobre `api/openapi.yaml` em todas as operações (`tests/contract/test_contrato_schemathesis.py`), mais a sincronia do arquivo com o app
 - [x] Cobertura ≥ 70% global / 100% em `utils` e `services`
 - [x] `scripts/smoke_test.sh` — executado contra o ambiente completo
-- [ ] Roteiro de defesa
+- [ ] Roteiro de defesa — escrito em 2026-11-23 (`docs/ROTEIRO_DEFESA.md`, com plano B); falta a equipe confirmar as falas e ensaiar
 
 ### Decisões da Sprint 5 (os docs não definiam; revisar com a equipe)
 
@@ -240,7 +240,7 @@ Hoje `python/collectors/` tem os três coletores (`compras_gov`, `endoflife` e `
 - [x] **Login utilizável no Swagger:** o esquema de segurança passou de OAuth2 (fluxo de senha, que enviava formulário a `/auth/login` e recebia 422) para **HTTP Bearer**: o Authorize mostra um campo de token. Login e respostas iguais; sem token ou com token inválido segue 401 no formato do projeto (`python/app/api/deps.py`). `api/openapi.yaml` só mudou nos esquemas de segurança. Verificado num navegador de verdade: login pelo Try it out, token no Authorize, `GET /auth/me` com 200. Testes em `tests/integration/test_swagger_bearer.py`. Fluxo no README e em `docs/guia/demonstracao.md`
 - [x] **Microempreendedores fora do arquivo de demonstração:** o exportador (`python/etl/exportar_inventario_demo.py`) descarta fornecedores cuja razão social é o nome de uma pessoa física (`64.956.713 NOME` ou nome + 11 dígitos); 61 dos 702 registros federais. A coleta bruta (`dataset/raw/`, não versionada) não foi alterada. O arquivo segue com 100 linhas (92 válidas, 8 inválidas), 9 PDMs e agora 17 fornecedores. **LGPD:** 6 razões sociais (8 registros) da coleta traziam um número de 11 dígitos (possível CPF). As fixtures foram sanitizadas em 2026-10-06. Os valores originais permanecem no histórico do git, por decisão da equipe: a reescrita do histórico não está planejada e pode ser reavaliada depois. `dataset/raw/` (não versionado) guarda a coleta sem alteração
 - [x] **Data de referência no fuso de Recife:** "hoje" do domínio (`app/utils/datas.hoje()`) usa `FUSO_HORARIO`, padrão `America/Recife`; em UTC o dia virava às 21h locais. Vale para data futura (BR-003 e as outras datas "não futuras"), licença vencida, janela de alerta e depreciação. Carimbos de tempo e demais regras não mudaram. Testes com relógio controlado em `tests/unit/test_fuso_da_data_de_referencia.py` e `tests/integration/test_data_de_referencia.py`. Verificado dentro da imagem Docker: a base de fusos já está na `python:3.12-slim`, sem dependência nova. Fora da correção, por não serem "hoje" do domínio: `agora()` do cabeçalho dos relatórios exportados (`relatorio_service.py`), a pasta datada da coleta (`collectors/compras_gov.py`) e o `iat`/`exp` do JWT (UTC)
-- [ ] **Testes no fuso de Recife (2026-10-06), pendente de verificação:** o CI de 00h10 UTC falhou (16 falhas, 5 erros) porque os testes montavam datas com `date.today()` (fuso da máquina) e a aplicação usa `hoje()` (America/Recife). Em 8 arquivos de `python/tests/integration/` (`test_compliance`, `test_recomendacoes`, `test_responsavel_vinculo`, `test_baixa`, `test_relatorios`, `test_depreciacao_api`, `test_metricas_negocio`, `test_licencas`) o `date.today()` virou `app.utils.datas.hoje()`; nada em `python/app/` mudou. Exceções justificadas: `test_relatorios.py` (cabeçalho "Gerado em", que vem de `agora()`, hora local da máquina) e os três testes de coletor (`test_endoflife`, `test_nvd`, `test_compras_gov`), que espelham o `date.today()` do coletor ao nomear a pasta `raw/`. Guarda: `tests/unit/test_sem_relogio_da_maquina.py` (AST) falha se `date.today()`, `datetime.now()`/`today()`/`utcnow()` aparecer em `tests/` fora de `EXCECOES`. Levantamento: `python/etl/` não lê o relógio; `python/collectors/{endoflife,nvd,compras_gov}.py` usam `date.today()` só para nomear `dataset/raw/<fonte>/<data>/` (fuso da máquina, não alterado). **Não verificado:** a suíte completa (UTC na janela de 00h a 03h e America/Recife), `ruff`, `mypy` e `bandit` não foram executados nesta sessão; a lista exata das 16 falhas e 5 erros não foi reproduzida. Só o guarda foi checado, com a lógica rodada fora do pytest (passa na árvore atual e detecta `date.today()` e `datetime.utcnow()` de um arquivo de exemplo).
+- [ ] **Testes no fuso de Recife (2026-10-06), pendente de verificação:** o CI de 00h10 UTC falhou (16 falhas, 5 erros) porque os testes montavam datas com `date.today()` (fuso da máquina) e a aplicação usa `hoje()` (America/Recife). Em 8 arquivos de `python/tests/integration/` (`test_compliance`, `test_recomendacoes`, `test_responsavel_vinculo`, `test_baixa`, `test_relatorios`, `test_depreciacao_api`, `test_metricas_negocio`, `test_licencas`) o `date.today()` virou `app.utils.datas.hoje()`; nada em `python/app/` mudou. Exceções justificadas: `test_relatorios.py` (cabeçalho "Gerado em", que vem de `agora()`, hora local da máquina) e os três testes de coletor (`test_endoflife`, `test_nvd`, `test_compras_gov`), que espelham o `date.today()` do coletor ao nomear a pasta `raw/`. Guarda: `tests/unit/test_sem_relogio_da_maquina.py` (AST) falha se `date.today()`, `datetime.now()`/`today()`/`utcnow()` aparecer em `tests/` fora de `EXCECOES`. Levantamento: `python/etl/` não lê o relógio; `python/collectors/{endoflife,nvd,compras_gov}.py` usam `date.today()` só para nomear `dataset/raw/<fonte>/<data>/` (fuso da máquina, não alterado). **Não verificado:** a suíte completa (UTC na janela de 00h a 03h e America/Recife), `ruff`, `mypy` e `bandit` não foram executados nesta sessão; a lista exata das 16 falhas e 5 erros não foi reproduzida. Só o guarda foi checado, com a lógica rodada fora do pytest (passa na árvore atual e detecta `date.today()` e `datetime.utcnow()` de um arquivo de exemplo). **Atualização de 2026-11-23:** suíte completa (1012 passed), `ruff`, `mypy` e `bandit` executados e limpos, mas fora da janela de 00h a 03h UTC; essa janela segue sem verificação.
 - **Decisão: manter o contrato.** `total_rejeitado` de `POST /importacoes` representa a quantidade de **erros registrados** (um por campo inválido), e não necessariamente a de linhas rejeitadas (`importacao_service.py:269,278`): um arquivo de 100 linhas pode devolver `total_rejeitado: 106`. O PRD (FR-008, AC-044) fala em registros e linhas inválidas; o relatório de erros de `GET /importacoes/{id}/erros` traz a linha e o campo de cada um
 
 ## Riscos do roadmap
@@ -248,14 +248,27 @@ Hoje `python/collectors/` tem os três coletores (`compras_gov`, `endoflife` e `
 - **Pendência de alinhamento entre PRD, contrato e código (2026-10-05):** (1) o PRD diz que o contrato de licença é `sintetico` (`docs/prd/requisitos-funcionais.md`, FR-004, "Origem dos dados"), mas `POST /licencas` grava `manual`; (2) `FornecedorCreate` expõe `data_source` ao cliente (`python/app/schemas/fornecedor.py`), enquanto a decisão de 2026-10-05 é que a origem não faz parte dos schemas nem do contrato HTTP. Nenhuma das duas foi corrigida; a equipe decide qual lado muda.
 
 - **Carga D.8 e auditoria (BR-030):** a carga D.8 grava via ORM (`dataset/processed/` e `dataset/synthetic/` → tabelas) e não passa pelos services, então não grava `audit_log`. A importação pela API (`POST /importacoes`) audita desde 2026-10-05, mas a carga externa não. A equipe precisa decidir se a BR-030 vale para carga externa; se valer, a carga terá de chamar `registrar_auditoria` ou passar pelos services.
-- **Pendências abertas pela resolução do Sprint 2** (decisões da equipe em 2026-09-30, ver `RESOLUCAO_PENDENCIAS_SPRINT2.md`):
+- **Pendências abertas pela resolução do Sprint 2** (decisões da equipe em 2026-09-30; itens 0 a 15 resumidos na seção da Sprint 2, acima):
   - `produto_software` e `ativo_software` existem só na documentação, e a FK `ativo.produto_software_id` ainda não existe (fora do escopo da Sprint 3). `licenca`, `licenca_vinculo` e o `ck_licenca_tipo` entraram na migração `f5f9acc0de7b`;
   - `licenca.data_expiracao` continua `NOT NULL` também para licença perpétua ("prazo indeterminado"). Mantido por decisão da equipe (mudar alteraria BR-019); revisar no Sprint 3;
   - a validação "`licenca.ativo_id` aponta para ativo `SOFTWARE`" está em `licenca_service.criar_licenca` (409, `regra = BR-035`, antes `FR-004`), porque o CHECK não enxerga outra tabela;
   - `POST /responsaveis` grava `data_source = sintetico` e `POST /fornecedores` aceita `data_source` enviado pelo cliente. A resolução do item 8 cobre só ativo e vínculo (decisão da equipe); baixa, licença e vínculo de licença, novos na Sprint 3, gravam `manual`;
   - `data_source` não tem `CHECK` no schema, embora `enumeracoes.md` diga que todo enum é `VARCHAR` com `CHECK`;
   - o `FR-003` do PRD mostra `depreciacao_acumulada = depreciacao_mensal × meses_efetivos`, sem dizer onde arredonda. O código segue a leitura aprovada no item 1 (arredondar só no fim); a redação da fórmula no PRD fica para a equipe;
-  - **NFR-MAN-05** (PRD) e a premissa P6 do SPEC (`escopo-e-premissas.md`) diziam que os perfis SQLite e PostgreSQL "executam os mesmos testes". **Redação alinhada em 2026-10-02:** NFR-MAN-05, P6, ADR-007 e RI-10 marcados como revisados (item 13), sem renumerar, descrevendo o estado atual: o SQLite só executa a aplicação (verificado: migrações e fluxos de cadastro, transferência, depreciação e importação rodam em SQLite, sem trigger, lock de linha nem FK). A permanência do perfil SQLite segue como decisão da equipe;
+  - **NFR-MAN-05** (PRD) e a premissa P6 do SPEC (`escopo-e-premissas.md`) diziam que os perfis SQLite e PostgreSQL "executam os mesmos testes". **Redação alinhada em 2026-10-02:** NFR-MAN-05, P6, ADR-007 e RI-10 marcados como revisados (item 13), sem renumerar, descrevendo o estado atual: o SQLite só executa a aplicação (verificado: migrações e fluxos de cadastro, transferência, depreciação e importação rodam em SQLite, sem trigger, lock de linha nem FK). A permanência do perfil SQLite segue como decisão da equipe. **Atualização de 2026-11-23:** a frase acima vale só até a Sprint 3. `alembic upgrade head` em SQLite para na migração `a7c1e5d90b21` (`server_default=sa.text('now()')`; o mesmo em `b3d8f2a61c47` e `c9e4a7d25f83`). A equipe decidiu não corrigir para a defesa (`RELATORIO_TECNICO_AV2.md`, achado 4.1);
   - **Limitação conhecida do MVP — baixa retroativa:** `licenca_vinculo` não tem datas próprias além de `data_vinculo` (sem data de fim), então uma baixa com `data_baixa` retroativa pode ficar anterior à criação de um vínculo de licença que ela encerra (BR-031, BR-036). O encerramento só aparece no carimbo da auditoria. Não há regra para isso (diferente do BR-012, que protege o vínculo de responsável); datas no vínculo de licença ficam para depois do MVP;
   - `licenca.ck_licenca_tipo` é por tipo (PERPETUA → `ativo_id`; SUBSCRICAO → `software` + `valor_total`; OEM → `software`, sem valor), como a equipe confirmou em 2026-09-30;
   - a mensagem 409 genérica de `flush_ou_conflito` (cadastros sem BR) continua desfazendo a transação inteira, sem auditoria `RECUSADO`. Essas unicidades não são BR (item 11), então a NFR-AUD-05 não se aplica a elas.
+
+---
+
+## Estado em 2026-11-23
+
+Verificação feita sobre o commit `d6583d8` com alterações ainda sem commit. Detalhe e comandos em [`RELATORIO_TECNICO_AV2.md`](RELATORIO_TECNICO_AV2.md), seção 1.
+
+- **Suíte:** 1012 passed, 0 falhas, contra PostgreSQL 16. Cobertura de `app/` 99,90%; `utils/` + `services/` 100%. 194 testes `test_ac`, cobrindo 71 de 71 critérios. `ruff`, `mypy` e `bandit` limpos.
+- **Ambiente:** `docker compose up -d --build` e `scripts/smoke_test.sh` com `smoke test OK`. O deploy local com Docker Compose conta como deploy do Gate 4, confirmado pelo professor.
+- **Cenário de demonstração:** num banco novo, semeado no dia, os 6 números do roteiro conferem (residual R$ 4.800,00, licença vencida há 40 dias, licença a vencer em 25 dias, 50 de 50, 3 sem responsável e 1 baixado). Um banco semeado em outro dia mostra números diferentes: recriar no dia da apresentação.
+- **Conferência do cenário:** `scripts/verificar_demo.sh` confere pela API os 6 números (✓/✗ por item, código 1 se algum divergir). Testado nos dois caminhos: OK num banco descartável semeado no dia, e 3 ✗ no banco `itam` desta máquina, semeado em 2026-10-06.
+- **Documentos da entrega:** `RELATORIO_TECNICO_AV1.md`, `RELATORIO_TECNICO_AV2.md`, `ROTEIRO_DEFESA.md` e `CHECKLIST_ENTREGA.md`, todos sem commit. As pendências com responsável estão no checklist.
+- **Plano B da defesa:** segunda máquina com o ambiente no ar e gravação de tela. O perfil SQLite não é plano B (migração `a7c1e5d90b21` quebra no SQLite; decidido não corrigir).
