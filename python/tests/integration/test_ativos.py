@@ -1,3 +1,5 @@
+import time
+
 from prometheus_client import REGISTRY
 from sqlalchemy import func, select
 
@@ -123,6 +125,29 @@ def test_lista_ativos_pagina_e_filtra_por_busca(client, token_admin, categoria, 
     corpo = resposta.json()
     assert corpo["total"] == 1
     assert corpo["itens"][0]["nome"] == "Servidor Dell R440"
+
+
+def test_ac008_busca_por_numero_serie_parcial(client, token_admin, categoria, fornecedor):
+    for serie in ("BR9K2LM7", "br9k2xq1", "ZZ0001"):
+        payload = _payload_valido(categoria, fornecedor, numero_serie=serie)
+        _postar_ativo(client, token_admin, payload)
+
+    inicio = time.perf_counter()
+    resposta = client.get(
+        "/api/v1/ativos",
+        headers={"Authorization": f"Bearer {token_admin}"},
+        params={"busca": "9K2"},
+    )
+    decorrido = time.perf_counter() - inicio
+
+    assert resposta.status_code == 200
+    corpo = resposta.json()
+    # Trecho do meio do número de série, sem distinção de maiúsculas (ILIKE).
+    assert corpo["total"] == 2
+    assert {item["numero_serie"] for item in corpo["itens"]} == {"BR9K2LM7", "br9k2xq1"}
+    # Limite do AC-008 (< 2 s), medido sobre 3 linhas: a asserção funcional acima é a principal;
+    # esta só pega regressão grosseira, não mede desempenho em volume (NFR-PER).
+    assert decorrido < 2.0
 
 
 CHAVE = "ABCD-1234-EFGH-WXYZ"
