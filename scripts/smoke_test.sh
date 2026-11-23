@@ -12,8 +12,8 @@ valor() {
   printf '%s' "$v"
 }
 
-porta_prom="$(valor PROMETHEUS_PORT)"; porta_grafana="$(valor GRAFANA_PORT)"
-API="${API_URL:-http://localhost:8000}"
+porta_api="$(valor API_PORT)"; porta_prom="$(valor PROMETHEUS_PORT)"; porta_grafana="$(valor GRAFANA_PORT)"
+API="${API_URL:-http://localhost:${porta_api:-8000}}"
 PROM="${PROMETHEUS_URL:-http://localhost:${porta_prom:-9090}}"
 GRAFANA="${GRAFANA_URL:-http://localhost:${porta_grafana:-3000}}"
 

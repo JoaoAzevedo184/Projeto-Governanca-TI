@@ -6,7 +6,7 @@ services:
     build:
       context: ./python
     ports:
-      - "8000:8000"
+      - "${API_PORT:-8000}:8000"
     environment:
       DATABASE_URL: postgresql+psycopg://itam:itam@db:5432/itam
       ENVIRONMENT: docker
@@ -40,7 +40,7 @@ services:
       POSTGRES_USER: itam
       POSTGRES_PASSWORD: itam
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -53,7 +53,7 @@ services:
   prometheus:
     image: prom/prometheus:v3.5.0
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     depends_on:
@@ -63,7 +63,7 @@ services:
   grafana:
     image: grafana/grafana:12.1.0
     ports:
-      - "3000:3000"
+      - "${GRAFANA_PORT:-3000}:3000"
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}

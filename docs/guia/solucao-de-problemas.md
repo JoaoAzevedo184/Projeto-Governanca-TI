@@ -6,7 +6,7 @@ Parte do [Guia — ITAM](README.md). Ver também o [README da raiz](../../README
 
 | Sintoma | Causa provável | Correção |
 |---|---|---|
-| `docker compose up` falha na porta 8000 | Porta ocupada | Altere `API_PORT` no `.env` |
+| `docker compose up` falha com porta ocupada (8000, 5432, 9090 ou 3000) | Outro serviço usa a porta no host | Altere `API_PORT`, `DB_PORT`, `PROMETHEUS_PORT` ou `GRAFANA_PORT` no `.env` ([`execucao-local.md`](execucao-local.md#portas-publicadas-pelo-docker-compose)) |
 | API sobe mas `/health` retorna `503` e banco `DOWN` | Postgres ainda inicializando | Aguarde o health check; verifique `docker compose logs db` |
 | `alembic upgrade head` falha | `DATABASE_URL` incorreta | Confira o `.env`; em Docker o host é `db`, não `localhost` |
 | Aplicação recusa iniciar com erro de `SECRET_KEY` (no Docker: contêiner `api` sai logo após subir) | Chave padrão ou vazia fora do ambiente local | Defina `SECRET_KEY` própria no `.env` (gere com `python3 -c "import secrets; print(secrets.token_urlsafe(64))"`) e rode `./scripts/start.sh`; a causa está em `docker compose logs api` |
