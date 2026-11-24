@@ -9,7 +9,7 @@ Gera, de forma determinística (duas execuções dão arquivos idênticos):
 
 Uso (a partir de `python/`): `python -m etl.exportar_inventario_demo`.
 
-Regras (decisões da equipe, ver graphify-out/DIAGNOSTICO_D2.md e o LEIAME gerado):
+Regras (decisões da equipe, a partir do diagnóstico do item D.2; detalhes no LEIAME gerado):
 só esfera federal; descarta identificador estrangeiro, CNPJ com mais de uma razão social, razão
 social com mais de um CNPJ e itens com `(idCompra, idCompraItem)` repetido; por PDM, só preços
 entre os percentis 10 e 90 dos registros federais; `numero_serie = CG-{idItemCompra}-001`, um
@@ -35,7 +35,7 @@ from etl.paths import (
 )
 
 FONTE = "compras_gov"
-# PDM do CATMAT -> categoria do seed (DIAGNOSTICO_D2.md, seção 4). A ordem é a do arquivo.
+# PDM do CATMAT -> categoria do seed, na mesma ordem de `catmat_codigos` em collectors/config.yaml.
 CATEGORIA_POR_PDM = {
     8435: "Notebook",
     6661: "Desktop",

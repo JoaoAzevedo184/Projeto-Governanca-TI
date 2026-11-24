@@ -15,8 +15,8 @@ compras_gov:
   tentativas: 4                # por requisicao, com espera crescente entre elas
   espera_inicial_segundos: 2.0 # 2, 4, 8... ate espera_maxima_segundos
   espera_maxima_segundos: 60
-  # PDMs do grupo 70 (informatica) do CATMAT. Lista provisoria, a equipe confirma (ver
-  # graphify-out/DIAGNOSTICO_D2.md). Nobreak e smartphone nao foram achados no grupo 70.
+  # PDMs do grupo 70 (informatica) do CATMAT, um por categoria do seed (Desktop tem dois).
+  # Lista provisoria, a equipe confirma. Nobreak e smartphone nao foram achados no grupo 70.
   catmat_codigos:
     - 8435   # NOTEBOOK                    -> Notebook
     - 6661   # MICROCOMPUTADOR             -> Desktop
