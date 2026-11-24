@@ -12,7 +12,9 @@ Tempos e sequência seguem o `BACKLOG_E_GATES.md` §5, que soma exatamente 300 s
 
 ## Antes de entrar na sala
 
-Pré-voo, na máquina da apresentação e na segunda máquina do plano B2. O tempo do fluxo completo (itens 2 e 3) está medido no `CHECKLIST_ENTREGA.md`, seção 4, e define a hora de chegada.
+Pré-voo, na máquina da apresentação e na segunda máquina do plano B2. O tempo do fluxo completo (itens 2 e 3) está no `CHECKLIST_ENTREGA.md`, seção 4, e define a hora de chegada.
+
+**Na véspera:** construir a imagem da API (`docker compose build`), para que a recriação do banco na manhã da apresentação leve segundos em vez de minutos. Medido em 2026-11-23 na máquina de desenvolvimento: com a imagem pronta, o fluxo dos itens 2 e 3 levou 20,4 s, contra 142,7 s com o build, quase todo ele gasto construindo a imagem. Na manhã, suba com `docker compose up -d`, sem `--build`.
 
 1. **Portas livres.** As quatro portas publicadas vêm do `.env` (`API_PORT`, `DB_PORT`, `PROMETHEUS_PORT`, `GRAFANA_PORT`), sem editar o `docker-compose.yml` (`docs/guia/execucao-local.md`, seção "Portas publicadas pelo Docker Compose"). O conflito aconteceu de fato na verificação de 2026-11-23: as portas 5432 e 8000 estavam ocupadas por outro projeto. Se alguma estiver ocupada:
 

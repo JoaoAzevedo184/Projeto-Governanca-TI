@@ -3,7 +3,7 @@
 **Projeto:** ITAM — Gestão de Ativos de TI
 **Disciplina:** Governança de TI — Sistemas de Informação — UNINASSAU Olinda
 **Repositório:** `Projeto-Governanca-TI`
-**Data de corte deste relatório:** [A EQUIPE PREENCHE: data da entrega da 1ª AV]. As atividades registradas vão de 2026-09-02, data do primeiro commit, a 2026-10-06, data do último commit antes desta revisão (`d6583d8`).
+**Data de corte deste relatório:** [A EQUIPE PREENCHE: data da entrega da 1ª AV]. As atividades registradas vão de 2026-09-02, data do primeiro commit, a 2026-10-06, data do último commit da AV1 (`d6583d8`). A revisão de 2026-11-23 está nos commits `5db2b3a` a `59d5da7`.
 
 > **Como ler este relatório.** O enunciado da 1ª AV pressupõe que a equipe recebeu um aplicativo pronto e o ajustou. O caso deste grupo é diferente: a baseline recebida foi o **Projeto 3 — Observabilidade e Operação Híbrida** do guia de orquestração da disciplina. Em 2026-09-22 a equipe trocou o domínio para Gestão de Ativos de TI (ITAM), um projeto novo construído sobre a stack e a estrutura dessa baseline. As seções abaixo seguem os itens do enunciado e fazem essa tradução explicitamente: "app disponibilizado" é a baseline do Projeto 3, e "app ajustado" é o ITAM.
 >
@@ -108,7 +108,7 @@ Contagem feita com `find <dir> -maxdepth 1 -type f` em 2026-11-23.
 | `docs/BACKLOG_E_GATES.md` | 1 | Gates 0 a 4, backlog por sprint, Definition of Done, roteiro de defesa |
 | `docs/ROADMAP.md` | 1 | Progresso por gate e sprint, decisões de cada sprint, riscos |
 | `docs/FONTES_DE_DADOS.md` | 1 | Fontes públicas (Compras.gov.br, endoflife.date, NVD) e política LGPD |
-| `docs/REGISTRO_USO_DE_IA.md` | 1 | 39 entradas de uso de IA com nível de revisão (R1 a R3) e 41 falhas encontradas em saídas de IA |
+| `docs/REGISTRO_USO_DE_IA.md` | 1 | 43 entradas de uso de IA com nível de revisão (R1 a R3) e 50 falhas encontradas em saídas de IA (contagem de 2026-11-23) |
 | `docs/CRITERIOS_DE_ACEITE.md` | 1 | Os 10 critérios de aceite da disciplina |
 | **Total em `docs/`** | **62** | Antes dos 4 documentos produzidos em 2026-11-23 |
 
@@ -122,7 +122,7 @@ Fora de `docs/`, os artefatos de código e orquestração são:
 - `scripts/`: 7 scripts operacionais.
 - `.github/workflows/ci.yml`: CI com portões de cobertura.
 
-**Achado do inventário.** 16 arquivos de `docs/` linkavam `RESOLUCAO_PENDENCIAS_SPRINT2.md`, que nunca entrou no git (nenhum commit do arquivo em `git log --all`). Resolvido em 2026-11-23: cada link foi trocado pela decisão do item citado e por um link para a seção da Sprint 2 do `ROADMAP.md`, onde os itens 0 a 15 estão resumidos (`REGISTRO_USO_DE_IA.md`, entrada 43). O `docs/ROADMAP.md:218` cita `graphify-out/DIAGNOSTICO_D2.md`, que também não está versionado. [A EQUIPE PREENCHE: restaurar o `DIAGNOSTICO_D2.md` ou remover a citação.]
+**Achado do inventário.** 16 arquivos de `docs/` linkavam `RESOLUCAO_PENDENCIAS_SPRINT2.md`, que nunca entrou no git (nenhum commit do arquivo em `git log --all`). Resolvido em 2026-11-23: cada link foi trocado pela decisão do item citado e por um link para a seção da Sprint 2 do `ROADMAP.md`, onde os itens 0 a 15 estão resumidos (`REGISTRO_USO_DE_IA.md`, entrada 43). O `docs/ROADMAP.md` (linhas 78 e 218) citava `graphify-out/DIAGNOSTICO_D2.md`, que também nunca foi versionado (`graphify-out/` está no `.gitignore`). Resolvido do mesmo modo em 2026-11-23: cada citação foi trocada pela descrição do que o diagnóstico concluiu, sem link.
 
 ---
 

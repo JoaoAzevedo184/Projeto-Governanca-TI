@@ -13,13 +13,23 @@ O roteiro do que mostrar em cada gate está em [`demonstracao.md`](demonstracao.
 
 ## 1. Subir o ambiente do zero
 
+**Na véspera**, construa a imagem da API:
+
 ```bash
-docker compose down -v
-docker compose up -d --build
+docker compose build
+```
+
+**Na manhã da apresentação**, recrie o banco e suba o ambiente, sem `--build`:
+
+```bash
+./scripts/reset.sh
+docker compose up -d
 docker compose ps
 ```
 
-O `down -v` apaga o banco. Tudo o que foi carregado antes (fornecedores, ativos) some e precisa ser refeito a partir do passo 2.
+Com a imagem pronta, recriar o banco e subir o ambiente levou 20,4 s em 2026-11-23, na máquina de desenvolvimento, contra 142,7 s com o build ([`ROTEIRO_DEFESA.md`](../ROTEIRO_DEFESA.md), seção "Antes de entrar na sala"). Se o código mudou depois da véspera, rode `docker compose build` de novo antes do `up`.
+
+O `scripts/reset.sh` roda `docker compose down -v`, que apaga o banco. Tudo o que foi carregado antes (fornecedores, ativos) some e precisa ser refeito a partir do passo 2.
 
 Espere a `api` aparecer como `healthy` antes de continuar.
 

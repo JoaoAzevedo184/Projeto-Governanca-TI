@@ -3,7 +3,7 @@
 **Projeto:** ITAM — Gestão de Ativos de TI
 **Disciplina:** Governança de TI — Sistemas de Informação — UNINASSAU Olinda
 **Repositório:** `Projeto-Governanca-TI`
-**Data de corte deste relatório:** [A EQUIPE PREENCHE: data da entrega da 2ª AV]. Os números abaixo foram medidos em 2026-11-23, sobre o diretório de trabalho do commit `d6583d8` com as alterações ainda sem commit listadas na seção 5.
+**Data de corte deste relatório:** [A EQUIPE PREENCHE: data da entrega da 2ª AV]. Os números abaixo foram medidos em 2026-11-23, sobre o commit `d6583d8` mais as alterações listadas na seção 5, versionadas no mesmo dia nos commits `5db2b3a` a `59d5da7`. O CI do `59d5da7` passou (run 45274407153).
 
 > **Como ler este relatório.** O [Relatório da AV1](RELATORIO_TECNICO_AV1.md) descreve a baseline recebida, o que entrou e o que saiu. Este relatório trata da entrega: o ambiente em que o sistema roda, os números medidos e a evidência de cada critério da rubrica do ITAM (`material_aluno/RUBRICA.md`). Cada número vem de um comando executado em 2026-11-23, citado ao lado. Onde falta evidência, o texto traz `[A EQUIPE PREENCHE]`.
 
@@ -41,6 +41,7 @@ Preparo completo, do banco vazio à demonstração: `docs/guia/preparo-da-demons
 | Tipos | `mypy app`: sem erros em 89 arquivos | `mypy app --ignore-missing-imports` |
 | Segurança estática | `bandit -r app -ll`: 0 achados de severidade média ou alta | `bandit -r app -ll` |
 | Ambiente completo | **`smoke test OK`**: `/health` com banco UP, login, 5 rotas de negócio, `/metrics`, alvo do Prometheus UP e os 2 dashboards no Grafana | `docker compose up -d --build` e `scripts/smoke_test.sh` |
+| CI no GitHub Actions | **success** no commit `59d5da7` (HEAD de `main`), em 2026-11-23 às 21:54 UTC, com 9 min 45 s | [run 45274407153](https://github.com/JoaoAzevedo184/Projeto-Governanca-TI/actions/runs/45274407153) |
 | Cenário de demonstração num banco novo | Os 6 números do roteiro conferem (tabela 1.3) | Banco descartável `itam_demo_check`: migração, seed básico, fornecedores, importação e `python -m app.seed_demo` |
 
 A verificação usou `DB_PORT=55432` e `API_PORT=18000`, porque as portas 5432 e 8000 da máquina estavam ocupadas por outro projeto (ver o achado 4.3).
@@ -120,16 +121,19 @@ As portas 5432 e 8000 estavam ocupadas por outro projeto. As quatro portas publi
 
 ---
 
-## 5. Alterações desta etapa, ainda sem commit
+## 5. Alterações desta etapa
 
-| Arquivo | Alteração |
-|---|---|
-| `docker-compose.yml`, `.env.example`, `scripts/smoke_test.sh` | Portas publicadas parametrizadas (`API_PORT`, `DB_PORT`, `PROMETHEUS_PORT`, `GRAFANA_PORT`) |
-| `docs/guia/execucao-local.md`, `docs/guia/solucao-de-problemas.md` | Seção sobre portas e diagnóstico de porta ocupada |
-| `python/tests/integration/test_ativos.py` | `test_ac008_busca_por_numero_serie_parcial` (AC-008) |
-| `scripts/verificar_demo.sh` | Confere pela API os 6 números do cenário de demonstração (✓/✗ por item, código 1 se algum divergir); documentado em `docs/guia/preparo-da-demonstracao.md`, passo 8 |
-| `docs/RELATORIO_TECNICO_AV1.md`, `docs/RELATORIO_TECNICO_AV2.md`, `docs/ROTEIRO_DEFESA.md`, `docs/CHECKLIST_ENTREGA.md` | Documentos novos da entrega |
-| `docs/ROADMAP.md`, `docs/REGISTRO_USO_DE_IA.md` | Estado atual e registro das sessões de IA |
+Versionadas em 2026-11-23 e enviadas ao `origin/main`. O CI do último commit passou (run 45274407153).
+
+| Arquivo | Alteração | Commit |
+|---|---|---|
+| `docker-compose.yml`, `.env.example`, `scripts/smoke_test.sh` | Portas publicadas parametrizadas (`API_PORT`, `DB_PORT`, `PROMETHEUS_PORT`, `GRAFANA_PORT`) | `5db2b3a` |
+| `docs/guia/execucao-local.md`, `docs/guia/solucao-de-problemas.md` | Seção sobre portas e diagnóstico de porta ocupada | `5db2b3a` |
+| `python/tests/integration/test_ativos.py` | `test_ac008_busca_por_numero_serie_parcial` (AC-008) | `9b00035` |
+| `scripts/verificar_demo.sh` | Confere pela API os 6 números do cenário de demonstração (✓/✗ por item, código 1 se algum divergir); documentado em `docs/guia/preparo-da-demonstracao.md`, passo 8 | `11525c2` |
+| `docs/RELATORIO_TECNICO_AV1.md`, `docs/RELATORIO_TECNICO_AV2.md`, `docs/ROTEIRO_DEFESA.md`, `docs/CHECKLIST_ENTREGA.md` | Documentos novos da entrega | `f06195b` |
+| `docs/ROADMAP.md`, `docs/REGISTRO_USO_DE_IA.md` | Estado atual e registro das sessões de IA | `923672b`, `43239d8` |
+| `python/requirements.txt` | Versões exatas de `pydantic` e `starlette`, dependências transitivas que mudavam de versão no CI e quebravam o `test_openapi_sincronizado` | `59d5da7` |
 
 ---
 
@@ -137,9 +141,7 @@ As portas 5432 e 8000 estavam ocupadas por outro projeto. As quatro portas publi
 
 A lista completa, com a frente responsável por cada item, está em `docs/CHECKLIST_ENTREGA.md`. As que afetam a nota:
 
-- Revisar e versionar as alterações da seção 5, e ver o CI verde depois do push.
 - Recriar o banco e semear **no dia** da apresentação, nas duas máquinas (achado 4.2).
 - Gravação de tela do roteiro completo, feita na véspera num banco recém-semeado (plano B3).
 - Conferência manual do residual do Gate 2 por quem não escreveu o código.
 - Ensaio cronometrado do roteiro com as 5 pessoas.
-- [A EQUIPE PREENCHE: link do último run verde do CI.]
