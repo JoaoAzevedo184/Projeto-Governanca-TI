@@ -242,37 +242,6 @@ Cada registro guarda a sua origem no campo `data_source`. Detalhes em [Fontes de
 | [Decisões de arquitetura](docs/adr/) | Registro das decisões e seus motivos |
 | [Registro de uso de IA](docs/REGISTRO_USO_DE_IA.md) | Como ferramentas de IA foram usadas no projeto |
 
-<h2 id="equipe">🤝 Equipe</h2>
-
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/JoaoAzevedo184">
-        <img src="https://github.com/JoaoAzevedo184.png" width="100px;" alt="Foto de João Victor Azevedo"/><br>
-        <sub>
-          <b>João Victor Azevedo</b>
-        </sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="#">
-        <img src="https://github.com/ghost.png" width="100px;" alt="Foto do integrante"/><br>
-        <sub>
-          <b>Nome do integrante</b>
-        </sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="#">
-        <img src="https://github.com/ghost.png" width="100px;" alt="Foto do integrante"/><br>
-        <sub>
-          <b>Nome do integrante</b>
-        </sub>
-      </a>
-    </td>
-  </tr>
-</table>
-
 <h2 id="contribuir">📫 Como contribuir</h2>
 
 1. Crie uma branch: `git checkout -b feat/nome-da-mudanca`
